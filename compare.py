@@ -3,6 +3,7 @@ from netCDF4 import Dataset
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy
+import copy
 
 def datestr2int(s):
     l = s.split("/")
@@ -34,22 +35,30 @@ def approx_search(arr, x):
     return -1
 
 #process csv
-with open('epa-califonia-pm2.5.csv', newline='') as csvfile:
+epa = {}
+mine = {}
+names = {'"Death Valley NP - Park Village"', '"Joshua Tree NP - Black Rock"', '"Redwood NP"', '"Los Angeles-North Main Street"'}
+all_names = set()
+namecoords = {} #lat ("32.6312420008573" "41.726892"), lon ("-115.48307" "-124.17949")
+#get all names
+with open('data/epa-califonia-pm2.5.csv', newline='') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
-    epa = {}
-    mine = {}
-    names = {'"Death Valley NP - Park Village"', '"Joshua Tree NP - Black Rock"', '"Redwood NP"', '"Los Angeles-North Main Street"'}
-    namecoords = {} #lat ("32.6312420008573" "41.726892"), lon ("-115.48307" "-124.17949")
-
-    #format dictionary object "epa"
-    for name in names:
-        epa[name] = {"pm": [], "date": []}
-        mine[name] = []
-    
-    #extract vals from csv
     for row in spamreader:
         name = row[7]
-        if name in names:
+        if (name != '"Site Name"'):
+            all_names.add(name)
+
+#format dictionary object "epa"
+for name in all_names:
+    epa[name] = {"pm": [], "date": []}
+    mine[name] = []
+
+#extract vals from csv
+with open('data/epa-califonia-pm2.5.csv', newline='') as csvfile:
+    spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+    for row in spamreader:
+        name = row[7]
+        if (name != '"Site Name"'):
             epa[name]["pm"].append(float(row[4].replace('"', "")))
             epa[name]["date"].append(datestr2int(row[0].replace('"', "")))
             if (not name in namecoords):
@@ -59,7 +68,7 @@ with open('epa-califonia-pm2.5.csv', newline='') as csvfile:
                 }
 
 #process netcdf (dims 365, 192, 288)
-f = Dataset("pm25-only-2010.nc", "r")
+f = Dataset("data/pm25-only-2010.nc", "r")
 pm = f["PM25_SRF"][:]
 lats = f["lat"][:]
 lons = f["lon"][:] #(360,0)
@@ -68,13 +77,13 @@ for name in namecoords:
     dict["aprx_lat"] = approx_search(lats, dict["lat"])
     dict["aprx_lon"] = approx_search(lons, dict["lon"] + 180) #180 accounts for diff in coord systems
 #extract pm vals
-for name in names:
+for name in all_names:
     coords = namecoords[name]
     dates = epa[name]["date"]
     for day in dates:
         mine[name].append(1000000000 * pm[day][coords["aprx_lat"]][coords["aprx_lon"]])
 
-for name in names:
+for name in all_names:
     x = epa[name]["pm"]
     y = mine[name]
     coef = np.polyfit(x,y,1)
@@ -88,4 +97,7 @@ for name in names:
     plt.xlabel("EPA PM2.5 (μg/m3)")
     plt.ylabel("Modeled PM2.5 (μg/m3)")
     plt.legend()
-    plt.show()
+    plt.savefig("figures/all-comparisons/" + name.replace('"', "").replace('.', "").replace('/', ""))
+    plt.close()
+    #plt.show()
+print("done.")
