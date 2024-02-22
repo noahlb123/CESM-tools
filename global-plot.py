@@ -57,9 +57,7 @@ class IdentityChecker:
     def results(self):
         self.identicals.print()
 
-#Sigl 2019 and Brugger 2021 are 0.000691 apart
-#They must be manually ignored because they too close for float comparison
-checker = IdentityChecker(0.0005, set([45.93056, 45.932]))
+checker = IdentityChecker(0.01, set([]))
 p = pd.read_csv('data/ice-core-data.csv').dropna(subset=["S"])
 #remove duplicate ice core locations
 print(len(p), "total ice core datasets")

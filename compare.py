@@ -3,7 +3,6 @@ from netCDF4 import Dataset
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy
-import copy
 
 def datestr2int(s):
     l = s.split("/")
