@@ -22,6 +22,25 @@ for key in windows:
     ya[key] = []
 x = []
 annotations = []
+
+def add_pi_pd(a1, y1, a2, y2):
+    def helper(a, y):
+        x.append(y)
+        for key in windows:
+            ya[key].append(a[key])
+        annotations.append(filename)
+    def valid_yr(y):
+        return y != None and abs(y - 1850.5) < 30
+    if (valid_yr(y1)):
+        #pi
+        helper(a1, y1)
+        pi_indexes.add(len(x) - 1)
+        prei[filename] = a1
+        #pd
+        helper(a2, y2)
+        pd_indexes.add(len(x) - 1)
+        pred[filename] = a2
+
 for index, row in p.iterrows():
     for i in range(row['n_cores']):
         filename = row['First Author'].lower() + '-' + str(row['Year']) + '-' + str(i + 1) + '.csv'
@@ -31,23 +50,10 @@ for index, row in p.iterrows():
         #must be flipped bec they are in decending order
         BC = np.flip(d['BC'].to_numpy())
         Yr = np.flip(d['Yr'].to_numpy())
-        #pre-industrial
-        avgs, year = t.get_avgs(Yr, BC, 1850.5, windows)
-        if (year != None and abs(year - 1850.5) < 30):
-            x.append(year)
-            pi_indexes.add(len(x) - 1)
-            for key in windows:
-                ya[key].append(avgs[key])
-            annotations.append(filename)
-            prei[filename] = avgs
-            #present day
-            avgs, year = t.get_avgs(Yr, BC, 9999, windows)
-            x.append(year)
-            pd_indexes.add(len(x) - 1)
-            for key in windows:
-                ya[key].append(avgs[key])
-            annotations.append(filename)
-            pred[filename] = avgs
+        a1, y1 = t.get_avgs(Yr, BC, 1850.5, windows)
+        a2, y2 = t.get_avgs(Yr, BC, 9999, windows)
+        add_pi_pd(a1, y1, a2, y2)
+        
 
 #setup pi and pd colors
 colors = []
