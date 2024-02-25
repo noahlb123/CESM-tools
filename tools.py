@@ -1,3 +1,5 @@
+import math
+
 class ToolBox:
     def __init__(self):
         pass
@@ -73,46 +75,43 @@ class ToolBox:
         
         fig.canvas.mpl_connect("motion_notify_event", hover)
     
+    def in_bounds(self, index, arr):
+        return 0 <= index < len(arr)
+    
     def get_avgs(self, t_l, x_l, year, windows):
-        def year_diff(w_size, year, l, i, direction):
-            return abs(year + direction * w_size // 2 - l[i])
         output = {}
         focus_index = self.nearest_search(t_l, year)
-        volacno_threshold = 50
-        volcano_error = False
+        volacno_threshold = 99999999
         if (focus_index == -1):
             return [output, None]
+        focus_year = t_l[focus_index]
+        def above_y_min(i, max_yr, w_size):
+            if max_yr != -99999999:
+                #print(i, max_yr - w_size, max_yr)
+                return t_l[i] >= max_yr - w_size
+            else:
+                return focus_year - w_size // 2 <= t_l[i] <= focus_year + w_size // 2
         for w_size in windows:
+            n = max_yr = 1
+            my_sum = float(x_l[focus_index])
             if len(t_l) < w_size:
                 continue
-            my_sum = float(x_l[focus_index])
-            n = 1
-            if w_size == 1:
-                output[w_size] = my_sum / n
-                continue
-            n_min_diff = o_min_diff = year_diff(w_size, year, t_l, focus_index, -1)
-            n_max_diff = o_max_diff = year_diff(w_size, year, t_l, focus_index, 1)
-            i = focus_index - 1
-            while i >= 0 and t_l[i] >= year - w_size // 2 and n_min_diff - o_min_diff <= 0:
-                o_min_diff = n_min_diff
-                n_min_diff = year_diff(w_size, year, t_l, i, -1)
-                n += 1
-                x = float(x_l[i])
-                if x > volacno_threshold:
-                    break
-                my_sum += x
-                i -= 1
-            i = focus_index + 1
-            while i < len(t_l) and t_l[i] <= year + w_size // 2 and n_max_diff - o_max_diff <= 0:
-                o_max_diff = n_max_diff
-                n_max_diff = year_diff(w_size, year, t_l, i, 1)
-                n += 1
-                x = float(x_l[i])
-                if x > volacno_threshold:
-                    break
-                my_sum += x
-                i += 1
-            if volcano_error:
-                continue
+            def search_bounds(i, t_l, x_l, w_size, max_yr, n, my_sum, volacno_threshold, direc):
+                max_yr = -99999999
+                while self.in_bounds(i, t_l) and above_y_min(i, max_yr, w_size):
+                    n += 1
+                    x = float(x_l[i])
+                    if math.isnan(x):
+                        x = 0
+                        n -= 1
+                    if x > volacno_threshold:
+                        break
+                    my_sum += x
+                    if max_yr != -99999999:
+                        max_yr = t_l[i] if t_l[i] > max_yr else max_yr
+                    i += direc
+                return [n, my_sum, max_yr]
+            [n, my_sum, max_yr] = search_bounds(focus_index + 1, t_l, x_l, w_size, max_yr, n, my_sum, volacno_threshold, 1)
+            [n, my_sum, max_yr] = search_bounds(focus_index - 1, t_l, x_l, w_size, max_yr, n, my_sum, volacno_threshold, -1)
             output[w_size] = my_sum / n
         return [output, t_l[focus_index]]
