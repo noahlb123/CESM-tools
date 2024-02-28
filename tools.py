@@ -107,8 +107,7 @@ class ToolBox:
                     if x > volacno_threshold:
                         break
                     my_sum += x
-                    if max_yr != -99999999:
-                        max_yr = t_l[i] if t_l[i] > max_yr else max_yr
+                    max_yr = t_l[i] if t_l[i] > max_yr else max_yr
                     i += direc
                 return [n, my_sum, max_yr]
             [n, my_sum, max_yr] = search_bounds(focus_index + 1, t_l, x_l, w_size, max_yr, n, my_sum, volacno_threshold, 1)
