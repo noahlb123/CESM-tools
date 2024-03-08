@@ -4,6 +4,7 @@ from matplotlib.cm import ScalarMappable
 from matplotlib.colors import BoundaryNorm
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.pyplot as plt
+from matplotlib.ticker import ScalarFormatter
 from matplotlib import colormaps
 import plotly.express as px
 import numpy as np
@@ -44,6 +45,7 @@ for index, row in p.iterrows():
         if (y1 != None and y2 != None and abs(y1 - y2) >= 100 and y1 < 1900):
             for key in windows:
                 if filename != "legrand-2023-1.csv":
+                    #if lat < 0:
                     full_data[key].append([filename, lat, lon, a1[key], a2[key], a3[key]/a1[key], y1, y2, a3[key], y3])
             #cartopy
             for_cartopy[filename] = {'lat': lat, 'lon': lon, 'ratio': a3[5] / a1[5]}
@@ -94,30 +96,43 @@ if (inp == "m"): #Raw Matplot
 elif (inp == 'b'): #box plot
     for target_w in [5]:
         data = np.matrix(full_data[target_w])
-        my_pi = [math.log(x, 10) for x in format_column(data[:,3])]
-        my_pd = [math.log(x, 10) for x in format_column(data[:,4])]
-        #my_pi = format_column(data[:,3])
-        #my_pd = format_column(data[:,4])
+        #my_pi = [math.log(x, 10) for x in format_column(data[:,3])]
+        #my_pd = [math.log(x, 10) for x in format_column(data[:,4])]
+        my_pi = format_column(data[:,3])
+        my_pd = format_column(data[:,4])
         # rectangular box plot
         fig, ax = plt.subplots()
         bplot1 = ax.boxplot([my_pi, my_pd], vert=True, labels=[1850, 1980])
-        #ax.set_title('Rectangular box plot')
+        #ax.set_title('Northern Hemisphere')
         ax.yaxis.grid(True)
         ax.set_xlabel('Year')
-        ax.set_ylabel('log10(PD/PI BC Conc.)')
         #ax.set_ylabel('PD/PI BC Conc.')
+        #ax.set_yscale('log')
+        #ax.set_yticks([0, 1, 2, 3, 4, 10, 20, 30, 40, 50, 60])
+        #ax.get_xaxis().set_major_formatter(ScalarFormatter())
+        plt.yscale("log")
+        ax.set_ylabel('PD/PI BC Conc.')
         #plt.ylim(0, 25)
-        plt.savefig('figures/ice-cores/test-box-1.png', dpi=300)
+        #plt.savefig('figures/ice-cores/southern-box.png', dpi=300)
         plt.show()
 elif (inp == 'p'): #Plotly
     fig = px.scatter_geo(p, lat='N', lon='E', hover_name='First Author', title='PD/PI Ratios')
     fig.show()
 elif (inp == "c"): #Cartopy
     #Matplot
-    #f, ax = plt.subplots(projection=cartopy.crs.Robinson())
+    #for globe
     #ax = plt.axes(projection=cartopy.crs.Robinson())
-    ax = plt.axes(projection=cartopy.crs.RotatedPole())
     #ax.set_extent([-180, 180, -90, 90], crs=cartopy.crs.PlateCarree())
+    #for rotated pole
+    rp = cartopy.crs.RotatedPole(pole_longitude=180.0, pole_latitude=36.0, central_rotated_longitude=-40)#-106
+    ax = plt.axes(projection=rp)
+    ax.set_extent((-180.0, 180.0, -78.0, 73.0), crs=rp)
+    #xs, ys, zs = rp.transform_points(cartopy.crs.PlateCarree(), np.array([-180, 180]), np.array([-90, 90])).T
+    #ax.set_xlim(xs)
+    #ax.set_ylim(ys)
+    #for antartica
+    #ax = plt.axes(projection=cartopy.crs.NearsidePerspective(central_longitude=0.0, central_latitude=-90))
+    #ax.set_extent([-2536032.75925479, 2536640.3242591335, -2*1045053.5124408401, 2*1878973.7356212165], crs=cartopy.crs.NearsidePerspective(central_longitude=0.0, central_latitude=-90))
 
     #get this from https://www.naturalearthdata.com/features/
     glaciers = cartopy.feature.NaturalEarthFeature(
@@ -149,7 +164,7 @@ elif (inp == "c"): #Cartopy
     cmap = LinearSegmentedColormap.from_list(
         'Custom cmap', cmaplist, cmap.N)
     # define the bins and normalize
-    bounds = [round(x, 1) for x in np.linspace(0, 2, 8)]
+    bounds = [round(x, 1) for x in np.linspace(0, 2, 10)]
     norm = BoundaryNorm(bounds, cmap.N)
     sm = ScalarMappable(cmap=cmap, norm=norm)
 
@@ -159,13 +174,14 @@ elif (inp == "c"): #Cartopy
         [lat, lon] = [obj['lat'], obj['lon']]
         if math.isnan(lat) or math.isnan(lon):
             lat, lon = dup_index_map[key]
+        #if (lat < -61):
         temp = key.split('-')
-        print(temp[0].capitalize() + " et al. " + temp[1], lat, lon, round(obj['ratio'], 3), temp[2])
+        #print(temp[0].capitalize() + " et al. " + temp[1], lat, lon, round(obj['ratio'], 3), temp[2])
         plt.plot(lon, lat, c=cmap(norm(obj['ratio'])), markeredgecolor='black', marker='.', markersize=9, transform=cartopy.crs.PlateCarree())
         #plt.plot(lon, lat, c=cmap(norm(math.log(obj['ratio'], 10))), markeredgecolor='black', marker='.', markersize=6, transform=cartopy.crs.PlateCarree())
     plt.colorbar(mappable=sm, label="PD/PI BC Conc.", orientation="horizontal")
     
-    #plt.savefig('figures/ice-cores/discrete-global-ratios-1980.png', dpi=300)
+    #plt.savefig('figures/ice-cores/rotated-pole.png', dpi=300)
     plt.show()
 
 print("n=" + str(len(for_cartopy)))
