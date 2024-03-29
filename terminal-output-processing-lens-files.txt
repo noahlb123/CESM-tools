@@ -1,0 +1,727 @@
+Last login: Tue Mar 12 14:02:09 on ttys002
+192.168.1.226
+
+The default interactive shell is now zsh.
+To update your account to use zsh, please run `chsh -s /bin/zsh`.
+For more details, please visit https://support.apple.com/kb/HT208050.
+$ ssh -X nlbills@derecho.hpc.ucar.edu
+Access to and use of this UCAR computer system is limited to authorized use by
+UCAR Policies 1-7 and 3-6 and all applicable federal laws, executive orders, 
+policies and directives. UCAR computer systems are subject to monitoring at all
+times to ensure proper functioning of equipment and systems including security 
+devices, to prevent unauthorized use and violations of statutes and security 
+regulations, to deter criminal activity, and for other similar purposes. 
+
+Users should be aware that information placed in the system is subject to 
+monitoring and is not subject to any expectation of privacy. Unauthorized use 
+or abuse will be dealt with according to UCAR Policy, up to and including 
+criminal or civil penalties as warranted.
+
+By logging in, you are agreeing to these terms.
+
+ncar-two-factor: 
+Last login: Wed Mar  6 09:34:27 2024 from 152.7.255.192
+********************************************************************************
+*          Welcome to Derecho - Tuesday, March 12 2024
+********************************************************************************
+           	 Today in the Daily Bulletin (arc.ucar.edu)
+
+       - Register by May 26 for the June Pythia Cook-off hackathon!
+       - Training Workshops for Skills in Research Software Engineering
+       - 2024 CORE Fellows Call for Applications: Leveraging Data and AI for Sustainable Regional Food Systems
+
+Documentation:        https://ncar-hpc-docs.readthedocs.io
+Key module commands:  module list, module avail, module spider, module help
+Consulting Services:  https://rchelp.ucar.edu
+CISL Help:            cislhelp@ucar.edu -- 303-497-2000
+--------------------------------------------------------------------------------
+nlbills@derecho3:~> ls
+adj-fire-emissions
+CESM220_MIMI
+f2010-f09f09mg17-first.cam.h0.0001-01-01-00000.nc
+f2010-f09f09mg17-first.cam.h0.0001-01-02-00000.nc
+f2010-f09f09mg17-first.cam.h0.0001-01-03-00000.nc
+f2010-f09f09mg17-first.cam.h0.0001-01-04-00000.nc
+f2010-f09f09mg17-first.cam.h1.0001-01-01-00000.nc
+f2010-f09f09mg17-first.cam.h1.0001-01-02-00000.nc
+f2010-f09f09mg17-first.cam.h1.0001-01-03-00000.nc
+f2010-f09f09mg17-first.cam.h1.0001-01-04-00000.nc
+interpolation
+nlbills@derecho3:~> mkdir lens-files
+nlbills@derecho3:~> ls
+adj-fire-emissions
+CESM220_MIMI
+f2010-f09f09mg17-first.cam.h0.0001-01-01-00000.nc
+f2010-f09f09mg17-first.cam.h0.0001-01-02-00000.nc
+f2010-f09f09mg17-first.cam.h0.0001-01-03-00000.nc
+f2010-f09f09mg17-first.cam.h0.0001-01-04-00000.nc
+f2010-f09f09mg17-first.cam.h1.0001-01-01-00000.nc
+f2010-f09f09mg17-first.cam.h1.0001-01-02-00000.nc
+f2010-f09f09mg17-first.cam.h1.0001-01-03-00000.nc
+f2010-f09f09mg17-first.cam.h1.0001-01-04-00000.nc
+interpolation
+lens-files
+nlbills@derecho3:~> cd lens-files/
+nlbills@derecho3:~/lens-files> ls
+nlbills@derecho3:~/lens-files> cp /glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.035
+cp: missing destination file operand after '/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.035'
+Try 'cp --help' for more information.
+nlbills@derecho3:~/lens-files> cp /glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.035/b.e11.B20TRC5CNBDRD.f09_g16.035.rest.1980-01-01-00000.tar .
+nlbills@derecho3:~/lens-files> ls
+b.e11.B20TRC5CNBDRD.f09_g16.035.rest.1980-01-01-00000.tar
+nlbills@derecho3:~/lens-files> for file in /glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.0*/b.e11.B20TRC5CNBDRD.f09_g16.035.rest.1980-01-01-00000.tar; do echo "$file"; done
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.035/b.e11.B20TRC5CNBDRD.f09_g16.035.rest.1980-01-01-00000.tar
+nlbills@derecho3:~/lens-files> for file in /glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.0*/b.e11.B20TRC5CNBDRD.f09_g16.0*.rest.1980-01-01-00000.tar; do echo "$file"; done
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.001/b.e11.B20TRC5CNBDRD.f09_g16.001.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.002/b.e11.B20TRC5CNBDRD.f09_g16.002.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.003/b.e11.B20TRC5CNBDRD.f09_g16.003.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.004/b.e11.B20TRC5CNBDRD.f09_g16.004.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.005/b.e11.B20TRC5CNBDRD.f09_g16.005.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.006/b.e11.B20TRC5CNBDRD.f09_g16.006.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.007/b.e11.B20TRC5CNBDRD.f09_g16.007.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.008/b.e11.B20TRC5CNBDRD.f09_g16.008.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.009/b.e11.B20TRC5CNBDRD.f09_g16.009.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.010/b.e11.B20TRC5CNBDRD.f09_g16.010.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.011/b.e11.B20TRC5CNBDRD.f09_g16.011.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.012/b.e11.B20TRC5CNBDRD.f09_g16.012.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.013/b.e11.B20TRC5CNBDRD.f09_g16.013.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.014/b.e11.B20TRC5CNBDRD.f09_g16.014.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.015/b.e11.B20TRC5CNBDRD.f09_g16.015.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.016/b.e11.B20TRC5CNBDRD.f09_g16.016.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.017/b.e11.B20TRC5CNBDRD.f09_g16.017.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.018/b.e11.B20TRC5CNBDRD.f09_g16.018.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.019/b.e11.B20TRC5CNBDRD.f09_g16.019.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.020/b.e11.B20TRC5CNBDRD.f09_g16.020.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.021/b.e11.B20TRC5CNBDRD.f09_g16.021.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.022/b.e11.B20TRC5CNBDRD.f09_g16.022.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.023/b.e11.B20TRC5CNBDRD.f09_g16.023.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.024/b.e11.B20TRC5CNBDRD.f09_g16.024.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.025/b.e11.B20TRC5CNBDRD.f09_g16.025.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.026/b.e11.B20TRC5CNBDRD.f09_g16.026.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.027/b.e11.B20TRC5CNBDRD.f09_g16.027.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.028/b.e11.B20TRC5CNBDRD.f09_g16.028.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.029/b.e11.B20TRC5CNBDRD.f09_g16.029.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.030/b.e11.B20TRC5CNBDRD.f09_g16.030.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.031/b.e11.B20TRC5CNBDRD.f09_g16.031.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.032/b.e11.B20TRC5CNBDRD.f09_g16.032.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.033/b.e11.B20TRC5CNBDRD.f09_g16.033.rest.1980-01-01-00000.tar
+/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.035/b.e11.B20TRC5CNBDRD.f09_g16.035.rest.1980-01-01-00000.tar
+nlbills@derecho3:~/lens-files> for file in /glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.0*/b.e11.B20TRC5CNBDRD.f09_g16.0*.rest.1980-01-01-00000.tar; do cp "$file" .; done
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.006.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.007.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.008.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.009.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.010.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.011.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.012.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.013.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.014.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.015.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.016.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.017.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.018.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.019.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.020.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.021.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.022.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.023.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.024.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.025.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.026.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.027.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.028.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.029.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.030.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.031.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.032.rest.1980-01-01-00000.tar': Disk quota exceeded
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.033.rest.1980-01-01-00000.tar': Disk quota exceeded
+nlbills@derecho3:~/lens-files> ls
+b.e11.B20TRC5CNBDRD.f09_g16.001.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.002.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.003.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.004.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.005.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.006.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.007.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.008.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.009.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.010.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.011.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.012.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.013.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.014.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.015.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.016.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.017.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.018.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.019.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.020.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.021.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.022.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.023.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.024.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.025.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.026.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.027.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.028.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.029.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.030.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.031.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.032.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.033.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.035.rest.1980-01-01-00000.tar
+nlbills@derecho3:~/lens-files> cp /glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.034/b.e11.B20TRC5CNBDRD.f09_g16.034.rest.1980-01-01-00000.tar .
+cp: cannot stat '/glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.034/b.e11.B20TRC5CNBDRD.f09_g16.034.rest.1980-01-01-00000.tar': No such file or directory
+nlbills@derecho3:~/lens-files> cp /glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.034/b.e11.B20TRC5CNBDRD.f09_g16.034.rest.1977-01-01-00000.tar .
+cp: error writing './b.e11.B20TRC5CNBDRD.f09_g16.034.rest.1977-01-01-00000.tar': Disk quota exceeded
+nlbills@derecho3:~/lens-files> ls -lah
+total 88G
+drwxr-xr-x 2 nlbills ncar 4.0K Mar 12 13:34 .
+drwxr-xr-x 8 nlbills ncar  16K Mar 12 13:11 ..
+-rw-r--r-- 1 nlbills ncar 6.5G Mar 12 13:27 b.e11.B20TRC5CNBDRD.f09_g16.001.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar 6.9G Mar 12 13:27 b.e11.B20TRC5CNBDRD.f09_g16.002.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar 6.9G Mar 12 13:28 b.e11.B20TRC5CNBDRD.f09_g16.003.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar 6.9G Mar 12 13:29 b.e11.B20TRC5CNBDRD.f09_g16.004.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar 6.9G Mar 12 13:29 b.e11.B20TRC5CNBDRD.f09_g16.005.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar 3.1G Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.006.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.007.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.008.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.009.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.010.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.011.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.012.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.013.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.014.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.015.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.016.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.017.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.018.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.019.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.020.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.021.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.022.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.023.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.024.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.025.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.026.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.027.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.028.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.029.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.030.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.031.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.032.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:30 b.e11.B20TRC5CNBDRD.f09_g16.033.rest.1980-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar    0 Mar 12 13:34 b.e11.B20TRC5CNBDRD.f09_g16.034.rest.1977-01-01-00000.tar
+-rw-r--r-- 1 nlbills ncar 7.1G Mar 12 13:31 b.e11.B20TRC5CNBDRD.f09_g16.035.rest.1980-01-01-00000.tar
+nlbills@derecho3:~/lens-files> tar -xf *.tar
+tar: b.e11.B20TRC5CNBDRD.f09_g16.002.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.003.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.004.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.005.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.006.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.007.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.008.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.009.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.010.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.011.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.012.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.013.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.014.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.015.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.016.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.017.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.018.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.019.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.020.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.021.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.022.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.023.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.024.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.025.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.026.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.027.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.028.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.029.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.030.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.031.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.032.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.033.rest.1980-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.034.rest.1977-01-01-00000.tar: Not found in archive
+tar: b.e11.B20TRC5CNBDRD.f09_g16.035.rest.1980-01-01-00000.tar: Not found in archive
+tar: Exiting with failure status due to previous errors
+nlbills@derecho3:~/lens-files> ls
+b.e11.B20TRC5CNBDRD.f09_g16.001.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.002.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.003.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.004.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.005.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.006.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.007.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.008.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.009.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.010.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.011.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.012.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.013.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.014.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.015.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.016.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.017.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.018.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.019.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.020.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.021.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.022.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.023.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.024.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.025.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.026.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.027.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.028.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.029.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.030.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.031.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.032.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.033.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.034.rest.1977-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.035.rest.1980-01-01-00000.tar
+nlbills@derecho3:~/lens-files> for file in .; do tar -xf "$file"; done
+tar: .: Cannot read: Is a directory
+tar: At beginning of tape, quitting now
+tar: Error is not recoverable: exiting now
+nlbills@derecho3:~/lens-files> for file in *.tar; do tar -xf "$file"; done
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.rtm.rh0.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.cpl.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.pop.ro.1980-01-01-00000: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.cam.h1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.cam.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.clm2.h1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.clm2.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.clm2.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.cam.i.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.rtm.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.rtm.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.clm2.rh1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.clm2.rh0.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.cam.rs.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.pop.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.cam.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.cice.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: Exiting with failure status due to previous errors
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.clm2.rh0.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.cam.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.clm2.rh1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.rtm.h1.1979-01-02-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.clm2.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.cam.i.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.pop.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.clm2.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.pop.ro.1980-01-01-00000: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.cam.h1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.cpl.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.rtm.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.cice.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.rtm.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.rtm.rh1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.cam.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.rtm.rh0.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.clm2.h1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.002.cam.rs.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: Exiting with failure status due to previous errors
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.cam.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.rtm.rh1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.rtm.h1.1979-01-02-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.cam.rs.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.rtm.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.clm2.rh0.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.cice.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.cam.h1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.pop.ro.1980-01-01-00000: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.cam.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.cam.i.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.rtm.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.rtm.rh0.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.clm2.rh1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.pop.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.cpl.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.clm2.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.clm2.h1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.003.clm2.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: Exiting with failure status due to previous errors
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.clm2.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.clm2.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.clm2.h1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.cpl.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.pop.ro.1980-01-01-00000: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.rtm.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.cam.h1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.clm2.rh1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.rtm.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.pop.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.clm2.rh0.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.cice.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.cam.rs.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.cam.i.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.cam.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.cam.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.rtm.rh0.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.rtm.rh1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.004.rtm.h1.1979-01-02-00000.nc: Cannot write: Disk quota exceeded
+tar: Exiting with failure status due to previous errors
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.clm2.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.cam.rs.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.pop.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.cam.i.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.cam.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.rtm.h1.1979-01-02-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.cice.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.rtm.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.clm2.rh0.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.rtm.rh1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.rtm.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.cpl.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.clm2.h1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.cam.h1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.clm2.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.clm2.rh1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.pop.ro.1980-01-01-00000: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.rtm.rh0.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.005.cam.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: Exiting with failure status due to previous errors
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.006.cam.i.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.006.clm2.rh1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.006.pop.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: Unexpected EOF in archive
+tar: Error is not recoverable: exiting now
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: This does not look like a tar archive
+tar: Exiting with failure status due to previous errors
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.cam.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.cam.h1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.cam.h2.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.cam.i.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.cam.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.cam.rs.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.cice.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.clm2.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.clm2.h1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.clm2.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.clm2.rh0.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.clm2.rh1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.cpl.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.pop.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.pop.ro.1980-01-01-00000: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.rtm.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.rtm.h1.1979-01-02-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.rtm.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.rtm.rh0.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.035.rtm.rh1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: Removing leading `/' from member names
+tar: Exiting with failure status due to previous errors
+nlbills@derecho3:~/lens-files> ^C
+nlbills@derecho3:~/lens-files> ls
+1980-01-01-00000
+b.e11.B20TRC5CNBDRD.f09_g16.001.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.002.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.003.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.004.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.005.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.006.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.007.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.008.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.009.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.010.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.011.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.012.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.013.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.014.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.015.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.016.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.017.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.018.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.019.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.020.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.021.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.022.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.023.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.024.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.025.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.026.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.027.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.028.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.029.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.030.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.031.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.032.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.033.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.034.rest.1977-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.035.rest.1980-01-01-00000.tar
+tmp
+nlbills@derecho3:~/lens-files> rm -r tmp
+nlbills@derecho3:~/lens-files> rm -r 1980-01-01-00000
+nlbills@derecho3:~/lens-files> tar -xf b.e11.B20TRC5CNBDRD.f09_g16.001.rest.1980-01-01-00000.tar
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.rtm.rh0.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.cpl.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.pop.ro.1980-01-01-00000: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.cam.h1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.cam.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.clm2.h1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.clm2.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.clm2.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.cam.i.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.rtm.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.rtm.h0.1979-12.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.clm2.rh1.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.clm2.rh0.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.cam.rs.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.pop.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.cam.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: 1980-01-01-00000/b.e11.B20TRC5CNBDRD.f09_g16.001.cice.r.1980-01-01-00000.nc: Cannot write: Disk quota exceeded
+tar: Exiting with failure status due to previous errors
+nlbills@derecho3:~/lens-files> ls
+1980-01-01-00000
+b.e11.B20TRC5CNBDRD.f09_g16.001.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.002.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.003.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.004.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.005.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.006.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.007.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.008.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.009.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.010.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.011.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.012.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.013.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.014.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.015.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.016.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.017.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.018.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.019.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.020.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.021.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.022.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.023.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.024.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.025.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.026.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.027.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.028.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.029.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.030.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.031.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.032.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.033.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.034.rest.1977-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.035.rest.1980-01-01-00000.tar
+nlbills@derecho3:~/lens-files> cd 1980-01-01-00000/
+nlbills@derecho3:~/lens-files/1980-01-01-00000> ls
+b.e11.B20TRC5CNBDRD.f09_g16.001.cam.h0.1979-12.nc
+b.e11.B20TRC5CNBDRD.f09_g16.001.cam.h1.1980-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.001.cam.i.1980-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.001.cam.r.1980-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.001.cam.rs.1980-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.001.cice.r.1980-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.001.clm2.h0.1979-12.nc
+b.e11.B20TRC5CNBDRD.f09_g16.001.clm2.h1.1980-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.001.clm2.r.1980-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.001.clm2.rh0.1980-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.001.clm2.rh1.1980-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.001.cpl.r.1980-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.001.pop.r.1980-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.001.pop.ro.1980-01-01-00000
+b.e11.B20TRC5CNBDRD.f09_g16.001.rtm.h0.1979-12.nc
+b.e11.B20TRC5CNBDRD.f09_g16.001.rtm.r.1980-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.001.rtm.rh0.1980-01-01-00000.nc
+rpointer.atm
+rpointer.drv
+rpointer.ice
+rpointer.lnd
+rpointer.ocn.ovf
+rpointer.ocn.restart
+rpointer.rof
+nlbills@derecho3:~/lens-files/1980-01-01-00000> cd ..
+nlbills@derecho3:~/lens-files> ls
+1980-01-01-00000
+b.e11.B20TRC5CNBDRD.f09_g16.001.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.002.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.003.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.004.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.005.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.006.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.007.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.008.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.009.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.010.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.011.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.012.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.013.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.014.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.015.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.016.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.017.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.018.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.019.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.020.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.021.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.022.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.023.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.024.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.025.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.026.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.027.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.028.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.029.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.030.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.031.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.032.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.033.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.034.rest.1977-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.035.rest.1980-01-01-00000.tar
+nlbills@derecho3:~/lens-files> rm -r 1980-01-01-00000
+nlbills@derecho3:~/lens-files> ls
+b.e11.B20TRC5CNBDRD.f09_g16.001.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.002.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.003.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.004.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.005.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.006.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.007.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.008.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.009.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.010.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.011.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.012.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.013.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.014.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.015.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.016.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.017.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.018.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.019.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.020.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.021.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.022.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.023.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.024.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.025.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.026.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.027.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.028.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.029.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.030.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.031.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.032.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.033.rest.1980-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.034.rest.1977-01-01-00000.tar
+b.e11.B20TRC5CNBDRD.f09_g16.035.rest.1980-01-01-00000.tar
+nlbills@derecho3:~/lens-files> rm b.e11.B20TRC5CNBDRD.f09_g16.0*.rest.19*-01-01-00000.tar
+nlbills@derecho3:~/lens-files> ls
+nlbills@derecho3:~/lens-files> cp /glade/campaign/cesm/collections/cesmLE/restarts/b.e11.B20TRC5CNBDRD.f09_g16.034/b.e11.B20TRC5CNBDRD.f09_g16.034.rest.1977-01-01-00000.tar .
+nlbills@derecho3:~/lens-files> tar -xf b.e11.B20TRC5CNBDRD.f09_g16.034.rest.1977-01-01-00000.tar
+tar: Removing leading `/' from member names
+nlbills@derecho3:~/lens-files> ls
+1977-01-01-00000                                           tmp
+b.e11.B20TRC5CNBDRD.f09_g16.034.rest.1977-01-01-00000.tar
+nlbills@derecho3:~/lens-files> cd 1977-01-01-00000/
+nlbills@derecho3:~/lens-files/1977-01-01-00000> ls
+b.e11.B20TRC5CNBDRD.f09_g16.034.cam.h0.1976-12.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.cam.h1.1977-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.cam.h2.1977-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.cam.i.1977-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.cam.r.1977-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.cam.rs.1977-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.cice.r.1977-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.clm2.h0.1976-12.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.clm2.h1.1977-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.clm2.r.1977-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.clm2.rh0.1977-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.clm2.rh1.1977-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.cpl.r.1977-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.pop.r.1977-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.pop.rh.ecosys.nyear1.1976-12-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.pop.ro.1977-01-01-00000
+b.e11.B20TRC5CNBDRD.f09_g16.034.rtm.h0.1976-12.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.rtm.h1.1976-01-02-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.rtm.r.1977-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.rtm.rh0.1977-01-01-00000.nc
+b.e11.B20TRC5CNBDRD.f09_g16.034.rtm.rh1.1977-01-01-00000.nc
+rpointer.atm
+rpointer.drv
+rpointer.ice
+rpointer.lnd
+rpointer.ocn.ovf
+rpointer.ocn.restart
+rpointer.ocn.tavg.5
+rpointer.rof
+nlbills@derecho3:~/lens-files/1977-01-01-00000> 
+
+Additional useful commands:
+
+IFS=',';echo "${ta[*]}";IFS=$' \t\n'
+
+for i in {11..27}; do echo rm -r b.e11.B20TRC5CNBDRD.f09_g16.0$i.rest.1980-01-01-00000.tar; done
+
+for file in *; do mkdir "${file:0:52}" && tar -xf "$file" -C "${file:0:52}"; done
+
+for file in *; do mkdir "${file:0:52}" && tar -xf "$file" -C "${file:0:52}" && my_dir="${file:0:31}"; for subfile in "${file:0:52}"/*/*; do if [ "${subfile:102:3}" != "cam" ]; then rm -r $subfile; fi; done; done
+
+file_arr=$(for i in {1..35}; do form=$(printf "%02d" $i) && main_name=b.e11.B20TRC5CNBDRD.f09_g16.0"$form".rest.1980-01-01-00000 && echo b.e11.B20TRC5CNBDRD.f09_g16.0"$form"/"$main_name"; done)
+
+for i in {1..35}; do form=$(printf "%02d" $i) && main_name=b.e11.B20TRC5CNBDRD.f09_g16.0"$form".rest.1980-01-01-0000 && rm -r "$main_name"/tmp; done
+
+for i in {1..35}; do form=$(printf "%02d" $i) && main_name=b.e11.B20TRC5CNBDRD.f09_g16.0"$form".rest.1980-01-01-0000 && "$main_name"/*/*; done
