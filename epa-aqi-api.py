@@ -70,4 +70,4 @@ print(west_data)
 #west {'1990-1995': [0, 0], '1995-2000': [560.8000000000001, 79, 7.09873417721519], '2000-2010': [4573.4, 626, 7.305750798722044]}
 #east change: 2.770, 2.164
 #west change: 1, 1.029
-# 1 fire emoji = 7.0987 Micrograms PM2.5/cubic meter/day (decadal averege)
+# 1 fire emoji = 7.0987 ug PM2.5/cubic meter/day (decadal averege)
