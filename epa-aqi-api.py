@@ -32,8 +32,9 @@ west = [
     ["06", "067", "049", "0006", "0001", "California, Sacramento"]
 ]
 
-east_data = {"1990-1995": [0, 0], "1995-2000": [0, 0], "2000-2010": [0, 0]}
-west_data = {"1990-1995": [0, 0], "1995-2000": [0, 0], "2000-2010": [0, 0]}
+east_data = {"1995-2005": [0, 0], "2005-2015": [0, 0], "2015-2024": [0, 0]}
+west_data = {"1995-2005": [0, 0], "2005-2015": [0, 0], "2015-2024": [0, 0]}
+data_wrapper = ((west, west_data), (east, east_data))
 
 #request data
 def get_dates(year):
@@ -44,30 +45,38 @@ def construct_url(state, county, year, site):
     by, ey = get_dates(year)
     return "https://aqs.epa.gov/data/api/sampleData/bySite?email=" + email + "&key=" + api_key + "&param=88101&bdate=" + by + "&edate=" + ey + "&state=" + state + "&county=" + county + "&site=" + site
 
-for obj in west:
-    for year in range(1990, 2011):
-        state, urban, rural, u_site, r_site, meta = obj
-        url = construct_url(state, urban, year, u_site)
-        response = requests.get(url).json()
-        data = response["Data"]
-        for datum in data:
-            pm = datum["sample_measurement"]
-            if pm is not None and not math.isnan(pm) and (type(pm) == type(3) or type(pm) == type(1.1)):
-                if year >= 2000:
-                    key = "2000-2010"
-                elif year < 1995:
-                    key = "1990-1995"
-                else:
-                    key = "1995-2000"
-                west_data[key][0] += pm
-                west_data[key][1] += 1
+for obj in data_wrapper:
+    locations, data = obj
+    for location in locations:
+        print(location[-1])
+        for year in range(1995, 2025):
+            state, urban, rural, u_site, r_site, meta = location
+            url = construct_url(state, urban, year, u_site)
+            response = requests.get(url).json()
+            d = response["Data"]
+            for datum in d:
+                pm = datum["sample_measurement"]
+                if pm is not None and not math.isnan(pm) and (type(pm) == type(3) or type(pm) == type(1.1)):
+                    if year >= 2015:
+                        key = "2015-2024"
+                    elif year < 2005:
+                        key = "1995-2005"
+                    else:
+                        key = "2005-2015"
+                    data[key][0] += pm
+                    data[key][1] += 1
+    for k in data.keys():
+        data[k].append(data[k][0]/data[k][1])
 
+print(east_data)
 print(west_data)
 
 #units Micrograms PM2.5/cubic meter (LC)
 #output:
-#east {'1990-1995': [0, 0], '1995-2000': [4070.7000000000007, 207, 19.665217391304353], '2000-2010': [57521.39999999988, 3744, 15.363621794871761]}
-#west {'1990-1995': [0, 0], '1995-2000': [560.8000000000001, 79, 7.09873417721519], '2000-2010': [4573.4, 626, 7.305750798722044]}
-#east change: 2.770, 2.164
-#west change: 1, 1.029
-# 1 fire emoji = 7.0987 ug PM2.5/cubic meter/day (decadal averege)
+#east {'1995-2005': [27245.200000000063, 1562, 17.442509603073024], '2005-2015': [84590.89999999997, 8255, 10.247231980617803], '2015-2024': [602319.7000000002, 68211, 8.830242922695756]}
+#west {'1995-2005': [2986.3999999999987, 463, 6.450107991360689], '2005-2015': [4089.2000000000025, 507, 8.065483234714009], '2015-2024': [56648.00000000004, 7366, 7.690469725767042]}
+#east change: 17.443, 10.247231980617803, 8.830242922695756
+#west change: 6.450107991360689, 8.065483234714009, 7.690469725767042
+#2.163, 1.2705, 1.09481
+#0.7997, 1, 0.9535
+# 1 fire emoji = 8.0655 ug PM2.5/cubic meter/day (decadal averege)

@@ -725,3 +725,9 @@ file_arr=$(for i in {1..35}; do form=$(printf "%02d" $i) && main_name=b.e11.B20T
 for i in {1..35}; do form=$(printf "%02d" $i) && main_name=b.e11.B20TRC5CNBDRD.f09_g16.0"$form".rest.1980-01-01-0000 && rm -r "$main_name"/tmp; done
 
 for i in {1..35}; do form=$(printf "%02d" $i) && main_name=b.e11.B20TRC5CNBDRD.f09_g16.0"$form".rest.1980-01-01-0000 && "$main_name"/*/*; done
+
+for file in *; do ncks -d time,'2023-1-1 00:00:0.0','2024-1-1 00:00:0.0' "$file" /glade/derecho/scratch/nlbills/canadian-input-data/"$file"; done
+
+for file in *; do ncap2 -O -s 'time=udunits(time, "days since 1837-01-01 00:00:00");time@units="days since 1850-01-01 00:00:00;"' "$file" "$file"; done
+
+for file in *; do ncap2 -O -s 'time=time-4745' "$file" "$file"; done
