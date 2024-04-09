@@ -1,4 +1,6 @@
 import math
+from netCDF4 import Dataset
+import numpy as np
 
 class ToolBox:
     def __init__(self):
@@ -114,3 +116,10 @@ class ToolBox:
             [n, my_sum, max_yr] = search_bounds(focus_index - 1, t_l, x_l, w_size, max_yr, n, my_sum, volacno_threshold, -1)
             output[w_size] = my_sum / n
         return [output, t_l[focus_index]]
+    
+    #returns mean, median, std, first quartile, last quartile, max, min
+    def ncdf_avg(file_path, var_key):
+        f = Dataset(file_path, "r")
+        x = f[var_key][:]
+        f.close()
+        return (np.mean(x), np.median(x), np.std(x), np.quantile(x, 0.25), np.quantile(x, 0.75), np.max(x), np.min(x))

@@ -731,3 +731,5 @@ for file in *; do ncks -d time,'2023-1-1 00:00:0.0','2024-1-1 00:00:0.0' "$file"
 for file in *; do ncap2 -O -s 'time=udunits(time, "days since 1837-01-01 00:00:00");time@units="days since 1850-01-01 00:00:00;"' "$file" "$file"; done
 
 for file in *; do ncap2 -O -s 'time=time-4745' "$file" "$file"; done
+
+for file in *; do ncks -C -v bc_a4DDF,bc_a4SFWET,bc_a1DDF,bc_a1SFWET,bc_c4DDF,bc_c4SFWET,bc_c1DDF,bc_c1SFWET,pom_a4DDF,pom_a4SFWET,pom_a1DDF,pom_a1SFWET,pom_c4DDF,pom_c4SFWET,pom_c1DDF,pom_c1SFWET,so4_a1DDF,so4_a2DDF,so4_a3DDF,so4_a1SFWET,so4_a2SFWET,so4_a3SFWET,so4_c1DDF,so4_c2DDF,so4_c3DDF,so4_c1SFWET,so4_c2SFWET,so4_c3SFWET "$file" bc-only/"$file".nc; done

@@ -79,4 +79,4 @@ print(west_data)
 #west change: 6.450107991360689, 8.065483234714009, 7.690469725767042
 #2.163, 1.2705, 1.09481
 #0.7997, 1, 0.9535
-# 1 fire emoji = 8.0655 ug PM2.5/cubic meter/day (decadal averege)
+# 1 fire emoji = 8.0655 ug PM2.5/cubic meter/day (decadal average)
