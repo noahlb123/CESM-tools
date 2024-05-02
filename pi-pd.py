@@ -26,6 +26,12 @@ for key in windows:
     full_data[key] = [] #filename, lat, lon, PI averge, PD averge, ratio, PI year, PD year, 3 averege, 3 year
 for_cartopy = {}
 
+#fix duplicate pud core lat lons
+dup_index_map = {}
+p_dup = pd.read_csv('data/standardized-ice-cores/index-dup-cores.csv')
+for index, r in p_dup.iterrows():
+    dup_index_map[r['Filename']] = [r['Lat'], r['Lon']]
+
 #read each ice core file
 for index, row in p.iterrows():
     for i in range(row['n_cores']):
@@ -38,14 +44,16 @@ for index, row in p.iterrows():
         #must be flipped bec they are in decending order
         BC = np.flip(d['BC'].to_numpy())
         Yr = np.flip(d['Yr'].to_numpy())
-        a1, y1 = t.get_avgs(Yr, BC, 1850.49, windows)
+        #a1, y1 = t.get_avgs(Yr, BC, 1850.49, windows)
+        a1, y1 = t.get_avgs(Yr, BC, 1925.49, windows)
         a2, y2 = t.get_avgs(Yr, BC, 9999, windows)
         a3, y3 = t.get_avgs(Yr, BC, 1980, windows)
         #add data to datasets
-        if (y1 != None and y2 != None and abs(y1 - y2) >= 100 and y1 < 1900):
+        if (y1 != None and y2 != None):# and abs(y1 - y2) >= 100 and y1 < 1900):
             for key in windows:
+                if math.isnan(lat) or math.isnan(lon):
+                    lat, lon = dup_index_map[filename]
                 if filename != "legrand-2023-1.csv":
-                    #if lat < 0:
                     full_data[key].append([filename, lat, lon, a1[key], a2[key], a3[key]/a1[key], y1, y2, a3[key], y3])
             #cartopy
             for_cartopy[filename] = {'lat': lat, 'lon': lon, 'ratio': a3[5] / a1[5]}
@@ -143,12 +151,6 @@ elif (inp == "c"): #Cartopy
     ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
     ax.add_feature(glaciers)
 
-    #get duplicate pud core lat lons
-    dup_index_map = {}
-    p_dup = pd.read_csv('data/standardized-ice-cores/index-dup-cores.csv')
-    for index, r in p_dup.iterrows():
-        dup_index_map[r['Filename']] = [r['Lat'], r['Lon']]
-
     #setup color scale
     max_ratio = 0
     for key in for_cartopy.keys():
@@ -172,8 +174,6 @@ elif (inp == "c"): #Cartopy
     for key in for_cartopy.keys():
         obj = for_cartopy[key]
         [lat, lon] = [obj['lat'], obj['lon']]
-        if math.isnan(lat) or math.isnan(lon):
-            lat, lon = dup_index_map[key]
         #if (lat < -61):
         temp = key.split('-')
         #print(temp[0].capitalize() + " et al. " + temp[1], lat, lon, round(obj['ratio'], 3), temp[2])
@@ -183,5 +183,45 @@ elif (inp == "c"): #Cartopy
     
     #plt.savefig('figures/ice-cores/rotated-pole.png', dpi=300)
     plt.show()
+elif (inp == "l"): #Lens data
+    #bar/box plots
+    #columns are ice core locations
+    #y axis is pd/pi
+    #lens are in 5 year avereges so comparing like to like
+    #setup data:
+    lens_pi = pd.read_csv('data/lens/pi.csv')
+    lens_pd = pd.read_csv('data/lens/pd.csv')
+    dont_use = {'model number', 'BC_vars', 'year', 'ming-2008-1.csv', 'sierra-hernández-2022-1.csv', 'wolff-2012-1.csv', 'mcconnell-2021-2.csv', 'mcconnell-2017-1.csv', 'xu-2009-1.csv'}
+    bar_lables = []
+    bar_means = {'Ice Core': [], 'LENS Models': []}
+    for col_name in lens_pd.columns:
+        if col_name in dont_use:
+            continue
+        model_ratios = lens_pd[col_name] / lens_pi[col_name]
+        model_mean = np.mean(model_ratios)
+        model_std = np.std(model_ratios)
+        ice_mean = for_cartopy[col_name]['ratio']
+        if for_cartopy[col_name]['lat'] > 0: #if in given hemisphere
+            bar_lables.append(col_name)
+            bar_means['LENS Models'].append(model_mean)
+            bar_means['Ice Core'].append(ice_mean)
+    #plot bars
+    x = np.arange(len(bar_lables))  # the label locations
+    width = 0.4  # the width of the bars
+    multiplier = 0
+    fig, ax = plt.subplots(layout='constrained')
+    for attribute, measurement in bar_means.items():
+        offset = width * multiplier
+        rects = ax.bar(x + offset, measurement, width, label=attribute)
+        #ax.bar_label(rects, padding=3)
+        multiplier += 1
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel('1980/1925 BC Ratio')
+    ax.set_title('N-Hemisphere LENS vs Ice Core BC Change')
+    ax.set_xticks(x + width, bar_lables)
+    plt.xticks(rotation=90)
+    ax.legend()
+    plt.show()
+    #plt.savefig('figures/ice-cores/lens-north.png', dpi=300)
 
 print("n=" + str(len(for_cartopy)))

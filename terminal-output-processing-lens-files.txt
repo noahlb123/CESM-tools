@@ -733,3 +733,30 @@ for file in *; do ncap2 -O -s 'time=udunits(time, "days since 1837-01-01 00:00:0
 for file in *; do ncap2 -O -s 'time=time-4745' "$file" "$file"; done
 
 for file in *; do ncks -C -v bc_a4DDF,bc_a4SFWET,bc_a1DDF,bc_a1SFWET,bc_c4DDF,bc_c4SFWET,bc_c1DDF,bc_c1SFWET,pom_a4DDF,pom_a4SFWET,pom_a1DDF,pom_a1SFWET,pom_c4DDF,pom_c4SFWET,pom_c1DDF,pom_c1SFWET,so4_a1DDF,so4_a2DDF,so4_a3DDF,so4_a1SFWET,so4_a2SFWET,so4_a3SFWET,so4_c1DDF,so4_c2DDF,so4_c3DDF,so4_c1SFWET,so4_c2SFWET,so4_c3SFWET "$file" bc-only/"$file".nc; done
+
+ncks -F d time,8,,12 -d time,9,,12 dataset-2002-now-bc_a4.nc fire-season-only.nc
+
+ncra --mro -O -d time,,,12,12 TEMP_000101-100012.nc fire-season-only.nc
+
+for file in *.tar; do tar -xf "$file"; done
+
+#grep in ncdump
+ncdump -h $file | grep -i -e "SFbc_a4" -e "SFbc_a1" -e "bc_a4DDF" -e "bc_a4SFWET" -e "bc_a1DDF" -e "bc_a1SFWET" -e "bc_c4DDF" -e "bc_c4SFWET" -e "bc_c1DDF" -e "bc_c1SFWET"
+
+#grep all subdirectories recursively
+grep -i -l -r -e "SFbc_a4" -e "SFbc_a1" -e "bc_a4DDF" -e "bc_a4SFWET" -e "bc_a1DDF" -e "bc_a1SFWET" -e "bc_c4DDF" -e "bc_c4SFWET" -e "bc_c1DDF" -e "bc_c1SFWET" .
+
+#first file in directory
+files=(*) && echo "${files[0]}"
+
+#copy first directory for each lens model (must be in /glade/campaign/cesm/collections/cesmLE/restarts)
+ds=("b.e11.B20TRC5CNBDRD.f09_g16.001" "b.e11.B20TRC5CNBDRD.f09_g16.002" "b.e11.B20TRC5CNBDRD.f09_g16.003" "b.e11.B20TRC5CNBDRD.f09_g16.004" "b.e11.B20TRC5CNBDRD.f09_g16.005" "b.e11.B20TRC5CNBDRD.f09_g16.006" "b.e11.B20TRC5CNBDRD.f09_g16.007" "b.e11.B20TRC5CNBDRD.f09_g16.008" "b.e11.B20TRC5CNBDRD.f09_g16.009" "b.e11.B20TRC5CNBDRD.f09_g16.010" "b.e11.B20TRC5CNBDRD.f09_g16.011" "b.e11.B20TRC5CNBDRD.f09_g16.012" "b.e11.B20TRC5CNBDRD.f09_g16.013" "b.e11.B20TRC5CNBDRD.f09_g16.014" "b.e11.B20TRC5CNBDRD.f09_g16.015" "b.e11.B20TRC5CNBDRD.f09_g16.016" "b.e11.B20TRC5CNBDRD.f09_g16.017" "b.e11.B20TRC5CNBDRD.f09_g16.018" "b.e11.B20TRC5CNBDRD.f09_g16.019" "b.e11.B20TRC5CNBDRD.f09_g16.020" "b.e11.B20TRC5CNBDRD.f09_g16.021" "b.e11.B20TRC5CNBDRD.f09_g16.022" "b.e11.B20TRC5CNBDRD.f09_g16.023" "b.e11.B20TRC5CNBDRD.f09_g16.024" "b.e11.B20TRC5CNBDRD.f09_g16.025" "b.e11.B20TRC5CNBDRD.f09_g16.026" "b.e11.B20TRC5CNBDRD.f09_g16.027" "b.e11.B20TRC5CNBDRD.f09_g16.028" "b.e11.B20TRC5CNBDRD.f09_g16.029" "b.e11.B20TRC5CNBDRD.f09_g16.030" "b.e11.B20TRC5CNBDRD.f09_g16.031" "b.e11.B20TRC5CNBDRD.f09_g16.032" "b.e11.B20TRC5CNBDRD.f09_g16.033" "b.e11.B20TRC5CNBDRD.f09_g16.034" "b.e11.B20TRC5CNBDRD.f09_g16.035") && for file in ${ds[@]}; do files=("$file"/*) && cp "${files[0]}" /glade/derecho/scratch/nlbills/lens-pi; done
+
+#comapre climo means
+ncra --mro -O -d time,,,30,30 test-file.nc test-file.nc
+ncks -F -d time,6,,12 -d time,8,,12 test-file.nc test-file.nc
+ncks -d time,-1,-1 test-file.nc 2023.nc
+ncks -d time,0,-2 test-file.nc test-file.nc
+ncks --mk_rec_dmn time test-file.nc climo-avg.nc
+cdo chname,time,depth climo-avg.nc climo-avg.nc
+ncra --mro -O -d time,,,43,43 climo-avg.nc climo-avg.nc

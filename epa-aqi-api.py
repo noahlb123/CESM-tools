@@ -40,6 +40,7 @@ data_wrapper = ((west, west_data), (east, east_data))
 def get_dates(year):
     year = str(year)
     return (year + "0601", year + "0831")
+    #return (year + "0101", year + "0531")
 
 def construct_url(state, county, year, site):
     by, ey = get_dates(year)
@@ -77,6 +78,7 @@ print(west_data)
 #west {'1995-2005': [2986.3999999999987, 463, 6.450107991360689], '2005-2015': [4089.2000000000025, 507, 8.065483234714009], '2015-2024': [56648.00000000004, 7366, 7.690469725767042]}
 #east change: 17.443, 10.247231980617803, 8.830242922695756
 #west change: 6.450107991360689, 8.065483234714009, 7.690469725767042
+#standards:   15.0, 12.0, 9.0 (1.8598, 1.4878, 1.1159)
 #2.163, 1.2705, 1.09481
 #0.7997, 1, 0.9535
 # 1 fire emoji = 8.0655 ug PM2.5/cubic meter/day (decadal average)

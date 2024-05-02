@@ -1,16 +1,13 @@
 import numpy as np
 from netCDF4 import Dataset
-import pandas as pd
 from tools import ToolBox
-from matplotlib.lines import Line2D
 import datetime
 import csv
 import math
 import matplotlib.pyplot as plt
-from matplotlib.ticker import ScalarFormatter
 T = ToolBox()
 
-'''#setup data
+#setup data
 f = Dataset("/Users/noahliguori-bills/Downloads/CESM-tools/data/climo-mean.nc", "r")
 var_wrap = {
     'bc_a4DDF': [None, 1],
@@ -25,7 +22,7 @@ var_wrap = {
 for key in var_wrap.keys():
     var_wrap[key][0] = f[key][:]
 
-lats =  f["lat"][:]
+'''lats =  f["lat"][:]
 lons =  f["lon"][:]
 lat = T.nearest_search(lats, 71.4)
 lon = T.nearest_search(lons, 180-44)
@@ -83,33 +80,10 @@ for day in range(len(main)):
 with open("/Users/noahliguori-bills/Downloads/CESM-tools/data/canadian-NEEM-timeseries.csv", 'w') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=['date', 'bc'])
     writer.writeheader()
-    writer.writerows(data)'''
+    writer.writerows(data)
 
-'''plt.scatter(mx, my)
-plt.show()'''
+plt.scatter(mx, my)
+plt.show()
 #date is from 10/25/22 to 10/25/23
-#output: 63.05360592510554 ng/g BC
-
-p = pd.read_csv('data/mcconnell-2007-1-figure.csv')
-colors = ['#982724' for i in range(len(p['Yr']))]
-colors[0] = ('#249598')
-fig, ax = plt.subplots()
-#plt.figure(figsize=(959, 480))
-ax.set_yscale('log')
-ax.set_ylim(1, 100)
-ax.yaxis.set_major_formatter(ScalarFormatter())
-ax.minorticks_off()
-ax.set_yticks([1, 10, 100])
-ax.set_xticks([1800, 1850, 1900, 1950, 2000, 2023])
-plt.title("NEEM Ice Core vs Modeled 2023 Fire Season BC")
-plt.xlabel("Year (CE)")
-plt.ylabel("BC Concentration (ng/g)")
-plt.scatter(p['Yr'], p['BC'], c=colors)
-legend_elements = [
-            Line2D([0], [0], marker='o', color="#982724", label='NEEM', markersize=5),
-            Line2D([0], [0], marker='o', color="#249598", label='Modeled 2023 Value', markersize=5),
-            ]
-plt.legend(handles=legend_elements)
-#plt.show()
-fig.set_size_inches(3.9*2, 3.9)
-plt.savefig('matplot-out.png', dpi=72*3)
+print(np.mean(my), len(my))
+#output: 63.05360592510554 ng/g BC'''

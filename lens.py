@@ -1,0 +1,113 @@
+from netCDF4 import Dataset
+import pandas as pd
+import platform
+import tools
+import csv
+import os
+
+system = platform.system() #differentiate local and derecho env by sys platform
+T = tools.ToolBox()
+
+#path of lens files
+def modelN2fnames(model_n, year):
+    n = str(model_n).zfill(2)
+    def get_path(y, h):
+        return os.path.join(
+            "b.e11.B20TRC5CNBDRD.f09_g16.0" + n + ".rest." + year[0:-1],
+            year,
+            "b.e11.B20TRC5CNBDRD.f09_g16.0" + n + ".cam.h" + str(h) + "." + y + ".nc")
+    h0year = str(int(year[0:4]) - 1) + "-12"
+    #return [get_path(h0year, 0), get_path(year, 1), get_path(year, 2)]
+    return [get_path(year, 1)]
+
+#setup some vars
+models = [1, 35] if system == "Darwin" else range(1, 36)
+model_var_map = {}
+model_path_map = {}
+model_year_map = {}
+viable_models = []
+vars = ['bc_a4_SRF', 'bc_a1_SRF']
+'''vars = ['SFbc_a4',
+        'SFbc_a1',
+        'bc_a4DDF',
+        'bc_a4SFWET',
+        'bc_a1DDF',
+        'bc_a1SFWET',
+        'bc_c4DDF',
+        'bc_c4SFWET',
+        'bc_c1DDF',
+        'bc_c1SFWET']'''
+
+#get viable models
+for model in models:
+    #get path
+    year = "1980-01-01-00000" if model != 34 else "1977-01-01-00000"
+    working_path = os.path.dirname(os.path.abspath(__file__))
+    file_paths = modelN2fnames(model, year)
+    for file_path in file_paths:
+        if system == "Darwin":
+            path = os.path.join(working_path, "data", "lens", file_path)
+        else:
+            path = os.path.join(working_path, file_path)
+        if os.path.exists(path):
+            #check if has bc vars
+            f = Dataset(path)
+            all_vars = f.variables
+            model_index = str(model) + "-h" + file_path[file_path.index("cam.") + len("cam.") + 1]
+            for v in vars:
+                if v in all_vars:
+                    if model_index not in viable_models:
+                        viable_models.append(model_index)
+                    if model_index not in model_path_map.keys():
+                        model_path_map[model_index] = path
+                    if model_index not in model_year_map.keys():
+                        model_year_map[model_index] = year
+                    if model_index in model_var_map:
+                        model_var_map[model_index].append(v)
+                    else:
+                        model_var_map[model_index] = [v]
+            f.close()
+
+#get ice core lat, lon
+ice_coords = {}
+index_path = 'data/standardized-ice-cores/index.csv' if system == "Darwin" else "index.csv"
+p = pd.read_csv(index_path)
+p = p.reset_index()
+for index, row in p.iterrows():
+    for i in range(row['n_cores']):
+        filename = row['First Author'].lower() + '-' + str(row['Year']) + '-' + str(i + 1) + '.csv'
+        lat = row['N']
+        lon = row['E']
+        ice_coords[filename] = (lat, lon)
+
+#get bc depo
+csv_dict = []
+for model in viable_models:
+    row = {"model number": model}
+    f = Dataset(model_path_map[model])
+    #1 192 288 (t, lat, lon)
+    bc = f[model_var_map[model][0]][:]
+    lats = f["lat"][:]
+    lons = f["lon"][:]
+    row["BC_vars"] = ",".join(model_var_map[model])
+    row["year"] = model_year_map[model]
+    for name in ice_coords.keys():
+        y, x = ice_coords[name]
+        lat = T.nearest_search(lats, y)
+        lon = T.nearest_search(lons, x + 180)
+        total_bc = 0
+        for v in model_var_map[model]:
+            total_bc += bc[0][lat][lon]
+        row[name] = total_bc
+    csv_dict.append(row)
+    f.close()
+
+#save to csv
+fields = ["model number", "BC_vars", "year"]
+[fields.append(name) for name in ice_coords.keys()]
+with open("temp.csv", 'w') as csvfile:
+    writer = csv.DictWriter(csvfile, fieldnames=fields)
+    writer.writeheader()
+    writer.writerows(csv_dict)
+
+print("done.")
