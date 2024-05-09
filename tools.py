@@ -123,3 +123,21 @@ class ToolBox:
         x = f[var_key][:]
         f.close()
         return (np.mean(x), np.median(x), np.std(x), np.quantile(x, 0.25), np.quantile(x, 0.75), np.max(x), np.min(x))
+    
+    #histogram bins to labels "1 to 2"
+    def bins2labels(self, bins):
+        labels = []
+        for i in range(len(bins) - 1):
+            if isinstance(bins[i], (int, float, complex)):
+                labels.append(str("%.3g" % bins[i]) + ' to ' + str("%.3g" % bins[i + 1]))
+            elif isinstance(bins[i], (str)):
+                labels.append(bins[i] + ' to ' + bins[i + 1])
+            else:
+                raise Exception("in tools.py, bins2labels, unrecognised bin element type")
+        return labels
+    
+    #get even spacing between numbers
+    def get_ticks(self, low_bound, high_bound, n):
+        diff = high_bound - low_bound
+        step = diff / (n - 1)
+        return [x * step + low_bound for x in range(n)]

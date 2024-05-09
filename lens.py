@@ -8,6 +8,11 @@ import os
 system = platform.system() #differentiate local and derecho env by sys platform
 T = tools.ToolBox()
 
+def mass_mix2conc(bc_mixing_ratio, TREHT, Q850, srf_p):
+    def srf_p2ref_p(srf_p):
+        return srf_p
+    return bc_mixing_ratio * srf_p2ref_p(srf_p) * (18.015 * Q850 + 28.996 * (1 - Q850)) / 8.3145 / TREHT
+
 #path of lens files
 def modelN2fnames(model_n, year):
     n = str(model_n).zfill(2)
