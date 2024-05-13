@@ -267,12 +267,12 @@ elif (inp == "l"): #Lens data
             max_bc = max(value) if max(value) > max_bc else max_bc
             min_bc = min(value) if min(value) < min_bc else min_bc
     #actually plot
-    #bins = [1/np.power(10, i * -1) for i in t.get_ticks(-16, -9, 4)]
-    powers = (-16, -13.67, -12.67, -12.33, -11.33, -9)
+    bins = [1/np.power(10, i * -1) for i in t.get_ticks(-16, -9, 10)]
+    #powers = (-16, -13.67, -12.67, -12.33, -11.33, -9)
     #powers =  t.get_ticks(-16, -9, 4)
-    bins = [1/np.power(10, i * -1) for i in powers]
-    distribution_labels = t.bins2labels(["E" + str(i) for i in powers])
-    #distribution_labels = t.bins2labels(bins)
+    #bins = [1/np.power(10, i * -1) for i in powers]
+    #distribution_labels = t.bins2labels(["E" + str(i) for i in powers])
+    distribution_labels = t.bins2labels(bins)
     x = np.arange(len(distribution_labels))
     all_lens_data = []
     #plot all togethere

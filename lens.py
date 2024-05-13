@@ -1,6 +1,7 @@
 from netCDF4 import Dataset
 import pandas as pd
 import platform
+import math
 import tools
 import csv
 import os
@@ -8,10 +9,10 @@ import os
 system = platform.system() #differentiate local and derecho env by sys platform
 T = tools.ToolBox()
 
-def mass_mix2conc(bc_mixing_ratio, TREHT, Q850, srf_p):
-    def srf_p2ref_p(srf_p):
+def mass_mix2conc(bc_mixing_ratio, TREHT, srf_p):
+    def convert_p(srf_p):
         return srf_p
-    return bc_mixing_ratio * srf_p2ref_p(srf_p) * (18.015 * Q850 + 28.996 * (1 - Q850)) / 8.3145 / TREHT
+    return bc_mixing_ratio * convert_p(srf_p) / 287.053 / TREHT
 
 #path of lens files
 def modelN2fnames(model_n, year):
@@ -74,16 +75,9 @@ for model in models:
             f.close()
 
 #get ice core lat, lon
-ice_coords = {}
 index_path = 'data/standardized-ice-cores/index.csv' if system == "Darwin" else "index.csv"
-p = pd.read_csv(index_path)
-p = p.reset_index()
-for index, row in p.iterrows():
-    for i in range(row['n_cores']):
-        filename = row['First Author'].lower() + '-' + str(row['Year']) + '-' + str(i + 1) + '.csv'
-        lat = row['N']
-        lon = row['E']
-        ice_coords[filename] = (lat, lon)
+dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv' if system == "Darwin" else "index-dup-cores.csv"
+ice_coords = T.get_ice_coords(index_path, dupe_path)
 
 #get bc depo
 csv_dict = []

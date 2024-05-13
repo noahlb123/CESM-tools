@@ -1,5 +1,6 @@
 import math
 from netCDF4 import Dataset
+import pandas as pd
 import numpy as np
 
 class ToolBox:
@@ -141,3 +142,21 @@ class ToolBox:
         diff = high_bound - low_bound
         step = diff / (n - 1)
         return [x * step + low_bound for x in range(n)]
+    
+    def get_ice_coords(self, index_path, dupe_path):
+        ice_coords = {}
+        dup_index_map = {}
+        p_dup = pd.read_csv(dupe_path)
+        for index, r in p_dup.iterrows():
+            dup_index_map[r['Filename']] = [r['Lat'], r['Lon'], r['Abbreviation']]
+        p = pd.read_csv(index_path)
+        p = p.reset_index()
+        for index, row in p.iterrows():
+            for i in range(row['n_cores']):
+                filename = row['First Author'].lower() + '-' + str(row['Year']) + '-' + str(i + 1) + '.csv'
+                lat = row['N']
+                lon = row['E']
+                if math.isnan(lat) or math.isnan(lon):
+                    lat, lon, abbr = dup_index_map[filename]
+                ice_coords[filename] = (lat, lon)
+        return ice_coords
