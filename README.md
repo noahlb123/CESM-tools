@@ -66,3 +66,4 @@ lon_index = T.nearest_search(lons, my_lon)
 x = x_var[lat_index][lon_index]
 print(x)
 ```
+8. For more exmaples of using nearest_search, see [lens.py](https://github.com/noahlb123/CESM-tools/blob/main/lens.py) and [cmip.py](https://github.com/noahlb123/CESM-tools/blob/main/cmip.py).
