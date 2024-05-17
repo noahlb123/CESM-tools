@@ -4,15 +4,19 @@ from matplotlib.cm import ScalarMappable
 from matplotlib.colors import BoundaryNorm
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.ticker import ScalarFormatter
+import matplotlib.patheffects as pe
 import matplotlib.ticker as ticker
 from matplotlib import colormaps
 import matplotlib.pyplot as plt
+from scipy.stats import lognorm
 import plotly.express as px
+from netCDF4 import Dataset
 import numpy as np
 import cartopy
 import scipy
 import tools
 import math
+import sys
 
 #read index file
 t = tools.ToolBox()
@@ -21,7 +25,7 @@ p = p.reset_index()
 
 #setup vars
 exclude = set([])#set(['mcconnell-2017-1.csv', 'brugger-2021-1.csv'])
-windows = [1, 3, 5, 11]
+windows = [5]#[1, 3, 5, 11]
 full_data = {}
 for key in windows:
     full_data[key] = [] #filename, lat, lon, PI averge, PD averge, ratio, PI year, PD year, 3 averege, 3 year
@@ -59,10 +63,12 @@ for index, row in p.iterrows():
                     full_data[key].append([filename, lat, lon, a1[key], a2[key], a3[key]/a1[key], y1, y2, a3[key], y3])
             #cartopy
             for_cartopy[filename] = {'lat': lat, 'lon': lon, 'ratio': a3[5] / a1[5], 'abbr': abbr}
+for_cartopy = {k: v for k, v in sorted(for_cartopy.items(), key=lambda item: item[1]['ratio'])} #sort by ratio
 final_pd = pd.DataFrame.from_records(for_cartopy).T
 
 #plot
-inp = input("Matplot or Cartopy? (m/c): ")
+#inp = input("Matplot or Cartopy? (m/c): ")
+inp = sys.argv[1]
 def format_column(c):
     return np.transpose(c).astype('float64').tolist()[0]
 if (inp == "m"): #Raw Matplot
@@ -130,68 +136,96 @@ elif (inp == 'p'): #Plotly
     fig = px.scatter_geo(final_pd, lat='lat', lon='lon', hover_name='abbr', title='PD/PI Ratios')
     fig.show()
 elif (inp == "c"): #Cartopy
-    #Matplot
+    projections = {
+        'rotated-pole': {
+            'projection': cartopy.crs.RotatedPole(pole_longitude=180.0, pole_latitude=36.0, central_rotated_longitude=-40),
+            'extent': (-180.0, 180.0, -78.0, 73.0),
+            'crs': cartopy.crs.RotatedPole(pole_longitude=180.0, pole_latitude=36.0, central_rotated_longitude=-40)
+            },
+        'north-pole': {
+            'projection': cartopy.crs.NearsidePerspective(central_longitude=0, central_latitude=90),
+            'extent': (180, -180, 65, 65),
+            'crs': cartopy.crs.PlateCarree()
+            },
+        'antartica': {
+            'projection': cartopy.crs.NearsidePerspective(central_longitude=0, central_latitude=-90),
+            'extent': (180, -180, -65, -65),
+            'crs': cartopy.crs.PlateCarree()
+            }
+        }
     #for globe
     #ax = plt.axes(projection=cartopy.crs.Robinson())
     #ax.set_extent([-180, 180, -90, 90], crs=cartopy.crs.PlateCarree())
-    #for rotated pole
-    rp = cartopy.crs.RotatedPole(pole_longitude=180.0, pole_latitude=36.0, central_rotated_longitude=-40)#-106
-    ax = plt.axes(projection=rp)
-    ax.set_extent((-180.0, 180.0, -78.0, 73.0), crs=rp)
-    #xs, ys, zs = rp.transform_points(cartopy.crs.PlateCarree(), np.array([-180, 180]), np.array([-90, 90])).T
-    #ax.set_xlim(xs)
-    #ax.set_ylim(ys)
-    #for antartica
-    #ax = plt.axes(projection=cartopy.crs.NearsidePerspective(central_longitude=0.0, central_latitude=-90))
-    #ax.set_extent([-2536032.75925479, 2536640.3242591335, -2*1045053.5124408401, 2*1878973.7356212165], crs=cartopy.crs.NearsidePerspective(central_longitude=0.0, central_latitude=-90))
 
-    #get this from https://www.naturalearthdata.com/features/
-    glaciers = cartopy.feature.NaturalEarthFeature(
-        category='physical',
-        name='glaciated_areas',
-        scale='110m',
-        facecolor='#00A6E3')
-    ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
-    ax.add_feature(glaciers)
+    #elevation vars
+    elev = Dataset('data/elevation-red.nc') #from https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2c/netCDF/
+    elev_x = elev['x'][:]
+    elev_y = elev['y'][:]
+    elev_z = elev['z'][:]
 
-    #setup color scale
-    max_ratio = 0
-    for key in for_cartopy.keys():
-        #r = math.log(for_cartopy[key]['ratio'], 10)
-        r = for_cartopy[key]['ratio']
-        max_ratio = r if r > max_ratio else max_ratio
-    cmap = colormaps['BrBG_r']#inferno
-    # extract all colors from the map
-    cmaplist = [cmap(i) for i in range(cmap.N)]
-    # force the last color entry to be red
-    #cmaplist[-1] = (1, 0, 0, 1.0)
-    # create the new map
-    cmap = LinearSegmentedColormap.from_list(
-        'Custom cmap', cmaplist, cmap.N)
-    # define the bins and normalize
-    bounds = [round(x, 1) for x in np.linspace(0, 2, 10)]
-    norm = BoundaryNorm(bounds, cmap.N)
-    sm = ScalarMappable(cmap=cmap, norm=norm)
+    index_name_map = {}
+    for projection, params in projections.items():
+        plt.clf()
+        ax = plt.axes(projection=params['projection'])
+        ax.set_extent(params['extent'], crs=params['crs'])
 
-    #plot
-    for key in for_cartopy.keys():
-        obj = for_cartopy[key]
-        [lat, lon] = [obj['lat'], obj['lon']]
-        #if (lat < -61):
-        temp = key.split('-')
-        #print(temp[0].capitalize() + " et al. " + temp[1], lat, lon, round(obj['ratio'], 3), temp[2])
-        plt.plot(lon, lat, c=cmap(norm(obj['ratio'])), markeredgecolor='black', marker='.', markersize=9, transform=cartopy.crs.PlateCarree())
-        #plt.plot(lon, lat, c=cmap(norm(math.log(obj['ratio'], 10))), markeredgecolor='black', marker='.', markersize=6, transform=cartopy.crs.PlateCarree())
-    plt.colorbar(mappable=sm, label="PD/PI BC Conc.", orientation="horizontal")
-    
-    #plt.savefig('figures/ice-cores/rotated-pole.png', dpi=300)
-    plt.show()
+        #get this from https://www.naturalearthdata.com/features/
+        '''glaciers = cartopy.feature.NaturalEarthFeature(
+            category='physical',
+            name='glaciated_areas',
+            scale='110m',
+            facecolor='#00A6E3')
+        ax.add_feature(glaciers)'''
+        ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
+
+        #elevation
+        plt.pcolormesh(elev_x, elev_y, elev_z, transform=cartopy.crs.PlateCarree())
+
+        #setup color scale
+        max_ratio = 0
+        for key in for_cartopy.keys():
+            #r = math.log(for_cartopy[key]['ratio'], 10)
+            r = for_cartopy[key]['ratio']
+            max_ratio = r if r > max_ratio else max_ratio
+        cmap = colormaps['BrBG_r']#inferno
+        # extract all colors from the map
+        cmaplist = [cmap(i) for i in range(cmap.N)]
+        # force the last color entry to be red
+        #cmaplist[-1] = (1, 0, 0, 1.0)
+        # create the new map
+        cmap = LinearSegmentedColormap.from_list(
+            'Custom cmap', cmaplist, cmap.N)
+        # define the bins and normalize
+        bounds = [round(x, 1) for x in np.linspace(0, 2, 10)]
+        norm = BoundaryNorm(bounds, cmap.N)
+        sm = ScalarMappable(cmap=cmap, norm=norm)
+
+        #plot
+        i = 1
+        for key in for_cartopy.keys():
+            obj = for_cartopy[key]
+            [lat, lon] = [obj['lat'], obj['lon']]
+            #if (lat < -61):
+            temp = key.split('-')
+            #print(temp[0].capitalize() + " et al. " + temp[1], lat, lon, round(obj['ratio'], 3), temp[2])
+            plt.plot(lon, lat, c=cmap(norm(obj['ratio'])), markeredgecolor='black', marker='.', markersize=9, transform=cartopy.crs.PlateCarree())
+            if (projection == 'north-pole' and lat >= 60) or (projection == 'antartica' and lat <= -60):
+                plt.text(lon, lat, " " + str(i), c="white", transform=cartopy.crs.PlateCarree(), path_effects=[pe.withStroke(linewidth=2, foreground="black")])
+            #plt.plot(lon, lat, c=cmap(norm(math.log(obj['ratio'], 10))), markeredgecolor='black', marker='.', markersize=6, transform=cartopy.crs.PlateCarree())
+            index_name_map[i] = key
+            i += 1
+        if not projection in ('antartica', 'north-pole'):
+            plt.colorbar(mappable=sm, label="PD/PI BC Conc.", orientation="horizontal")
+
+        plt.savefig('figures/ice-cores/testmap-' + projection + '.png', dpi=200, bbox_inches='tight', pad_inches=0.0)
+        #plt.show()
+    print(index_name_map)
 elif (inp == "l"): #Lens data
     #lens are in 5 year avereges so comparing like to like
     #setup data:
     lens_pi = pd.read_csv('data/lens/pi.csv')
     lens_pd = pd.read_csv('data/lens/pd.csv')
-    dont_use = {'model number', 'BC_vars', 'year', 'mcconnell-2021-6.csv', 'ming-2008-1.csv', 'sierra-hernández-2022-1.csv', 'wolff-2012-1.csv', 'mcconnell-2021-2.csv', 'mcconnell-2017-1.csv', 'xu-2009-1.csv'}
+    dont_use = {'model number', 'BC_vars', 'year', 'mcconnell-2021-6.csv', 'mcconnell-2021-4.csv', 'mcconnell-2021-1.csv', 'mcconnell-2021-3.csv', 'liu-2021-2.csv', 'liu-2021-4.csv', 'zhang-2024-9.csv', 'kaspari-2020-1.csv', 'arienzo-2017-1.csv', 'ming-2008-1.csv', 'sierra-hernández-2022-1.csv', 'wolff-2012-1.csv', 'mcconnell-2021-2.csv', 'mcconnell-2017-1.csv', 'xu-2009-1.csv'}
     bar_lables = []
     bar_means = {'LENS Models': [], 'Ice Core': []}
     distribution_map = {}
@@ -221,7 +255,7 @@ elif (inp == "l"): #Lens data
             bar_means['LENS Models'].append(model_mean)
             bar_means['Ice Core'].append(ice_mean)
     #plot mean bars
-    '''x = np.arange(len(bar_lables))  # the label locations
+    x = np.arange(len(bar_lables))  # the label locations
     width = 0.4  # the width of the bars
     multiplier = 0
     fig, ax = plt.subplots(layout='constrained')
@@ -230,14 +264,14 @@ elif (inp == "l"): #Lens data
         offset = width * multiplier
         rects = ax.bar(x + offset, measurement, width, label=attribute, color=color)
         multiplier += 1
-    plt.errorbar(bar_lables, bar_means['LENS Models'], yerr=lens_stds, fmt="o", color="r")
+    plt.errorbar(bar_lables, bar_means['LENS Models'], yerr=lens_stds, fmt=".", color="r")
     ax.set_ylabel('1980/1925 BC Ratio')
     ax.set_title('N-Hemisphere LENS vs Ice Core BC Change')
     ax.set_xticks(x + width, bar_lables)
     plt.xticks(rotation=90)
     ax.legend()
-    plt.show()
-    #plt.savefig('figures/ice-cores/lens-std.png', dpi=300)'''
+    #plt.show()
+    plt.savefig('figures/ice-cores/test4.png', dpi=300)
     #plot distribution bars by model
     '''x = np.arange(len(distribution_lables))
     fig, axes = plt.subplots(len(distribution_map), dpi=300, figsize=(4*1000/300, 4*1000/300))
@@ -256,6 +290,7 @@ elif (inp == "l"): #Lens data
     plt.subplots_adjust(hspace=0.7) #add spacing between subplots
     plt.savefig('figures/ice-cores/test.png', dpi=300)'''
     #plot distribution bars by ice core
+    plt.clf()
     x = np.arange(len(ice_based_labels))
     width = 0.4
     multiplier = 0
@@ -267,7 +302,7 @@ elif (inp == "l"): #Lens data
             max_bc = max(value) if max(value) > max_bc else max_bc
             min_bc = min(value) if min(value) < min_bc else min_bc
     #actually plot
-    bins = [1/np.power(10, i * -1) for i in t.get_ticks(-16, -9, 10)]
+    bins = [1/np.power(10, i * -1) for i in t.get_ticks(-15, -9, 10)]
     #powers = (-16, -13.67, -12.67, -12.33, -11.33, -9)
     #powers =  t.get_ticks(-16, -9, 4)
     #bins = [1/np.power(10, i * -1) for i in powers]
@@ -285,9 +320,18 @@ elif (inp == "l"): #Lens data
                 multiplier += 1
         i += 1
     fig, ax = plt.subplots(layout='constrained')
-    ax.bar(x, np.histogram(all_lens_data, bins=bins, range=(min_bc, max_bc))[0], width, label=distribution_labels, color=color)
-    ax.set_xticks(x, distribution_labels, fontsize=8)
-    plt.savefig('figures/ice-cores/test1.png', dpi=300)
+    hist = np.histogram(all_lens_data, bins=bins, range=(min_bc, max_bc))
+    ax.bar(x, hist[0], width, label=distribution_labels, color=color)
+    ax.set_xticks(x, distribution_labels, fontsize=4)
+    plt.savefig('figures/ice-cores/test1.png', dpi=150)
+    #pdf
+    plt.clf()
+    s, location, mean = lognorm.fit(all_lens_data)
+    normal_dist = lognorm(bins, s, scale=mean)
+    probabilities  = [normal_dist.pdf(bin) for bin in bins]
+    #plt.hist(all_lens_data, bins=bins)
+    plt.plot(bins, lognorm.pdf(bins, s, scale=mean))
+    plt.savefig('figures/ice-cores/test3.png', dpi=100)
     #plot all sepratley
     plt.clf()
     i = 0
@@ -307,9 +351,8 @@ elif (inp == "l"): #Lens data
     axes[-1].set_xticks(x + 82.5 * width, distribution_labels)
     axes[0].legend()
     plt.subplots_adjust(hspace=0.9, top=0.95, bottom=0.02) #add spacing between subplots
-    plt.savefig('figures/ice-cores/test2.png', dpi=300)
+    plt.savefig('figures/ice-cores/test2.png', dpi=50)
 elif (inp == "t"): #testing
-    print(t.get_ticks(-13, -12, 4))
-
+    print({k: v for k, v in sorted(for_cartopy.items(), key=lambda item: item[1]['ratio'])})
 
 print("n=" + str(len(for_cartopy)))

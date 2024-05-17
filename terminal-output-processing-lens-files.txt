@@ -740,6 +740,10 @@ ncra --mro -O -d time,,,12,12 TEMP_000101-100012.nc fire-season-only.nc
 
 for file in *.tar; do tar -xf "$file"; done
 
+#decrease resolution, note max = panoply listed max - 1
+ncks --dmn x,min,max,stride --dmn y,min,max,stride elevation.nc reduced.nc
+ncks --dmn x,0,10799,7 --dmn y,0,5399,7 elevation.nc reduced.nc
+
 #grep in ncdump
 ncdump -h $file | grep -i -e "SFbc_a4" -e "SFbc_a1" -e "bc_a4DDF" -e "bc_a4SFWET" -e "bc_a1DDF" -e "bc_a1SFWET" -e "bc_c4DDF" -e "bc_c4SFWET" -e "bc_c1DDF" -e "bc_c1SFWET"
 

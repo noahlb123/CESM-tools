@@ -81,6 +81,7 @@ class ToolBox:
     def in_bounds(self, index, arr):
         return 0 <= index < len(arr)
     
+    #list of time, list of x, year float, list of windows
     def get_avgs(self, t_l, x_l, year, windows):
         output = {}
         focus_index = self.nearest_search(t_l, year)
@@ -90,7 +91,6 @@ class ToolBox:
         focus_year = t_l[focus_index]
         def above_y_min(i, max_yr, w_size):
             if max_yr != -99999999:
-                #print(i, max_yr - w_size, max_yr)
                 return t_l[i] >= max_yr - w_size
             else:
                 return focus_year - w_size // 2 <= t_l[i] <= focus_year + w_size // 2

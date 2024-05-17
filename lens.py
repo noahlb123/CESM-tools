@@ -9,10 +9,8 @@ import os
 system = platform.system() #differentiate local and derecho env by sys platform
 T = tools.ToolBox()
 
-def mass_mix2conc(bc_mixing_ratio, TREHT, srf_p):
-    def convert_p(srf_p):
-        return srf_p
-    return bc_mixing_ratio * convert_p(srf_p) / 287.053 / TREHT
+def mass_mix2conc(bc_mixing_ratio, TREHT, p):
+    return bc_mixing_ratio * p / 287.053 / TREHT
 
 #path of lens files
 def modelN2fnames(model_n, year):
@@ -32,7 +30,7 @@ model_var_map = {}
 model_path_map = {}
 model_year_map = {}
 viable_models = []
-vars = ['bc_a4_SRF', 'bc_a1_SRF']
+vars = ['bc_a4_SRF', 'bc_a1_SRF'] #these are suspended bc
 '''vars = ['SFbc_a4',
         'SFbc_a1',
         'bc_a4DDF',
@@ -42,7 +40,7 @@ vars = ['bc_a4_SRF', 'bc_a1_SRF']
         'bc_c4DDF',
         'bc_c4SFWET',
         'bc_c1DDF',
-        'bc_c1SFWET']'''
+        'bc_c1SFWET']'''#these are depositions
 
 #get viable models
 for model in models:
@@ -86,6 +84,11 @@ for model in viable_models:
     f = Dataset(model_path_map[model])
     #1 192 288 (t, lat, lon)
     bc = f[model_var_map[model][0]][:]
+    hyai = f["hyai"][:]
+    hybi = f["hybi"][:]
+    P0 = f["P0"][:]
+    PSL = f["PSL"][:]
+    TREFHT = f["TREFHT"][:]
     lats = f["lat"][:]
     lons = f["lon"][:]
     row["BC_vars"] = ",".join(model_var_map[model])
@@ -95,9 +98,15 @@ for model in viable_models:
         lat = T.nearest_search(lats, y)
         lon = T.nearest_search(lons, x + 180)
         total_bc = 0
+        #black carbon
         for v in model_var_map[model]:
             total_bc += bc[0][lat][lon]
-        row[name] = total_bc
+        #pressure
+        pressure = 0
+        for level in range(30):
+            delta_p = PSL[0][lat][lon] * (hybi[level + 1] - hybi[level]) + P0 * (hyai[level + 1] - hyai[level])
+            pressure += delta_p / 9.81
+        row[name] = mass_mix2conc(total_bc, TREFHT[0][lat][lon], pressure)
     csv_dict.append(row)
     f.close()
 
