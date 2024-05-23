@@ -1,7 +1,6 @@
 from netCDF4 import Dataset
 import pandas as pd
 import platform
-import math
 import tools
 import csv
 import os
@@ -44,33 +43,35 @@ vars = ['bc_a4_SRF', 'bc_a1_SRF'] #these are suspended bc
 
 #get viable models
 for model in models:
-    #get path
-    year = "1980-01-01-00000" if model != 34 else "1977-01-01-00000"
-    working_path = os.path.dirname(os.path.abspath(__file__))
-    file_paths = modelN2fnames(model, year)
-    for file_path in file_paths:
-        if system == "Darwin":
-            path = os.path.join(working_path, "data", "lens", file_path)
-        else:
-            path = os.path.join(working_path, file_path)
-        if os.path.exists(path):
-            #check if has bc vars
-            f = Dataset(path)
-            all_vars = f.variables
-            model_index = str(model) + "-h" + file_path[file_path.index("cam.") + len("cam.") + 1]
-            for v in vars:
-                if v in all_vars:
-                    if model_index not in viable_models:
-                        viable_models.append(model_index)
-                    if model_index not in model_path_map.keys():
-                        model_path_map[model_index] = path
-                    if model_index not in model_year_map.keys():
-                        model_year_map[model_index] = year
-                    if model_index in model_var_map:
-                        model_var_map[model_index].append(v)
-                    else:
-                        model_var_map[model_index] = [v]
-            f.close()
+    years = [1980 + 5 * (x - 2) for x in range(5)] if model != 34 else (1977, 1982, 1987, 1972, 1970)
+    for year in years:
+        #get path
+        year_s = str(year) + "-01-01-00000"
+        working_path = os.path.dirname(os.path.abspath(__file__))
+        file_paths = modelN2fnames(model, year_s)
+        for file_path in file_paths:
+            if system == "Darwin":
+                path = os.path.join(working_path, "data", "lens", file_path)
+            else:
+                path = os.path.join(working_path, file_path)
+            if os.path.exists(path):
+                #check if has bc vars
+                f = Dataset(path)
+                all_vars = f.variables
+                model_index = str(model) + "-h" + file_path[file_path.index("cam.") + len("cam.") + 1] + year_s
+                for v in vars:
+                    if v in all_vars:
+                        if model_index not in viable_models:
+                            viable_models.append(model_index)
+                        if model_index not in model_path_map.keys():
+                            model_path_map[model_index] = path
+                        if model_index not in model_year_map.keys():
+                            model_year_map[model_index] = year
+                        if model_index in model_var_map:
+                            model_var_map[model_index].append(v)
+                        else:
+                            model_var_map[model_index] = [v]
+                f.close()
 
 #get ice core lat, lon
 index_path = 'data/standardized-ice-cores/index.csv' if system == "Darwin" else "index.csv"

@@ -8,6 +8,8 @@ import matplotlib.patheffects as pe
 import matplotlib.ticker as ticker
 from matplotlib import colormaps
 import matplotlib.pyplot as plt
+from matplotlib import rcParams
+from scipy.integrate import quad
 from scipy.stats import lognorm
 import plotly.express as px
 from netCDF4 import Dataset
@@ -61,14 +63,13 @@ for index, row in p.iterrows():
                     lat, lon, abbr = dup_index_map[filename]
                 if True:#filename != "legrand-2023-1.csv":
                     full_data[key].append([filename, lat, lon, a1[key], a2[key], a3[key]/a1[key], y1, y2, a3[key], y3])
-            #cartopy
             for_cartopy[filename] = {'lat': lat, 'lon': lon, 'ratio': a3[5] / a1[5], 'abbr': abbr}
 for_cartopy = {k: v for k, v in sorted(for_cartopy.items(), key=lambda item: item[1]['ratio'])} #sort by ratio
 final_pd = pd.DataFrame.from_records(for_cartopy).T
 
 #plot
 #inp = input("Matplot or Cartopy? (m/c): ")
-inp = sys.argv[1]
+inp = 't' if len(sys.argv) < 2 else sys.argv[1]
 def format_column(c):
     return np.transpose(c).astype('float64').tolist()[0]
 if (inp == "m"): #Raw Matplot
@@ -157,16 +158,12 @@ elif (inp == "c"): #Cartopy
     #ax = plt.axes(projection=cartopy.crs.Robinson())
     #ax.set_extent([-180, 180, -90, 90], crs=cartopy.crs.PlateCarree())
 
-    #elevation vars
-    elev = Dataset('data/elevation-red.nc') #from https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2c/netCDF/
-    elev_x = elev['x'][:]
-    elev_y = elev['y'][:]
-    elev_z = elev['z'][:]
-
     index_name_map = {}
     for projection, params in projections.items():
         plt.clf()
-        ax = plt.axes(projection=params['projection'])
+        dpi = 300
+        #figsize=(740/dpi, 740/dpi)
+        fig, ax = plt.subplots(dpi=dpi, subplot_kw={'projection': params['projection']})
         ax.set_extent(params['extent'], crs=params['crs'])
 
         #get this from https://www.naturalearthdata.com/features/
@@ -179,7 +176,11 @@ elif (inp == "c"): #Cartopy
         ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
 
         #elevation
-        plt.pcolormesh(elev_x, elev_y, elev_z, transform=cartopy.crs.PlateCarree())
+        elev = Dataset('data/elevation-land-only.nc') #from https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2c/netCDF/
+        elev_lon = elev['lon'][:]
+        elev_lat = elev['lat'][:]
+        elev_z = np.transpose(elev['land_elev'][:])
+        mesh = plt.pcolormesh(elev_lon, elev_lat, elev_z, cmap=colormaps['Greys'], vmin=0, transform=cartopy.crs.PlateCarree())
 
         #setup color scale
         max_ratio = 0
@@ -205,20 +206,30 @@ elif (inp == "c"): #Cartopy
         for key in for_cartopy.keys():
             obj = for_cartopy[key]
             [lat, lon] = [obj['lat'], obj['lon']]
-            #if (lat < -61):
+            scale = 0.7468 if projection == 'rotated-pole' else 1
+            color = cmap(norm(obj['ratio']))
+            stroke_color = "black" if color == (0.32941176470588235, 0.18823529411764706, 0.0196078431372549, 1.0) else "black"
             temp = key.split('-')
             #print(temp[0].capitalize() + " et al. " + temp[1], lat, lon, round(obj['ratio'], 3), temp[2])
-            plt.plot(lon, lat, c=cmap(norm(obj['ratio'])), markeredgecolor='black', marker='.', markersize=9, transform=cartopy.crs.PlateCarree())
-            if (projection == 'north-pole' and lat >= 60) or (projection == 'antartica' and lat <= -60):
-                plt.text(lon, lat, " " + str(i), c="white", transform=cartopy.crs.PlateCarree(), path_effects=[pe.withStroke(linewidth=2, foreground="black")])
+            if i !=35:
+                plt.plot(lon, lat, c=color, markeredgecolor='black', marker='.', markersize=16*scale, transform=cartopy.crs.PlateCarree())
+                rcParams.update({'font.size': 12 * scale})
+                if (projection == 'north-pole' and lat >= 60) or (projection == 'antartica' and lat <= -60) or (projection == 'rotated-pole' and -60 <= lat <= 60):
+                    plt.text(lon, lat, " " + str(i), c="white", transform=cartopy.crs.PlateCarree(), path_effects=[pe.withStroke(linewidth=2*scale, foreground=stroke_color)])
             #plt.plot(lon, lat, c=cmap(norm(math.log(obj['ratio'], 10))), markeredgecolor='black', marker='.', markersize=6, transform=cartopy.crs.PlateCarree())
             index_name_map[i] = key
             i += 1
         if not projection in ('antartica', 'north-pole'):
+            rcParams.update({'font.size': 10})
             plt.colorbar(mappable=sm, label="PD/PI BC Conc.", orientation="horizontal")
+            #plt.colorbar(mappable=mesh.colorbar, label="Elevation (m)", orientation="horizontal")
 
-        plt.savefig('figures/ice-cores/testmap-' + projection + '.png', dpi=200, bbox_inches='tight', pad_inches=0.0)
+        plt.savefig('figures/ice-cores/testmap-' + projection + '.png', bbox_inches='tight', pad_inches=0.0)
         #plt.show()
+    s = set()
+    for pub in str(index_name_map).replace('}', '').replace('{', '').split(','):
+        s.add(pub[t.find_nth(pub, " ", 2) + 2:t.find_nth(pub, "-", 2)])
+    print(len(s), "unique ice core pubs")
     print(index_name_map)
 elif (inp == "l"): #Lens data
     #lens are in 5 year avereges so comparing like to like
@@ -247,7 +258,7 @@ elif (inp == "l"): #Lens data
         model_ratios = lens_pd[col_name] / lens_pi[col_name]
         ice_based_dists[col_name] = {'PD': lens_pd[col_name], 'PI': lens_pi[col_name]}
         model_mean = np.mean(model_ratios)
-        model_std = np.std(model_ratios)
+        model_std = scipy.stats.gstd(model_ratios)
         ice_mean = for_cartopy[col_name]['ratio']
         if True: #for_cartopy[col_name]['lat'] > 0: #if in given hemisphere
             bar_lables.append(col_name)
@@ -266,7 +277,7 @@ elif (inp == "l"): #Lens data
         multiplier += 1
     plt.errorbar(bar_lables, bar_means['LENS Models'], yerr=lens_stds, fmt=".", color="r")
     ax.set_ylabel('1980/1925 BC Ratio')
-    ax.set_title('N-Hemisphere LENS vs Ice Core BC Change')
+    ax.set_title('BC Change with Geometric STD')
     ax.set_xticks(x + width, bar_lables)
     plt.xticks(rotation=90)
     ax.legend()
@@ -326,12 +337,23 @@ elif (inp == "l"): #Lens data
     plt.savefig('figures/ice-cores/test1.png', dpi=150)
     #pdf
     plt.clf()
-    s, location, mean = lognorm.fit(all_lens_data)
-    normal_dist = lognorm(bins, s, scale=mean)
-    probabilities  = [normal_dist.pdf(bin) for bin in bins]
-    #plt.hist(all_lens_data, bins=bins)
-    plt.plot(bins, lognorm.pdf(bins, s, scale=mean))
-    plt.savefig('figures/ice-cores/test3.png', dpi=100)
+    stdev, location, mean = lognorm.fit(all_lens_data)
+    phi = (stdev ** 2 + mean ** 2) ** 0.5
+    mu = np.log(mean ** 2 / phi)
+    sigma = (np.log(phi ** 2 / mean ** 2)) ** 0.5
+    data=np.random.lognormal(mu, sigma , 1000)
+    a, b, _  = plt.hist(all_lens_data, bins=10, density=True, alpha=0.5, color='b')
+    xmin, xmax = plt.xlim()#(lognorm.ppf(0.01, sigma), lognorm.ppf(0.99, sigma))#(-2.4730680657277782e-11, 5.19344481734187e-10)#plt.xlim()
+    x = np.linspace(xmin, xmax, 1000)
+    p = lognorm.cdf(x = x, scale = 1, s = sigma, loc=mean)
+    cdf_xmax = lognorm.cdf(x = xmax, scale = 1, s = sigma, loc=mean)
+    plt.plot(x, p, 'k', linewidth=2)
+    plt.vlines(xmax, 0, cdf_xmax, color="red")
+    plt.hlines(cdf_xmax, xmin, xmax, color="red")
+    plt.yscale('log')
+    plt.legend(['CDF', "", "CDF at Xmax=" + str(round(cdf_xmax, 4)), 'Histogram'])
+    #plt.legend(['PDF', 'Histogram'])
+    plt.savefig('figures/ice-cores/test-pdf.png', dpi=150)
     #plot all sepratley
     plt.clf()
     i = 0
@@ -353,6 +375,6 @@ elif (inp == "l"): #Lens data
     plt.subplots_adjust(hspace=0.9, top=0.95, bottom=0.02) #add spacing between subplots
     plt.savefig('figures/ice-cores/test2.png', dpi=50)
 elif (inp == "t"): #testing
-    print({k: v for k, v in sorted(for_cartopy.items(), key=lambda item: item[1]['ratio'])})
+    print(t.coords2area(0, 0, 1))
 
 print("n=" + str(len(for_cartopy)))

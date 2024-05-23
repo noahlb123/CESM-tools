@@ -718,6 +718,7 @@ for i in {11..27}; do echo rm -r b.e11.B20TRC5CNBDRD.f09_g16.0$i.rest.1980-01-01
 
 for file in *; do mkdir "${file:0:52}" && tar -xf "$file" -C "${file:0:52}"; done
 
+#unzip lens files and delete unneeded files
 for file in *; do mkdir "${file:0:52}" && tar -xf "$file" -C "${file:0:52}" && my_dir="${file:0:31}"; for subfile in "${file:0:52}"/*/*; do if [ "${subfile:102:3}" != "cam" ]; then rm -r $subfile; fi; done; done
 
 file_arr=$(for i in {1..35}; do form=$(printf "%02d" $i) && main_name=b.e11.B20TRC5CNBDRD.f09_g16.0"$form".rest.1980-01-01-00000 && echo b.e11.B20TRC5CNBDRD.f09_g16.0"$form"/"$main_name"; done)

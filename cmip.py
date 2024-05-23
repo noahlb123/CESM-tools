@@ -36,8 +36,8 @@ first_core = list(ice_coords.keys())[0]
 data_path = os.path.join(os.getcwd(), 'data', 'cmip6') if system == "Darwin" else os.getcwd()
 
 #get data from cmip6 files
-for filename in os.listdir(data_path):
-    if filename not in ('tools.py', 'index-dup-cores.csv', '__pycache__', 'cmip.py', 'index.csv', 'ip.py', 'pi.csv', 'pd.csv', '.DS_Store') and 'wget' not in filename:
+for filename in os.listdir(data_path): #from https://esgf-node.ipsl.upmc.fr/search/cmip6-ipsl/
+    if filename not in ('tools.py', 'index-dup-cores.csv', '__pycache__', 'cmip.py', 'index.csv', 'ip.py', 'pi.csv', 'pd.csv', 'pi-cmip.csv', 'pd-cmip.csv', '.DS_Store') and 'wget' not in filename and ".csv" not in filename:
         file_path = os.path.join(data_path, filename)
         model_name, start_year, end_year = filename2modelname(filename)
         k = None
@@ -59,33 +59,30 @@ for era, year in sheets.items():
     for model_name, pairs in model_data_map[era].items():
         print(model_name)
         row = {"model": model_name}
-        try:
-            for core_name in ice_coords.keys():#[first_core]:
-                #print(core_name)
-                y, x = ice_coords[core_name]
-                total_sootsn = 0
-                for model_path, start_year, end_year in pairs:
-                    #formatted as time 1980, lat 192, lon 288
-                    f = Dataset(model_path)
-                    sootsn = f['sootsn'][:]
-                    lats = f["lat"][:]
-                    lons = f["lon"][:]
-                    times = f["time"]
-                    lat = T.nearest_search(lats, y)
-                    lon = T.nearest_search(lons, x + 180)
-                    window = 5 * 365
-                    a, y_out = T.get_avgs(times[:], sootsn[:,lat,lon], year * 365, [window])
-                    if core_name == first_core:
-                        check_format(lats, lons, times)
-                        #print(y_out/365)
-                    total_sootsn += a[window]
-                    f.close()
-                row['n ensemble members'] = len(pairs)
-                row['window'] = window
-                row[core_name] = total_sootsn / len(pairs)
-            csv_dict.append(row)
-        except:
-            continue
+        for core_name in ice_coords.keys():#[first_core]:
+            #print(core_name)
+            y, x = ice_coords[core_name]
+            total_sootsn = 0
+            for model_path, start_year, end_year in pairs:
+                #formatted as time 1980, lat 192, lon 288
+                f = Dataset(model_path)
+                sootsn = f['sootsn'][:]
+                lats = f["lat"][:]
+                lons = f["lon"][:]
+                times = f["time"]
+                lat = T.nearest_search(lats, y)
+                lon = T.nearest_search(lons, x + 180)
+                window = 5 * 365
+                a, y_out = T.get_avgs(times[:], sootsn[:,lat,lon], year * 365, [window])
+                if core_name == first_core:
+                    check_format(lats, lons, times)
+                    #print(y_out/365)
+                total_sootsn += a[window]
+                f.close()
+            row['n ensemble members'] = len(pairs)
+            row['window'] = window
+            row[core_name] = total_sootsn / len(pairs)
+        csv_dict.append(row)
 
     #save to csv
     fields = ["model", 'n ensemble members', 'window']

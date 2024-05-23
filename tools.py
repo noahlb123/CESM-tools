@@ -97,8 +97,6 @@ class ToolBox:
         for w_size in windows:
             n = max_yr = 1
             my_sum = float(x_l[focus_index])
-            if len(t_l) < w_size:
-                continue
             def search_bounds(i, t_l, x_l, w_size, max_yr, n, my_sum, volacno_threshold, direc):
                 max_yr = -99999999
                 while self.in_bounds(i, t_l) and above_y_min(i, max_yr, w_size):
@@ -160,3 +158,24 @@ class ToolBox:
                     lat, lon, abbr = dup_index_map[filename]
                 ice_coords[filename] = (lat, lon)
         return ice_coords
+    
+    def find_nth(self, haystack: str, needle: str, n: int) -> int:
+        start = haystack.find(needle)
+        while start >= 0 and n > 1:
+            start = haystack.find(needle, start+len(needle))
+            n -= 1
+        return start
+    
+    def within(a, b, range):
+        return np.abs(a - b) <= range
+    
+    #lat:float (-90, 90), lon:float (-180, 180), res: width in degrees of gridbox
+    #returns area of gridbox in km^2 or units of AVG_EARTH_RADIUS_KM
+    def coords2area(self, lat, lon, res):
+        AVG_EARTH_RADIUS_KM = 6371.0088
+        west = math.radians(lon - res / 2)
+        east = math.radians(lon + res / 2)
+        south = math.radians(lat - res / 2)
+        north = math.radians(lat + res / 2)
+        area = (east - west) * (math.sin(north) - math.sin(south)) * (AVG_EARTH_RADIUS_KM**2)
+        return area

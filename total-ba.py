@@ -13,16 +13,6 @@ def d2fname(m, y=0):
 def d2res(month, year):
     return 0.25 if year > 2000 or (year == 2000 and month > 11) else 1
 
-#get area from lat lon grid cells
-def coords2area(lat, lon, res):
-    AVG_EARTH_RADIUS_KM = 6371.0088
-    west = radians(lon - res / 2)
-    east = radians(lon + res / 2)
-    south = radians(lat - res / 2)
-    north = radians(lat + res / 2)
-    area = (east - west) * (sin(north) - sin(south)) * (AVG_EARTH_RADIUS_KM**2)
-    return area
-
 #get total BA from each GFED5 file
 data = [] #["Year", "GFED 5 Global Total BA"]
 year_tot = 0
