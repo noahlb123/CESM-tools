@@ -765,3 +765,6 @@ ncks -d time,0,-2 test-file.nc test-file.nc
 ncks --mk_rec_dmn time test-file.nc climo-avg.nc
 cdo chname,time,depth climo-avg.nc climo-avg.nc
 ncra --mro -O -d time,,,43,43 climo-avg.nc climo-avg.nc
+
+#send all needed files to remote
+scp lens.py tools.py data /Users/noahliguori-bills/Downloads/CESM-tools/data/standardized-ice-cores/index.csv /Users/noahliguori-bills/Downloads/CESM-tools/data/standardized-ice-cores/index-dup-cores.csv nlbills@derecho.hpc.ucar.edu:/glade/derecho/scratch/nlbills/lens-all-pi

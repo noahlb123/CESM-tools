@@ -4,6 +4,8 @@ from matplotlib.cm import ScalarMappable
 from matplotlib.colors import BoundaryNorm
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.ticker import ScalarFormatter
+import matplotlib.patches as mpatches
+from matplotlib.patches import Wedge
 import matplotlib.patheffects as pe
 import matplotlib.ticker as ticker
 from matplotlib import colormaps
@@ -11,6 +13,7 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from scipy.integrate import quad
 from scipy.stats import lognorm
+from scipy.stats import norm
 import plotly.express as px
 from netCDF4 import Dataset
 import numpy as np
@@ -18,6 +21,7 @@ import cartopy
 import scipy
 import tools
 import math
+import json
 import sys
 
 #read index file
@@ -32,6 +36,9 @@ full_data = {}
 for key in windows:
     full_data[key] = [] #filename, lat, lon, PI averge, PD averge, ratio, PI year, PD year, 3 averege, 3 year
 for_cartopy = {}
+patches = [
+    (-110, -5, 40, 25)
+]
 
 #fix duplicate pud core lat lons
 dup_index_map = {}
@@ -63,12 +70,11 @@ for index, row in p.iterrows():
                     lat, lon, abbr = dup_index_map[filename]
                 if True:#filename != "legrand-2023-1.csv":
                     full_data[key].append([filename, lat, lon, a1[key], a2[key], a3[key]/a1[key], y1, y2, a3[key], y3])
-            for_cartopy[filename] = {'lat': lat, 'lon': lon, 'ratio': a3[5] / a1[5], 'abbr': abbr}
+            for_cartopy[filename] = {'lat': lat, 'lon': lon, 'ratio': a3[5] / a1[5], 'abbr': abbr, 'filename': filename}
 for_cartopy = {k: v for k, v in sorted(for_cartopy.items(), key=lambda item: item[1]['ratio'])} #sort by ratio
 final_pd = pd.DataFrame.from_records(for_cartopy).T
 
 #plot
-#inp = input("Matplot or Cartopy? (m/c): ")
 inp = 't' if len(sys.argv) < 2 else sys.argv[1]
 def format_column(c):
     return np.transpose(c).astype('float64').tolist()[0]
@@ -134,7 +140,7 @@ elif (inp == 'b'): #box plot
         #plt.savefig('figures/ice-cores/southern-box.png', dpi=300)
         plt.show()
 elif (inp == 'p'): #Plotly
-    fig = px.scatter_geo(final_pd, lat='lat', lon='lon', hover_name='abbr', title='PD/PI Ratios')
+    fig = px.scatter_geo(final_pd, lat='lat', lon='lon', hover_name='filename', title='PD/PI Ratios')
     fig.show()
 elif (inp == "c"): #Cartopy
     projections = {
@@ -159,20 +165,13 @@ elif (inp == "c"): #Cartopy
     #ax.set_extent([-180, 180, -90, 90], crs=cartopy.crs.PlateCarree())
 
     index_name_map = {}
+    offsets = json.load(open('data/offsets.json'))
     for projection, params in projections.items():
         plt.clf()
         dpi = 300
         #figsize=(740/dpi, 740/dpi)
         fig, ax = plt.subplots(dpi=dpi, subplot_kw={'projection': params['projection']})
         ax.set_extent(params['extent'], crs=params['crs'])
-
-        #get this from https://www.naturalearthdata.com/features/
-        '''glaciers = cartopy.feature.NaturalEarthFeature(
-            category='physical',
-            name='glaciated_areas',
-            scale='110m',
-            facecolor='#00A6E3')
-        ax.add_feature(glaciers)'''
         ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
 
         #elevation
@@ -191,11 +190,12 @@ elif (inp == "c"): #Cartopy
         cmap = colormaps['BrBG_r']#inferno
         # extract all colors from the map
         cmaplist = [cmap(i) for i in range(cmap.N)]
+        #force middle color to be white
+        cmaplist[len(cmaplist) // 2] = (1, 1.0, 1.0, 1.0)
         # force the last color entry to be red
         #cmaplist[-1] = (1, 0, 0, 1.0)
         # create the new map
-        cmap = LinearSegmentedColormap.from_list(
-            'Custom cmap', cmaplist, cmap.N)
+        cmap = LinearSegmentedColormap.from_list('Custom cmap', cmaplist, cmap.N)
         # define the bins and normalize
         bounds = [round(x, 1) for x in np.linspace(0, 2, 10)]
         norm = BoundaryNorm(bounds, cmap.N)
@@ -209,13 +209,22 @@ elif (inp == "c"): #Cartopy
             scale = 0.7468 if projection == 'rotated-pole' else 1
             color = cmap(norm(obj['ratio']))
             stroke_color = "black" if color == (0.32941176470588235, 0.18823529411764706, 0.0196078431372549, 1.0) else "black"
-            temp = key.split('-')
+            #temp = key.split('-')
             #print(temp[0].capitalize() + " et al. " + temp[1], lat, lon, round(obj['ratio'], 3), temp[2])
-            if i !=35:
-                plt.plot(lon, lat, c=color, markeredgecolor='black', marker='.', markersize=16*scale, transform=cartopy.crs.PlateCarree())
+            modification = ""
+            if i != 35 and i != 20:
+                if key == 'sigl-2018-1.csv':
+                    modification = ",35"
+                elif key == 'mcconnell-2022-1.csv':
+                    modification = ",20"
+                if key != 'sigl-2018-1.csv':
+                    plt.plot(lon, lat, c=color, markeredgecolor='black', marker='.', markersize=16*scale, transform=cartopy.crs.PlateCarree())
+                else:
+                    ax.add_patch(Wedge((-34, -8), 4 * scale, -90, 90, fc=cmap(norm(for_cartopy['eichler-2023-1.csv']['ratio'])), ec='black', zorder=999999))
+                    ax.add_patch(Wedge((-34, -8), 4 * scale, 90, -90, fc=color, ec='black', zorder=999999))
                 rcParams.update({'font.size': 12 * scale})
                 if (projection == 'north-pole' and lat >= 60) or (projection == 'antartica' and lat <= -60) or (projection == 'rotated-pole' and -60 <= lat <= 60):
-                    plt.text(lon, lat, " " + str(i), c="white", transform=cartopy.crs.PlateCarree(), path_effects=[pe.withStroke(linewidth=2*scale, foreground=stroke_color)])
+                    plt.text(lon + offsets[key][0], lat + offsets[key][1], " " + str(i) + modification, c="white", transform=cartopy.crs.PlateCarree(), path_effects=[pe.withStroke(linewidth=2*scale, foreground=stroke_color)])
             #plt.plot(lon, lat, c=cmap(norm(math.log(obj['ratio'], 10))), markeredgecolor='black', marker='.', markersize=6, transform=cartopy.crs.PlateCarree())
             index_name_map[i] = key
             i += 1
@@ -223,6 +232,10 @@ elif (inp == "c"): #Cartopy
             rcParams.update({'font.size': 10})
             plt.colorbar(mappable=sm, label="PD/PI BC Conc.", orientation="horizontal")
             #plt.colorbar(mappable=mesh.colorbar, label="Elevation (m)", orientation="horizontal")
+        
+        #patches
+        for patch in patches:
+            ax.add_patch(mpatches.Rectangle(xy=[patch[0], patch[1]], width=patch[2], height=patch[3], facecolor='none', edgecolor='red',transform=cartopy.crs.PlateCarree()))
 
         plt.savefig('figures/ice-cores/testmap-' + projection + '.png', bbox_inches='tight', pad_inches=0.0)
         #plt.show()
@@ -230,12 +243,14 @@ elif (inp == "c"): #Cartopy
     for pub in str(index_name_map).replace('}', '').replace('{', '').split(','):
         s.add(pub[t.find_nth(pub, " ", 2) + 2:t.find_nth(pub, "-", 2)])
     print(len(s), "unique ice core pubs")
-    print(index_name_map)
+    #print(index_name_map)
 elif (inp == "l"): #Lens data
     #lens are in 5 year avereges so comparing like to like
     #setup data:
     lens_pi = pd.read_csv('data/lens/pi.csv')
     lens_pd = pd.read_csv('data/lens/pd.csv')
+    f_name = "a10lv30.csv"
+    lens_avg = pd.read_csv('data/lens/' + f_name)
     dont_use = {'model number', 'BC_vars', 'year', 'mcconnell-2021-6.csv', 'mcconnell-2021-4.csv', 'mcconnell-2021-1.csv', 'mcconnell-2021-3.csv', 'liu-2021-2.csv', 'liu-2021-4.csv', 'zhang-2024-9.csv', 'kaspari-2020-1.csv', 'arienzo-2017-1.csv', 'ming-2008-1.csv', 'sierra-hernández-2022-1.csv', 'wolff-2012-1.csv', 'mcconnell-2021-2.csv', 'mcconnell-2017-1.csv', 'xu-2009-1.csv'}
     bar_lables = []
     bar_means = {'LENS Models': [], 'Ice Core': []}
@@ -248,14 +263,14 @@ elif (inp == "l"): #Lens data
     for index, row in lens_pd.iterrows():
         model_index = int(row['model number'].split('-')[0])
         ice_based_labels.append(model_index)
-        ratio_dists = row.iloc[3:len(row)] / lens_pi.iloc[index].iloc[3:len(row)]
+        ratio_dists = lens_avg.iloc[model_index - 19].iloc[1:len(lens_avg.iloc[model_index - 19])]#row.iloc[3:len(row)] / lens_pi.iloc[index].iloc[3:len(row)]
         distribution_map[model_index] = ratio_dists
     distribution_lables = row.iloc[3:len(row)].index
     #get model means
     for col_name in lens_pd.columns:
         if col_name in dont_use:
             continue
-        model_ratios = lens_pd[col_name] / lens_pi[col_name]
+        model_ratios = lens_avg[col_name]#lens_pd[col_name] / lens_pi[col_name]
         ice_based_dists[col_name] = {'PD': lens_pd[col_name], 'PI': lens_pi[col_name]}
         model_mean = np.mean(model_ratios)
         model_std = scipy.stats.gstd(model_ratios)
@@ -276,8 +291,8 @@ elif (inp == "l"): #Lens data
         rects = ax.bar(x + offset, measurement, width, label=attribute, color=color)
         multiplier += 1
     plt.errorbar(bar_lables, bar_means['LENS Models'], yerr=lens_stds, fmt=".", color="r")
-    ax.set_ylabel('1980/1925 BC Ratio')
-    ax.set_title('BC Change with Geometric STD')
+    ax.set_ylabel('1980/1850 BC Ratio')
+    ax.set_title('BC Change with Geometric STD, from ' + f_name)
     ax.set_xticks(x + width, bar_lables)
     plt.xticks(rotation=90)
     ax.legend()
@@ -337,7 +352,9 @@ elif (inp == "l"): #Lens data
     plt.savefig('figures/ice-cores/test1.png', dpi=150)
     #pdf
     plt.clf()
-    stdev, location, mean = lognorm.fit(all_lens_data)
+    stdev, location, mean = lognorm.fit(all_lens_data)#model_ratios#all_lens_data
+    #stdev = np.std(model_ratios)
+    #mean = np.mean(model_ratios)
     phi = (stdev ** 2 + mean ** 2) ** 0.5
     mu = np.log(mean ** 2 / phi)
     sigma = (np.log(phi ** 2 / mean ** 2)) ** 0.5
@@ -345,14 +362,17 @@ elif (inp == "l"): #Lens data
     a, b, _  = plt.hist(all_lens_data, bins=10, density=True, alpha=0.5, color='b')
     xmin, xmax = plt.xlim()#(lognorm.ppf(0.01, sigma), lognorm.ppf(0.99, sigma))#(-2.4730680657277782e-11, 5.19344481734187e-10)#plt.xlim()
     x = np.linspace(xmin, xmax, 1000)
-    p = lognorm.cdf(x = x, scale = 1, s = sigma, loc=mean)
-    cdf_xmax = lognorm.cdf(x = xmax, scale = 1, s = sigma, loc=mean)
-    plt.plot(x, p, 'k', linewidth=2)
-    plt.vlines(xmax, 0, cdf_xmax, color="red")
-    plt.hlines(cdf_xmax, xmin, xmax, color="red")
+    p = lognorm.pdf(x = x, scale = mean, s=sigma)
+    #p = norm.cdf(x = x, scale = stdev, loc=mean)
+    cdf_target = x[-10]
+    #cdf_xmax = norm.cdf(x = cdf_target, scale = stdev, loc=mean)
+    cdf_xmax = lognorm.cdf(x = cdf_target, scale = mean, s=sigma)
+    plt.plot(x, p, 'green', linewidth=2)
+    #plt.vlines(cdf_target, 0, cdf_xmax, color="red")
+    #plt.hlines(cdf_xmax, xmin, cdf_target, color="red")
     plt.yscale('log')
-    plt.legend(['CDF', "", "CDF at Xmax=" + str(round(cdf_xmax, 4)), 'Histogram'])
-    #plt.legend(['PDF', 'Histogram'])
+    #plt.legend(['CDF', "", "CDF at " + str(round(cdf_target, 3)) + "=" + str(round(cdf_xmax, 4)), 'Histogram'])
+    plt.legend(['PDF', 'Histogram'])
     plt.savefig('figures/ice-cores/test-pdf.png', dpi=150)
     #plot all sepratley
     plt.clf()

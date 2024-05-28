@@ -9,14 +9,17 @@ system = platform.system() #differentiate local and derecho env by sys platform
 T = tools.ToolBox()
 
 #setup some vars
-model_data_map = {'pi': {}, 'pd': {}}
+model_data_map = {'pi': [], 'pd': []}
+path_name_map = {}
+name_path_map = {}
 coord_min_maxes = (90.0, 358.75, 0.0, -90.0)
 models = [1, 35] if system == "Darwin" else range(1, 36)
-sheets = {'pi': 1850.5, 'pd': 1950.5}
+sheets = {'pi': 1850.5, 'pd': 1980.5}
+nc_vars = ['wetbc', 'drybc']
 
 #file name to model name
 def filename2modelname(filename):
-    model_name = filename.split('_historical')[0].replace('sootsn_LImon_', '')
+    model_name = filename[filename.index('AERmon_') + 7: filename.index('_historical')]
     start_year = filename[filename.rfind("_") + 1:filename.rfind("-") - 2]
     end_year = filename[filename.rfind("-") + 1:filename.rfind(".") - 2]
     return model_name, int(start_year), int(end_year)
@@ -28,6 +31,13 @@ def check_format(lats, lons, time):
         assert np.abs(new_coords[i] - coord_min_maxes[i]) < 5
     assert time.units == 'days since 0001-01-01 00:00:00'
 
+#check if pi/pd year is within model time bounds
+def is_within(s_year, e_year, y):
+    return s_year - 10 <= y <= e_year + 10
+
+def mass_mix2conc(bc_mixing_ratio, TREHT, p):
+    return bc_mixing_ratio * p / 287.053 / TREHT
+
 #get paths
 index_path = 'data/standardized-ice-cores/index.csv' if system == "Darwin" else "index.csv"
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv' if system == "Darwin" else "index-dup-cores.csv"
@@ -35,25 +45,25 @@ ice_coords = T.get_ice_coords(index_path, dupe_path)
 first_core = list(ice_coords.keys())[0]
 data_path = os.path.join(os.getcwd(), 'data', 'cmip6') if system == "Darwin" else os.getcwd()
 
+#plan:
+#take only files with wetbc and drybc
+
 #get data from cmip6 files
 for filename in os.listdir(data_path): #from https://esgf-node.ipsl.upmc.fr/search/cmip6-ipsl/
-    if filename not in ('tools.py', 'index-dup-cores.csv', '__pycache__', 'cmip.py', 'index.csv', 'ip.py', 'pi.csv', 'pd.csv', 'pi-cmip.csv', 'pd-cmip.csv', '.DS_Store') and 'wget' not in filename and ".csv" not in filename:
+    if filename not in ('tools.py', 'index-dup-cores.csv', 'cesm', 'sootsn', '__pycache__', 'cmip.py', 'index.csv', 'ip.py', 'pi.csv', 'pd.csv', 'pi-cmip.csv', 'pd-cmip.csv', '.DS_Store') and 'wget' not in filename and ".csv" not in filename:
         file_path = os.path.join(data_path, filename)
         model_name, start_year, end_year = filename2modelname(filename)
-        k = None
-        if np.abs(start_year - sheets['pi']) < 10:
-            if model_name not in model_data_map['pi']:
-                model_data_map['pi'][model_name] = [(file_path, start_year, end_year)]
-            else: 
-                model_data_map['pi'][model_name].append((file_path, start_year, end_year))
-        if np.abs(end_year - sheets['pd']) < 10:
-            if model_name not in model_data_map['pd']:
-                model_data_map['pd'][model_name] = [(file_path, start_year, end_year)]
-            else: 
-                model_data_map['pd'][model_name].append((file_path, start_year, end_year))
+        if model_name not in name_path_map:
+            name_path_map[model_name] = [filename]
+        else:
+            name_path_map[model_name].append(filename)
+        path_name_map[file_path] = model_name
+        for era in sheets.keys():
+            if is_within(start_year, end_year, sheets[era]):
+                model_data_map[era].append(file_path)
 
 #get sootsn
-for era, year in sheets.items():
+'''for era, year in sheets.items():
     csv_dict = []
     #print(era)
     for model_name, pairs in model_data_map[era].items():
@@ -90,6 +100,48 @@ for era, year in sheets.items():
     with open(era + ".csv", 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fields)
         writer.writeheader()
-        writer.writerows(csv_dict)
+        writer.writerows(csv_dict)'''
+
+#get bc
+csv_dict = []
+for model_name, model_list in name_path_map.items():
+    for model_path in model_list:
+        w = Dataset(os.path.join(data_path, model_path))['wetbc'][:]
+        print(len(w), len(w[0]), len(w[0][0]))
+        '''row = {"model name": model_name}
+        f = Dataset(model_path)
+        #1 192 288 (t, lat, lon)
+        wetbc = f['wetbc'][:]
+        drybc = f['drybc'][:]
+        hyai = f["hyai"][:]
+        hybi = f["hybi"][:]
+        P0 = f["P0"][:]
+        PSL = f["PSL"][:]
+        TREFHT = f["TREFHT"][:]
+        lats = f["lat"][:]
+        lons = f["lon"][:]
+        for name in ice_coords.keys():
+            y, x = ice_coords[name]
+            lat = T.nearest_search(lats, y)
+            lon = T.nearest_search(lons, x + 180)
+            total_bc = 0
+            #black carbon
+            total_bc += bc[0][lat][lon]
+            #pressure
+            pressure = 0
+            for level in range(lv):
+                delta_p = PSL[0][lat][lon] * (hybi[level + 1] - hybi[level]) + P0 * (hyai[level + 1] - hyai[level])
+                pressure += delta_p / 9.81
+            row[name] = mass_mix2conc(total_bc, TREFHT[0][lat][lon], pressure)
+        csv_dict.append(row)
+        f.close()
+
+#save to csv
+fields = ["model name"]
+[fields.append(name) for name in ice_coords.keys()]
+with open(mode + "-lv" + str(lv) + ".csv", 'w') as csvfile:
+    writer = csv.DictWriter(csvfile, fieldnames=fields)
+    writer.writeheader()
+    writer.writerows(csv_dict)'''
 
 print("done.")
