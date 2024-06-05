@@ -6,142 +6,148 @@ import csv
 import os
 
 system = platform.system() #differentiate local and derecho env by sys platform
+target_v = 'wetbc' #sootsn
+target_model = 'CESM'
 T = tools.ToolBox()
 
 #setup some vars
-model_data_map = {'pi': [], 'pd': []}
-path_name_map = {}
-name_path_map = {}
-coord_min_maxes = (90.0, 358.75, 0.0, -90.0)
+model_data_map = {'pi': {}, 'pd': {}}
+coord_min_maxes = (90.0, -90.0, 358.75, 0.0) #(np.max(lats), np.min(lats), np.max(lons), np.min(lons))
 models = [1, 35] if system == "Darwin" else range(1, 36)
-sheets = {'pi': 1850.5, 'pd': 1980.5}
-nc_vars = ['wetbc', 'drybc']
+sheets = {'pi': 1850.5, 'pd': 1950.5}
+wet_models = {}
+dry_models = {}
 
 #file name to model name
 def filename2modelname(filename):
-    model_name = filename[filename.index('AERmon_') + 7: filename.index('_historical')]
+    prefix = 'LImon_' if target_v == 'sootsn' else 'AERmon_'
+    model_name = filename[filename.index(prefix) + len(prefix): filename.index('_historical')]
     start_year = filename[filename.rfind("_") + 1:filename.rfind("-") - 2]
-    end_year = filename[filename.rfind("-") + 1:filename.rfind(".") - 2]
+    end_year = filename[filename.rfind("-") + 1:filename.rfind(".") - 2]#sootsn_LImon_TaiESM1_historical_r1i1p1f1_gn_185001-201412.nc
     return model_name, int(start_year), int(end_year)
 
 #check lat lons are all in same format
-def check_format(lats, lons, time):
-    new_coords = (np.max(lats), np.max(lons), np.min(lons), np.min(lats))
-    for i in range(len(coord_min_maxes)):
-        assert np.abs(new_coords[i] - coord_min_maxes[i]) < 5
-    assert time.units == 'days since 0001-01-01 00:00:00'
+def fix_format(lats, lons):
+    changes = [0, 0]
+    coords = (lats, lons)
+    for i in range(2):
+        max_diff = coord_min_maxes[0 + i * 2] - np.max(coords[i])
+        min_diff = coord_min_maxes[1 + i * 2] - np.min(coords[i])
+        if np.abs(max_diff) > 5 or np.abs(min_diff) > 5:
+            changes[i] = np.mean((max_diff, min_diff))
+    return changes
 
-#check if pi/pd year is within model time bounds
 def is_within(s_year, e_year, y):
     return s_year - 10 <= y <= e_year + 10
-
-def mass_mix2conc(bc_mixing_ratio, TREHT, p):
-    return bc_mixing_ratio * p / 287.053 / TREHT
 
 #get paths
 index_path = 'data/standardized-ice-cores/index.csv' if system == "Darwin" else "index.csv"
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv' if system == "Darwin" else "index-dup-cores.csv"
 ice_coords = T.get_ice_coords(index_path, dupe_path)
 first_core = list(ice_coords.keys())[0]
-data_path = os.path.join(os.getcwd(), 'data', 'cmip6') if system == "Darwin" else os.getcwd()
+data_path = os.getcwd()
+if system == "Darwin":
+    if target_v == 'sootsn':
+        data_path = os.path.join(data_path, 'data', 'model-ice-depo', 'sootsn')
+    else:
+        data_path = os.path.join(data_path, 'data', 'model-ice-depo', 'wetdrybc')
 
-#plan:
-#take only files with wetbc and drybc
-
-#get data from cmip6 files
+#divide files into wet and dry
 for filename in os.listdir(data_path): #from https://esgf-node.ipsl.upmc.fr/search/cmip6-ipsl/
-    if filename not in ('tools.py', 'index-dup-cores.csv', 'cesm', 'sootsn', '__pycache__', 'cmip.py', 'index.csv', 'ip.py', 'pi.csv', 'pd.csv', 'pi-cmip.csv', 'pd-cmip.csv', '.DS_Store') and 'wget' not in filename and ".csv" not in filename:
+    if '.nc' in filename:
         file_path = os.path.join(data_path, filename)
         model_name, start_year, end_year = filename2modelname(filename)
-        if model_name not in name_path_map:
-            name_path_map[model_name] = [filename]
-        else:
-            name_path_map[model_name].append(filename)
-        path_name_map[file_path] = model_name
-        for era in sheets.keys():
-            if is_within(start_year, end_year, sheets[era]):
-                model_data_map[era].append(file_path)
+        if (target_model == 'CESM' and 'CESM' in model_name) or target_model != 'CESM':
+            if 'wetbc' in filename or target_v == 'sootsn':
+                wet_models[filename] = (model_name, file_path, start_year, end_year)
+            elif 'drybc' in filename:
+                dry_models[filename] = (model_name, file_path, start_year, end_year)
+
+#divide into pi and pd
+for wet_name, obj in wet_models.items():
+    dry_name = wet_name.replace('wetbc', 'drybc')
+    model_name, file_path, start_year, end_year = obj
+    if dry_name in dry_models.keys() or target_v == 'sootsn':
+        model_dict = {'wet': wet_models[wet_name][1:4]} if target_v == 'sootsn' else {'wet': wet_models[wet_name][1:4], 'dry': dry_models[dry_name][1:4]}
+        if np.abs(start_year - sheets['pi']) < 10 or start_year < sheets['pi']:
+            if model_name not in model_data_map['pi']:
+                model_data_map['pi'][model_name] = [model_dict]
+            else: 
+                model_data_map['pi'][model_name].append(model_dict)
+        if np.abs(end_year - sheets['pd']) < 10 or end_year > sheets['pd']:
+            if model_name not in model_data_map['pd']:
+                model_data_map['pd'][model_name] = [model_dict]
+            else: 
+                model_data_map['pd'][model_name].append(model_dict)
 
 #get sootsn
-'''for era, year in sheets.items():
+window = 10 * 365
+for era, year in sheets.items():
     csv_dict = []
-    #print(era)
-    for model_name, pairs in model_data_map[era].items():
-        print(model_name)
+    print(era)
+    length = len(model_data_map[era].items())
+    i = 1
+    for model_name, pairs in model_data_map[era].items():#{'EC-Earth3-AerChem': model_data_map[era]['EC-Earth3-AerChem']}.items():
+        print(model_name, i, '/', length)
         row = {"model": model_name}
-        for core_name in ice_coords.keys():#[first_core]:
-            #print(core_name)
-            y, x = ice_coords[core_name]
-            total_sootsn = 0
-            for model_path, start_year, end_year in pairs:
+        for wet_dry in pairs:
+            try:
+                wet_pair = wet_dry['wet']
+                model_path, start_year, end_year = wet_pair
                 #formatted as time 1980, lat 192, lon 288
-                f = Dataset(model_path)
-                sootsn = f['sootsn'][:]
-                lats = f["lat"][:]
-                lons = f["lon"][:]
-                times = f["time"]
-                lat = T.nearest_search(lats, y)
-                lon = T.nearest_search(lons, x + 180)
-                window = 5 * 365
-                a, y_out = T.get_avgs(times[:], sootsn[:,lat,lon], year * 365, [window])
-                if core_name == first_core:
-                    check_format(lats, lons, times)
-                    #print(y_out/365)
-                total_sootsn += a[window]
-                f.close()
-            row['n ensemble members'] = len(pairs)
-            row['window'] = window
-            row[core_name] = total_sootsn / len(pairs)
+                f_wet = Dataset(model_path)
+                wetbc = f_wet['sootsn'][:] if target_v == 'sootsn' else f_wet['wetbc'][:]
+                lats = f_wet["lat"][:]
+                lons = f_wet["lon"][:]
+                changes = fix_format(lats, lons)
+                lats = lats + changes[0]
+                lons = lons + changes[1]
+                times = f_wet["time"]
+                total_sootsn = 0
+                unit_year = int(times.units[11:15])
+                year_modifier = 1850
+                if unit_year != start_year and unit_year != 1:
+                    year_modifier = unit_year
+                elif unit_year == 1:
+                    year_modifier = start_year
+                if target_v != 'sootsn':
+                    dry_pair = wet_dry['dry']
+                    f_dry = Dataset(dry_pair[0])
+                    drybc = f_dry['drybc'][:]
+                for core_name in ice_coords.keys():#[first_core]:
+                    y, x = ice_coords[core_name]
+                    lat = T.nearest_search(lats, y)
+                    lon = T.nearest_search(lons, x + 180)
+                    wet_a, wet_y_out = T.get_avgs(times[:], wetbc[:,lat,lon], (year - year_modifier) * 365, [window])
+                    if target_v != 'sootsn':
+                        dry_a, dry_y_out = T.get_avgs(times[:], drybc[:,lat,lon], (year - year_modifier) * 365, [window])
+                        total_sootsn += np.abs(wet_a[window]) + np.abs(dry_a[window])
+                    else:
+                        total_sootsn += wet_a[window]
+                    if core_name in row:
+                        row[core_name] += total_sootsn
+                    else:
+                        row[core_name] = total_sootsn
+                f_wet.close()
+                if target_v != 'sootsn':
+                    f_dry.close()
+            except:
+                continue
+        row['n ensemble members'] = len(pairs)
+        row['window'] = window
+        for core_name, value in row.items():
+            if '.csv' in core_name:
+                row[core_name] = value / len(pairs)
         csv_dict.append(row)
+        i += 1
 
     #save to csv
     fields = ["model", 'n ensemble members', 'window']
     [fields.append(name) for name in ice_coords.keys()]
-    with open(era + ".csv", 'w') as csvfile:
+    write_path = 'data/model-ice-depo/' + era + ".csv" if system == "Darwin" else era + ".csv"
+    with open(write_path, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fields)
         writer.writeheader()
-        writer.writerows(csv_dict)'''
-
-#get bc
-csv_dict = []
-for model_name, model_list in name_path_map.items():
-    for model_path in model_list:
-        w = Dataset(os.path.join(data_path, model_path))['wetbc'][:]
-        print(len(w), len(w[0]), len(w[0][0]))
-        '''row = {"model name": model_name}
-        f = Dataset(model_path)
-        #1 192 288 (t, lat, lon)
-        wetbc = f['wetbc'][:]
-        drybc = f['drybc'][:]
-        hyai = f["hyai"][:]
-        hybi = f["hybi"][:]
-        P0 = f["P0"][:]
-        PSL = f["PSL"][:]
-        TREFHT = f["TREFHT"][:]
-        lats = f["lat"][:]
-        lons = f["lon"][:]
-        for name in ice_coords.keys():
-            y, x = ice_coords[name]
-            lat = T.nearest_search(lats, y)
-            lon = T.nearest_search(lons, x + 180)
-            total_bc = 0
-            #black carbon
-            total_bc += bc[0][lat][lon]
-            #pressure
-            pressure = 0
-            for level in range(lv):
-                delta_p = PSL[0][lat][lon] * (hybi[level + 1] - hybi[level]) + P0 * (hyai[level + 1] - hyai[level])
-                pressure += delta_p / 9.81
-            row[name] = mass_mix2conc(total_bc, TREFHT[0][lat][lon], pressure)
-        csv_dict.append(row)
-        f.close()
-
-#save to csv
-fields = ["model name"]
-[fields.append(name) for name in ice_coords.keys()]
-with open(mode + "-lv" + str(lv) + ".csv", 'w') as csvfile:
-    writer = csv.DictWriter(csvfile, fieldnames=fields)
-    writer.writeheader()
-    writer.writerows(csv_dict)'''
+        writer.writerows(csv_dict)
 
 print("done.")

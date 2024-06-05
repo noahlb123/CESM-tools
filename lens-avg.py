@@ -9,7 +9,7 @@ def relavant_indicies(indexes, n, type):
     else:
         return indexes[0:n // 2 + 1]
 
-root_path = os.path.join(os.getcwd(), 'data', 'lens')
+root_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'lens')
 lvls = (30, 29, 28)
 windows = (5, 10, 20)
 n_samples = {5: 1, 10: 3, 20: 5}

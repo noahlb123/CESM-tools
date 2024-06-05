@@ -23,4 +23,4 @@ for name in pyperclip.paste().split('\n'):
         if not valid_range(s_year, e_year):
             print(name, end=" ")'''
 
-print(pyperclip.paste().replace("'", '"').replace(', "', ',\n"'))
+print(pyperclip.paste().replace('\n', ', '))

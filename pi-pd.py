@@ -4,6 +4,7 @@ from matplotlib.cm import ScalarMappable
 from matplotlib.colors import BoundaryNorm
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.ticker import ScalarFormatter
+from matplotlib.patches import Polygon
 import matplotlib.patches as mpatches
 from matplotlib.patches import Wedge
 import matplotlib.patheffects as pe
@@ -14,6 +15,8 @@ from matplotlib import rcParams
 from scipy.integrate import quad
 from scipy.stats import lognorm
 from scipy.stats import norm
+#import statsmodels.api as sm
+from statsmodels.nonparametric.smoothers_lowess import lowess
 import plotly.express as px
 from netCDF4 import Dataset
 import numpy as np
@@ -31,14 +34,67 @@ p = p.reset_index()
 
 #setup vars
 exclude = set([])#set(['mcconnell-2017-1.csv', 'brugger-2021-1.csv'])
-windows = [5]#[1, 3, 5, 11]
+windows = [11]#[1, 3, 5, 11]
 full_data = {}
 for key in windows:
     full_data[key] = [] #filename, lat, lon, PI averge, PD averge, ratio, PI year, PD year, 3 averege, 3 year
 for_cartopy = {}
-patches = [
-    (-110, -5, 40, 25)
-]
+filename_region = {}
+filename_index = {}
+a_p = 59#66.566667
+s_g = 59
+patches = { #Okabe and Ito colorblind pallet
+    'Arctic': (-15, a_p, 315, 90 - a_p, '#2C72AD'),
+    #'Southern Greenland': (-55, s_g, 35, a_p - s_g, '#880D1E'),
+    'Greenland': (-60, s_g, 45, 90 - s_g, '#880D1E'),#,-60,-15
+    'North America': (-170, 15, 115, a_p - 15, '#459B76'),
+    'South America': (-90, 15, 70, -71, '#DDA138'),#EFE362
+    'Europe': (-20, 23.5, 80, s_g - 23.5, '#000000'),
+    #'Middle east': (30, 23.5, 30, s_g - 23.5, '#DDA138'),
+    'Africa': (-20, 23.5, 80, -58.5, '#C86526'),
+    'Asia': (60, 5, 90, a_p - 5, '#C17EA5'),
+    #(-180, -60, 180, -30, '#6CB3E4'),#East Antarctic
+    #(0, -60, 180, -30, '#6CB3E4')#West Antarctic
+    'Antarctica': (-180, -60, 360, -30, '#6CB3E4')
+}
+
+def patch_min_max(patch):
+    lon_bounds = (patch[0], patch[0] + patch[2])
+    lat_bounds = (patch[1], patch[1] + patch[3])
+    lon_min = np.min(lon_bounds)
+    lon_max = np.max(lon_bounds)
+    lat_min = np.min(lat_bounds)
+    lat_max = np.max(lat_bounds)
+    return lat_min, lat_max, lon_min, lon_max
+
+def divide(p_d, p_i):
+    n = p_d.copy()
+    for column in p_d:
+        if column not in ('model', 'n ensemble members', 'window'):
+            for i in range(len(p_d[column])):
+                n[column].iloc[i] = np.abs(p_d[column].iloc[i] / p_i[column].iloc[i])
+    return n
+
+def within_patch(lat, lon, patch, name):
+    lat_min, lat_max, lon_min, lon_max = patch_min_max(patch)
+    if name == 'Arctic':
+        return lat_min <= lat <= lat_max and not within_patch(lat, lon, patches['Greenland'], 'Greenland')
+    return lat_min <= lat <= lat_max and lon_min <= lon <= lon_max
+
+'''def arc_patch(patch, ax, resolution=50, **kwargs):
+    center = (0, 90)
+    #center, radius, theta1, theta2
+    # make sure ax is not empty
+    if ax is None:
+        ax = plt.gca()
+    # generate the points
+    theta = np.linspace(np.radians(theta1), np.radians(theta2), resolution)
+    points = np.vstack((radius*np.cos(theta) + center[0], 
+                        radius*np.sin(theta) + center[1]))
+    # build the polygon and add it to the axes
+    poly = mpatches.Polygon(points.T, closed=True, **kwargs)
+    ax.add_patch(poly)
+    return poly'''
 
 #fix duplicate pud core lat lons
 dup_index_map = {}
@@ -59,6 +115,8 @@ for index, row in p.iterrows():
         #must be flipped bec they are in decending order
         BC = np.flip(d['BC'].to_numpy())
         Yr = np.flip(d['Yr'].to_numpy())
+        if filename == 'thompson-2002-1.csv':
+            BC = np.flip(lowess(BC, Yr, frac=0.1, is_sorted=True, return_sorted=False))
         a1, y1 = t.get_avgs(Yr, BC, 1850.49, windows)
         #a1, y1 = t.get_avgs(Yr, BC, 1925.49, windows)
         a2, y2 = t.get_avgs(Yr, BC, 9999, windows)
@@ -68,10 +126,14 @@ for index, row in p.iterrows():
             for key in windows:
                 if math.isnan(lat) or math.isnan(lon):
                     lat, lon, abbr = dup_index_map[filename]
-                if True:#filename != "legrand-2023-1.csv":
-                    full_data[key].append([filename, lat, lon, a1[key], a2[key], a3[key]/a1[key], y1, y2, a3[key], y3])
-            for_cartopy[filename] = {'lat': lat, 'lon': lon, 'ratio': a3[5] / a1[5], 'abbr': abbr, 'filename': filename}
+                full_data[key].append([filename, lat, lon, a1[key], a2[key], a3[key]/a1[key], y1, y2, a3[key], y3])
+                for region, patch in patches.items():
+                    if within_patch(lat, lon, patch, region):
+                        filename_region[filename] = region
+            for_cartopy[filename] = {'lat': lat, 'lon': lon, 'ratio': a3[11] / a1[11], 'abbr': abbr, 'filename': filename}
 for_cartopy = {k: v for k, v in sorted(for_cartopy.items(), key=lambda item: item[1]['ratio'])} #sort by ratio
+for i in range(len(for_cartopy.keys())):
+    filename_index[list(for_cartopy.keys())[i]] = i + 1
 final_pd = pd.DataFrame.from_records(for_cartopy).T
 
 #plot
@@ -212,11 +274,9 @@ elif (inp == "c"): #Cartopy
             #temp = key.split('-')
             #print(temp[0].capitalize() + " et al. " + temp[1], lat, lon, round(obj['ratio'], 3), temp[2])
             modification = ""
-            if i != 35 and i != 20:
-                if key == 'sigl-2018-1.csv':
-                    modification = ",35"
-                elif key == 'mcconnell-2022-1.csv':
-                    modification = ",20"
+            if key == 'sigl-2018-1.csv':
+                modification = ",35"
+            if key not in ('eichler-2023-1.csv'):
                 if key != 'sigl-2018-1.csv':
                     plt.plot(lon, lat, c=color, markeredgecolor='black', marker='.', markersize=16*scale, transform=cartopy.crs.PlateCarree())
                 else:
@@ -234,8 +294,8 @@ elif (inp == "c"): #Cartopy
             #plt.colorbar(mappable=mesh.colorbar, label="Elevation (m)", orientation="horizontal")
         
         #patches
-        for patch in patches:
-            ax.add_patch(mpatches.Rectangle(xy=[patch[0], patch[1]], width=patch[2], height=patch[3], facecolor='none', edgecolor='red',transform=cartopy.crs.PlateCarree()))
+        '''for patch in patches.values():
+            ax.add_patch(mpatches.Rectangle(xy=[patch[0], patch[1]], width=patch[2], height=patch[3], facecolor=patch[4] + '50', edgecolor=patch[4],transform=cartopy.crs.PlateCarree()))'''
 
         plt.savefig('figures/ice-cores/testmap-' + projection + '.png', bbox_inches='tight', pad_inches=0.0)
         #plt.show()
@@ -245,58 +305,115 @@ elif (inp == "c"): #Cartopy
     print(len(s), "unique ice core pubs")
     #print(index_name_map)
 elif (inp == "l"): #Lens data
-    #lens are in 5 year avereges so comparing like to like
     #setup data:
-    lens_pi = pd.read_csv('data/lens/pi.csv')
-    lens_pd = pd.read_csv('data/lens/pd.csv')
-    f_name = "a10lv30.csv"
-    lens_avg = pd.read_csv('data/lens/' + f_name)
-    dont_use = {'model number', 'BC_vars', 'year', 'mcconnell-2021-6.csv', 'mcconnell-2021-4.csv', 'mcconnell-2021-1.csv', 'mcconnell-2021-3.csv', 'liu-2021-2.csv', 'liu-2021-4.csv', 'zhang-2024-9.csv', 'kaspari-2020-1.csv', 'arienzo-2017-1.csv', 'ming-2008-1.csv', 'sierra-hernández-2022-1.csv', 'wolff-2012-1.csv', 'mcconnell-2021-2.csv', 'mcconnell-2017-1.csv', 'xu-2009-1.csv'}
+    lens_pi = pd.read_csv('data/model-ice-depo/lens/pi.csv')
+    lens_pd = pd.read_csv('data/model-ice-depo/lens/pd.csv')
+    lens_avg = pd.read_csv('data/model-ice-depo/lens/a10lv30.csv')
+    models_datasets = {
+        'LENS': pd.read_csv('data/model-ice-depo/lens/a10lv30.csv'),
+        'CESM': divide(pd.read_csv('data/model-ice-depo/cesm/pd.csv'), pd.read_csv('data/model-ice-depo/cesm/pi.csv')),
+        'CMIP6': divide(pd.read_csv('data/model-ice-depo/cmip6/pd.csv'), pd.read_csv('data/model-ice-depo/cmip6/pi.csv')),
+        'Ice Core': for_cartopy
+        }
+    models_data = {
+        'LENS': {'ratios': None, 'means': None, 'stds': None},
+        'CESM': {'ratios': None, 'means': None, 'stds': None},
+        'CMIP6': {'ratios': None, 'means': None, 'stds': None},
+        'Ice Core': {'ratios': None, 'means': None, 'stds': None}
+        }
+    models_colors = { #IBM Design library's colorblind pallete
+        'LENS': '#F5B341',
+        'CESM': '#EE692C',
+        'CMIP6': '#CC397C',
+        'Ice Core': '#6C62E7'
+    } #additional: #638FF6
+    #'mcconnell-2021-6.csv', 'mcconnell-2021-4.csv', 'mcconnell-2021-1.csv', 'mcconnell-2021-3.csv', 'liu-2021-2.csv', 'liu-2021-4.csv', 'zhang-2024-9.csv', 'kaspari-2020-1.csv', 'arienzo-2017-1.csv'
+    dont_use = {'model number', 'Unnamed: 0', 'BC_vars', 'year', 'ming-2008-1.csv', 'sierra-hernández-2022-1.csv', 'wolff-2012-1.csv', 'mcconnell-2021-2.csv', 'mcconnell-2017-1.csv', 'xu-2009-1.csv'}
     bar_lables = []
-    bar_means = {'LENS Models': [], 'Ice Core': []}
+    bar_means = {'LENS': [], 'Ice Core': [], 'CESM': [], 'CMIP6': []}
+    bar_stds = {'LENS': [], 'Ice Core': [], 'CESM': [], 'CMIP6': []}
     distribution_map = {}
     ice_based_dists = {}
     ice_based_labels = []
     lens_stds = []
-    #get distributions by model
-    #lens_pd = lens_pd.drop(['chellman-2017-1.csv', 'xu-2009-1.csv'], axis=1)#drop high value sites
+    background_colors = []
+    #get model means
+    for col_name in lens_avg.columns:
+        if col_name in dont_use:
+            continue
+        background_colors.append(patches[filename_region[col_name]][-1] + '30')
+        for model_key in models_data:
+            model_data = models_data[model_key]
+            ds = models_datasets[model_key]
+            if model_key == 'Ice Core':
+                ice_mean = for_cartopy[col_name]['ratio']
+                bar_means[model_key].append(ice_mean)
+                #ice_based_dists[col_name] = {'PD': lens_pd[col_name], 'PI': lens_pi[col_name]}
+                bar_lables.append(filename_region[col_name] + '-' + str(filename_index[col_name]).zfill(2))
+                bar_stds[model_key].append(0)
+            else:
+                model_ratios = ds[col_name]#lens_pd[col_name] / lens_pi[col_name]
+                model_mean = np.mean(model_ratios)
+                model_std = np.std(model_ratios.dropna())#scipy.stats.gstd(model_ratios.dropna())
+                bar_stds[model_key].append(model_std)
+                bar_means[model_key].append(model_mean)
+    #resort everything by region
+    bar_lables, bar_means['LENS'], bar_means['Ice Core'], bar_means['CESM'], bar_means['CMIP6'], bar_stds['LENS'], bar_stds['Ice Core'], bar_stds['CESM'], bar_stds['CMIP6'], background_colors = zip(*sorted(list(zip(bar_lables, bar_means['LENS'], bar_means['Ice Core'], bar_means['CESM'], bar_means['CMIP6'], bar_stds['LENS'], bar_stds['Ice Core'], bar_stds['CESM'], bar_stds['CMIP6'], background_colors))))
+    #Remove Duplicate Region Labels
+    region_lables = list(map(lambda x: x.split('-')[0], bar_lables))
+    old = ''
+    for i in range(len(region_lables)):
+        region = region_lables[i]
+        if region == old:
+            region_lables[i] = ''
+        else:
+            old = region
+    #get lens distributions by model
     for index, row in lens_pd.iterrows():
         model_index = int(row['model number'].split('-')[0])
         ice_based_labels.append(model_index)
         ratio_dists = lens_avg.iloc[model_index - 19].iloc[1:len(lens_avg.iloc[model_index - 19])]#row.iloc[3:len(row)] / lens_pi.iloc[index].iloc[3:len(row)]
         distribution_map[model_index] = ratio_dists
     distribution_lables = row.iloc[3:len(row)].index
-    #get model means
-    for col_name in lens_pd.columns:
-        if col_name in dont_use:
-            continue
-        model_ratios = lens_avg[col_name]#lens_pd[col_name] / lens_pi[col_name]
-        ice_based_dists[col_name] = {'PD': lens_pd[col_name], 'PI': lens_pi[col_name]}
-        model_mean = np.mean(model_ratios)
-        model_std = scipy.stats.gstd(model_ratios)
-        ice_mean = for_cartopy[col_name]['ratio']
-        if True: #for_cartopy[col_name]['lat'] > 0: #if in given hemisphere
-            bar_lables.append(col_name)
-            lens_stds.append(model_std)
-            bar_means['LENS Models'].append(model_mean)
-            bar_means['Ice Core'].append(ice_mean)
     #plot mean bars
+    max_lens_bar = np.max(bar_means["LENS"])
+    max_lens_h = bar_stds["LENS"][bar_means["LENS"].index(max_lens_bar)] + max_lens_bar
     x = np.arange(len(bar_lables))  # the label locations
-    width = 0.4  # the width of the bars
+    width = 0.2  # the width of the bars
     multiplier = 0
     fig, ax = plt.subplots(layout='constrained')
-    for attribute, measurement in bar_means.items():
-        color = "#000000" if attribute == "LENS Models" else "#00A6E3"
+    for model_key, measurement in bar_means.items():
         offset = width * multiplier
-        rects = ax.bar(x + offset, measurement, width, label=attribute, color=color)
+        color = models_colors[model_key]
+        #rects = ax.bar(x + offset, measurement, width, label=model_key, color=color)
+        ax.bar(x + offset, max_lens_h, width, label=model_key, color=background_colors)
         multiplier += 1
-    plt.errorbar(bar_lables, bar_means['LENS Models'], yerr=lens_stds, fmt=".", color="r")
+        plt.errorbar(x + offset, bar_means[model_key], yerr=bar_stds[model_key], fmt=".", color=color, elinewidth=0.5, capthick=0.5)
     ax.set_ylabel('1980/1850 BC Ratio')
-    ax.set_title('BC Change with Geometric STD, from ' + f_name)
-    ax.set_xticks(x + width, bar_lables)
+    ax.set_xlabel('Region')
+    ax.set_title('Modeled and Observed BC Deposition Change')
+    x_max, x_min = plt.xlim()
+    ax.set_xticks(x + width, region_lables)
     plt.xticks(rotation=90)
+    ax2 = ax.twiny()
+    plt.xlim(x_max, x_min)
+    ax2.set_xticks(x + width, [int(label[len(label)-2:len(label)]) for label in bar_lables], fontsize=10)
+    plt.xticks(rotation=90)
+    ax2.set_xlabel('Ice Core Number')
+    plt.yscale('log')
+    rcParams.update({'font.size': 9})
     ax.legend()
-    #plt.show()
+    #manualy change legend colors
+    leg = ax.get_legend()
+    leg.legend_handles[0].set_color(models_colors['LENS'])
+    leg.legend_handles[1].set_color(models_colors['Ice Core'])
+    leg.legend_handles[2].set_color(models_colors['CESM'])
+    leg.legend_handles[3].set_color(models_colors['CMIP6'])
+    for a in plt.gcf().get_axes():
+        for i in range(len(bar_lables)):
+            filename = bar_lables[i].split('-')[0]
+            color = patches[filename][-1]
+            a.get_xticklabels()[i].set_color(color)
     plt.savefig('figures/ice-cores/test4.png', dpi=300)
     #plot distribution bars by model
     '''x = np.arange(len(distribution_lables))
@@ -316,7 +433,7 @@ elif (inp == "l"): #Lens data
     plt.subplots_adjust(hspace=0.7) #add spacing between subplots
     plt.savefig('figures/ice-cores/test.png', dpi=300)'''
     #plot distribution bars by ice core
-    plt.clf()
+    '''plt.clf()
     x = np.arange(len(ice_based_labels))
     width = 0.4
     multiplier = 0
@@ -393,8 +510,8 @@ elif (inp == "l"): #Lens data
     axes[-1].set_xticks(x + 82.5 * width, distribution_labels)
     axes[0].legend()
     plt.subplots_adjust(hspace=0.9, top=0.95, bottom=0.02) #add spacing between subplots
-    plt.savefig('figures/ice-cores/test2.png', dpi=50)
+    plt.savefig('figures/ice-cores/test2.png', dpi=50)'''
 elif (inp == "t"): #testing
-    print(t.coords2area(0, 0, 1))
+    print(pd.read_csv('data/model-ice-depo/lens/a10lv30.csv') - pd.read_csv('data/model-ice-depo/lens/a10lv28.csv'))
 
 print("n=" + str(len(for_cartopy)))

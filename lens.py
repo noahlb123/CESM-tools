@@ -57,7 +57,7 @@ for model in models:
         file_paths = modelN2fnames(model, year_s, h)
         for file_path in file_paths:
             if system == "Darwin":
-                path = os.path.join(working_path, "data", "lens", file_path)
+                path = os.path.join(working_path, "data", "model-ice-depo", "lens", file_path)
             else:
                 path = os.path.join(working_path, file_path)
             if os.path.exists(path):
@@ -85,8 +85,8 @@ dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv' if system == "Darw
 ice_coords = T.get_ice_coords(index_path, dupe_path)
 
 #get bc depo
-csv_dict = []
 for lv in lvls:
+    csv_dict = []
     for model in viable_models:
         row = {"model number": model}
         f = Dataset(model_path_map[model])
@@ -101,7 +101,7 @@ for lv in lvls:
         lons = f["lon"][:]
         row["BC_vars"] = ",".join(model_var_map[model])
         row["year"] = model_year_map[model]
-        for name in ice_coords.keys():
+        for name in [list(ice_coords.keys())[0]]:#ice_coords.keys():
             y, x = ice_coords[name]
             lat = T.nearest_search(lats, y)
             lon = T.nearest_search(lons, x + 180)
