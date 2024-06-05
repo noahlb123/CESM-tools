@@ -86,8 +86,10 @@ ice_coords = T.get_ice_coords(index_path, dupe_path)
 
 #get bc depo
 for lv in lvls:
+    print(lv)
     csv_dict = []
     for model in viable_models:
+        print(model)
         row = {"model number": model}
         f = Dataset(model_path_map[model])
         #1 192 288 (t, lat, lon)
@@ -101,7 +103,7 @@ for lv in lvls:
         lons = f["lon"][:]
         row["BC_vars"] = ",".join(model_var_map[model])
         row["year"] = model_year_map[model]
-        for name in [list(ice_coords.keys())[0]]:#ice_coords.keys():
+        for name in ice_coords.keys():#[list(ice_coords.keys())[0]]
             y, x = ice_coords[name]
             lat = T.nearest_search(lats, y)
             lon = T.nearest_search(lons, x + 180)
