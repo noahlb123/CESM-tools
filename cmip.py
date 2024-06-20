@@ -7,7 +7,7 @@ import os
 
 system = platform.system() #differentiate local and derecho env by sys platform
 target_v = 'wetbc' #sootsn
-target_model = 'CESM'
+target_model = '?'#'CESM'
 T = tools.ToolBox()
 
 #setup some vars
@@ -17,6 +17,24 @@ models = [1, 35] if system == "Darwin" else range(1, 36)
 sheets = {'pi': 1850.5, 'pd': 1950.5}
 wet_models = {}
 dry_models = {}
+lat_ant_inds = {}
+lon_ant_inds = {}
+
+def in_antartica(lat, lon):
+    return T.within_patch(lat, lon, (-180, -60, 360, -30), 'Antartica')
+
+def add_ant_ind(lat_i, lon_i, lat, lon):
+    if in_antartica(lat, lon):
+        if lat_i not in lat_ant_inds:
+            lat_ant_inds[lat_i] = 1
+        else:
+            lat_ant_inds[lat_i] += 1
+        if lon_i not in lon_ant_inds:
+            lon_ant_inds[lon_i] = 1
+        else:
+            lon_ant_inds[lon_i] += 1
+        return 1
+    return 0
 
 #file name to model name
 def filename2modelname(filename):
@@ -131,7 +149,8 @@ for era, year in sheets.items():
                 f_wet.close()
                 if target_v != 'sootsn':
                     f_dry.close()
-            except:
+            except Exception as e:
+                print(e)
                 continue
         row['n ensemble members'] = len(pairs)
         row['window'] = window
@@ -144,7 +163,8 @@ for era, year in sheets.items():
     #save to csv
     fields = ["model", 'n ensemble members', 'window']
     [fields.append(name) for name in ice_coords.keys()]
-    write_path = 'data/model-ice-depo/' + era + ".csv" if system == "Darwin" else era + ".csv"
+    output_name = target_model + '-' + era + '.csv'
+    write_path = 'data/model-ice-depo/' + output_name if system == "Darwin" else output_name
     with open(write_path, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fields)
         writer.writeheader()

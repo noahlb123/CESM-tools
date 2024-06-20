@@ -22,3 +22,5 @@ for name in pyperclip.paste().split('\n'):
         s_year, e_year = filename2modelname(name)
         if not valid_range(s_year, e_year):
             print(name, end=" ")'''
+
+print([float(x[x.index('$') + 1:len(x)].replace(',', '')) for x in pyperclip.paste().split('\n')[0:len(pyperclip.paste().split('\n')) - 1]])

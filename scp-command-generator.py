@@ -15,12 +15,19 @@ def rename(s):
     n = s[rest_i - 3: rest_i]
     return year + "." + n
 
-for i in range(1, 36):
+'''for i in range(1, 36):
     #years = [1850 + 5 * (x - 2) for x in range(5)] if i != 34 else (1977, 1982, 1987, 1972, 1970)
     path = os.path.join("/glade/campaign/cesm/collections/cesmLE/restarts/", get_dir(i, 0))
     sorted = list(map(rename, os.listdir(path)))
     sorted.sort()
     print(sorted[0])
-    '''for year in years:
+    for year in years:
         if not os.path.exists(os.path.join(os.getcwd(), get_dir(i, year))):
             print(get_dir(i, year))'''
+
+for year in range(10):
+    for month in range(1, 13):
+        if (year == 0 and month <= 3) or (year == 9 and month > 9):
+            continue
+        m_str = "{:02d}".format(month)
+        print("pyc-no-sp.clm2.h0.200" + str(year) + "-" + m_str + ".nc", end=" ")

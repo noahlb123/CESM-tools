@@ -179,3 +179,16 @@ class ToolBox:
         north = math.radians(lat + res / 2)
         area = (east - west) * (math.sin(north) - math.sin(south)) * (AVG_EARTH_RADIUS_KM**2)
         return area
+    
+    def patch_min_max(self, patch):
+        lon_bounds = (patch[0], patch[0] + patch[2])
+        lat_bounds = (patch[1], patch[1] + patch[3])
+        lon_min = np.min(lon_bounds)
+        lon_max = np.max(lon_bounds)
+        lat_min = np.min(lat_bounds)
+        lat_max = np.max(lat_bounds)
+        return lat_min, lat_max, lon_min, lon_max
+    
+    def within_patch(self, lat, lon, patch, name):
+        lat_min, lat_max, lon_min, lon_max = self.patch_min_max(patch)
+        return lat_min <= lat <= lat_max and lon_min <= lon <= lon_max

@@ -1,5 +1,6 @@
 from netCDF4 import Dataset
 import pandas as pd
+import numpy as np
 import platform
 import tools
 import csv
@@ -9,6 +10,21 @@ mode = "pd"
 
 system = platform.system() #differentiate local and derecho env by sys platform
 T = tools.ToolBox()
+
+#arrays to get adjacent gridcells
+cross_cells = [
+    [0, 1],
+    [0, -1],
+    [1, 0],
+    [-1, 0]
+]
+corner_cells = [
+    [1, 1],
+    [-1, -1],
+    [1, -1],
+    [-1, 1]
+]
+adj_8 = cross_cells + corner_cells
 
 def mass_mix2conc(bc_mixing_ratio, TREHT, p):
     return bc_mixing_ratio * p / 287.053 / TREHT
@@ -25,7 +41,7 @@ def modelN2fnames(model_n, year, h):
     return [get_path(h0year, h)] if h == 0 else [get_path(year, h)]
 
 #setup some vars
-lvls = (28, 29, 30)
+lvls = [30]
 h = 1 if mode == "pd" else 0
 models = [1, 35] if system == "Darwin" else range(1, 36)
 model_var_map = {}
@@ -87,45 +103,51 @@ ice_coords = T.get_ice_coords(index_path, dupe_path)
 #get bc depo
 for lv in lvls:
     print(lv)
-    csv_dict = []
-    for model in viable_models:
-        print(model)
-        row = {"model number": model}
-        f = Dataset(model_path_map[model])
-        #1 192 288 (t, lat, lon)
-        bc = f[model_var_map[model][0]][:]
-        hyai = f["hyai"][:]
-        hybi = f["hybi"][:]
-        P0 = f["P0"][:]
-        PSL = f["PSL"][:]
-        TREFHT = f["TREFHT"][:]
-        lats = f["lat"][:]
-        lons = f["lon"][:]
-        row["BC_vars"] = ",".join(model_var_map[model])
-        row["year"] = model_year_map[model]
-        for name in ice_coords.keys():#[list(ice_coords.keys())[0]]
-            y, x = ice_coords[name]
-            lat = T.nearest_search(lats, y)
-            lon = T.nearest_search(lons, x + 180)
-            total_bc = 0
-            #black carbon
-            for v in model_var_map[model]:
-                total_bc += bc[0][lat][lon]
-            #pressure
-            pressure = 0
-            for level in range(lv):
-                delta_p = PSL[0][lat][lon] * (hybi[level + 1] - hybi[level]) + P0 * (hyai[level + 1] - hyai[level])
-                pressure += delta_p / 9.81
-            row[name] = mass_mix2conc(total_bc, TREFHT[0][lat][lon], pressure)
-        csv_dict.append(row)
-        f.close()
+    for shape in (cross_cells, adj_8):
+        print('shape len:', len(shape))
+        csv_dict = []
+        for model in viable_models:
+            print(model)
+            row = {"model number": model}
+            f = Dataset(model_path_map[model])
+            #1 192 288 (t, lat, lon)
+            bc = f[model_var_map[model][0]][:]
+            hyai = f["hyai"][:]
+            hybi = f["hybi"][:]
+            P0 = f["P0"][:]
+            PSL = f["PSL"][:]
+            TREFHT = f["TREFHT"][:]
+            lats = f["lat"][:]
+            lons = f["lon"][:]
+            row["BC_vars"] = ",".join(model_var_map[model])
+            row["year"] = model_year_map[model]
+            for name in ice_coords.keys():#[list(ice_coords.keys())[0]]
+                y, x = ice_coords[name]
+                lat = T.nearest_search(lats, y)
+                lon = T.nearest_search(lons, x + 180)
+                total_conc = 0
+                for offsets in shape:
+                    lat_o, lon_o = np.add((lat, lon), offsets)
+                    #black carbon
+                    total_bc = 0
+                    for v in model_var_map[model]:
+                        total_bc += bc[0][lat_o][lon_o]
+                    #pressure
+                    pressure = 0
+                    for level in range(lv):
+                        delta_p = PSL[0][lat_o][lon_o] * (hybi[level + 1] - hybi[level]) + P0 * (hyai[level + 1] - hyai[level])
+                        pressure += delta_p / 9.81
+                    total_conc += mass_mix2conc(total_bc, TREFHT[0][lat_o][lon_o], pressure)
+                row[name] = total_conc / len(shape)
+            csv_dict.append(row)
+            f.close()
 
-    #save to csv
-    fields = ["model number", "BC_vars", "year"]
-    [fields.append(name) for name in ice_coords.keys()]
-    with open(mode + "-lv" + str(lv) + ".csv", 'w') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fields)
-        writer.writeheader()
-        writer.writerows(csv_dict)
+        #save to csv
+        fields = ["model number", "BC_vars", "year"]
+        [fields.append(name) for name in ice_coords.keys()]
+        with open(mode + "-lv" + str(lv) + '-s' + str(len(shape)) + ".csv", 'w') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fields)
+            writer.writeheader()
+            writer.writerows(csv_dict)
 
 print("done.")
