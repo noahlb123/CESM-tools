@@ -98,7 +98,7 @@ for wet_name, obj in wet_models.items():
             else: 
                 model_data_map['pd'][model_name].append(model_dict)
 
-#get sootsn
+#get output vars
 window = 10 * 365
 for era, year in sheets.items():
     csv_dict = []

@@ -559,21 +559,23 @@ elif (inp == 'l'): #Lens data
             writer.writerows(csv_dict)
         #setup table data
         rd_df = pd.read_csv(write_path)
-        row_index = rd_df['Model']
-        rd_df = rd_df.drop(['Model'], axis=1)
+        col_index = rd_df['Model']
+        rd_df = rd_df.drop(['Model'], axis=1).T
         vals = rd_df.values
         #setup color scale
-        cmap = colormaps['seismic']
+        cmap = t.custom_cmap([(0.5, 0.5, 1), (0.75, 0.75, 1), 0.25, (0.75, 0.75, 1), (1, 1, 1), 0.5, (1, 1, 1), (1, 0.75, 0.75,), 0.75, (1, 0.75, 0.75,), (1, 0.5, 0.5)])
         c_norm = Normalize(vmin=-2, vmax=2)
         colours = cmap(c_norm(vals))
+        #colours[:,:,3] = 0.5
         sm = ScalarMappable(cmap=cmap, norm=c_norm)
-        #plot
-        fix, ax = plt.subplots(figsize=(10, 4), dpi=300)
+        #plot with color
+        fix, ax = plt.subplots(figsize=(14, 4), dpi=300)
         ax.axis('off')
-        table = plt.table(cellText=vals, rowLabels=row_index, colLabels=rd_df.columns, loc='center', cellColours=colours)
+        table = plt.table(cellText=vals, rowLabels=list(map(lambda x: x.replace('ZAmerica', 'America'), rd_df.index)), colLabels=col_index, loc='center', cellColours=colours)
         table.auto_set_font_size(False)
-        table.set_fontsize(7)
-        plt.savefig('figures/ice-cores/test-table.png', dpi=300)
+        table.set_fontsize(12)
+        #bar_lables = 
+        plt.savefig('figures/ice-cores/test-table-color.png', dpi=300)
     #plot antartica supersets
     elif sys.argv[2] == 'ant':
         #setup east and west
