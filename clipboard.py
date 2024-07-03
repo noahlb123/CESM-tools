@@ -23,4 +23,7 @@ for name in pyperclip.paste().split('\n'):
         if not valid_range(s_year, e_year):
             print(name, end=" ")'''
 
-print([float(x[x.index('$') + 1:len(x)].replace(',', '')) for x in pyperclip.paste().split('\n')[0:len(pyperclip.paste().split('\n')) - 1]])
+temp = pyperclip.paste().split(',')
+temp.sort()
+for i in temp:
+    print(i, end=',')

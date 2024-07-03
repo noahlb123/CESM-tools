@@ -49,16 +49,17 @@ model_path_map = {}
 model_year_map = {}
 viable_models = []
 vars = ['bc_a4_SRF', 'bc_a1_SRF'] #these are suspended bc
-'''vars = ['SFbc_a4',
-        'SFbc_a1',
-        'bc_a4DDF',
-        'bc_a4SFWET',
-        'bc_a1DDF',
-        'bc_a1SFWET',
-        'bc_c4DDF',
-        'bc_c4SFWET',
-        'bc_c1DDF',
-        'bc_c1SFWET']'''#these are depositions
+vars = ['bc_a4_SRF', 'bc_a1_SRF', 'SFbc_a4',
+    'SFbc_a1',
+    'bc_a4DDF',
+    'bc_a4SFWET',
+    'bc_a1DDF',
+    'bc_a1SFWET',
+    'bc_c4DDF',
+    'bc_c4SFWET',
+    'bc_c1DDF',
+    'bc_c1SFWET',
+    'bc_c1']#these are depositions
 
 #get viable models
 for model in models:
@@ -103,7 +104,7 @@ ice_coords = T.get_ice_coords(index_path, dupe_path)
 #get bc depo
 for lv in lvls:
     print(lv)
-    for shape in (cross_cells, adj_8):
+    for shape in [[[0, 0]]]:
         print('shape len:', len(shape))
         csv_dict = []
         for model in viable_models:
