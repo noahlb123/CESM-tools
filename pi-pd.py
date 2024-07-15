@@ -112,6 +112,8 @@ for index, row in p.iterrows():
         #a2, y2 = t.get_avgs(Yr, BC, 9999, windows)
         a3, y3 = t.get_avgs(Yr, BC, 1980, windows)
         a4, y4 = t.get_avgs(Yr, BC, 1750, windows)
+        a1800, y5 = t.get_avgs(Yr, BC, 1800, windows)
+        a1900, y5 = t.get_avgs(Yr, BC, 1800, windows)
         #add data to datasets
         if (y1 != None and y3 != None and abs(y1 - y3) >= 100):
             for key in windows:
@@ -123,7 +125,7 @@ for index, row in p.iterrows():
                 for region, patch in patches.items():
                     if within_patch(lat, lon, patch, region):
                         filename_region[filename] = region
-            main_dict[filename] = {'lat': lat, 'lon': lon, 'ratio': a3[11] / a1[11], 'abbr': abbr, 'filename': filename, '1750ratio': a3[11] / a4[11]}
+            main_dict[filename] = {'lat': lat, 'lon': lon, 'ratio': a3[11] / a1[11], 'abbr': abbr, 'filename': filename, '1750ratio': a3[11] / a1800[11], '1800ratio': a3[11] / a4[11], '1900ratio': a3[11] / a1900[11]}
             name_bc[filename] = BC
             name_yr[filename] = Yr
         else:
@@ -203,9 +205,13 @@ elif (inp == 'n'): #table of ice core numbers and filenames
     df_n.insert(3, 'binned - no bin', diff)'''
     #setup 1750 data
     alt_ratios = pd.Series([x['1750ratio'] for x in main_dict.values()], index=filenames)
+    ratio_1800 = pd.Series([x['1800ratio'] for x in main_dict.values()], index=filenames)
+    ratio_1900 = pd.Series([x['1900ratio'] for x in main_dict.values()], index=filenames)
     diff = alt_ratios.sub(df_n['ratio'])
     df_n.insert(2, 'ratio, pd=1750', alt_ratios)
     df_n.insert(3, '1750-1850', diff)
+    df_n.insert(4, 'ratio, pd=1800', ratio_1800)
+    df_n.insert(5, 'ratio, pd=1900', ratio_1900)
     print('mean, min, max, above 0.25:')
     print(np.mean(diff), np.min(diff), np.max(diff), (np.abs(diff) > 0.25).sum())
     #setup color scale

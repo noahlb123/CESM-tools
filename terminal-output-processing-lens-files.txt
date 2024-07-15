@@ -780,3 +780,12 @@ ncra --mro -O -d time,,,43,43 climo-avg.nc climo-avg.nc
 
 #send all needed files to remote
 scp lens.py tools.py data /Users/noahliguori-bills/Downloads/CESM-tools/data/standardized-ice-cores/index.csv /Users/noahliguori-bills/Downloads/CESM-tools/data/standardized-ice-cores/index-dup-cores.csv nlbills@derecho.hpc.ucar.edu:/glade/derecho/scratch/nlbills/lens-all-pi
+
+#regrid based on other nc file
+ncremap -d desired-grid.nc input.nc output.nc
+
+#remove NaN from .nc file
+ncatted -a _FillValue,,o,f,nan in.nc && ncatted -a _FillValue,var_name,o,d,0 in.nc
+
+#remove variable
+ncks -C -O -x -v var_name in.nc out.nc

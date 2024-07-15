@@ -6,14 +6,20 @@ def filename2modelname(filename):
     end_year = filename[filename.rfind("-") + 1:filename.rfind(".") - 2]
     return int(start_year), int(end_year)
 
-def valid_range(s_year, e_year):
+def valid_range(years):
+    s_year, e_year = years
     def within_one(a, b):
         return np.abs(a - b) <= 1
     target_years = (1850, 1980)
     for year in target_years:
-        if within_one(s_year, year) or within_one(e_year, year):
+        if s_year <= year <= e_year:
             return True
     return False
+
+def get_years(filename):
+    years = filename[filename.rfind('_') + 1:len(filename) - 3].split('-')
+    years = [int(year[0:4]) for year in years]
+    return years
 
 '''print("rm ")
 m = {}
@@ -23,7 +29,6 @@ for name in pyperclip.paste().split('\n'):
         if not valid_range(s_year, e_year):
             print(name, end=" ")'''
 
-temp = pyperclip.paste().split(',')
-temp.sort()
-for i in temp:
-    print(i, end=',')
+for filename in pyperclip.paste().split('\n'):
+    if not valid_range(get_years(filename)):
+        print(filename, end=' ')
