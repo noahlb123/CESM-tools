@@ -209,9 +209,9 @@ elif (inp == 'n'): #table of ice core numbers and filenames
     ratio_1900 = pd.Series([x['1900ratio'] for x in main_dict.values()], index=filenames)
     diff = alt_ratios.sub(df_n['ratio'])
     df_n.insert(2, 'ratio, pd=1750', alt_ratios)
-    df_n.insert(3, '1750-1850', diff)
-    df_n.insert(4, 'ratio, pd=1800', ratio_1800)
-    df_n.insert(5, 'ratio, pd=1900', ratio_1900)
+    df_n.insert(5, '1750-1850', diff)
+    df_n.insert(3, 'ratio, pd=1800', ratio_1800)
+    df_n.insert(4, 'ratio, pd=1900', ratio_1900)
     print('mean, min, max, above 0.25:')
     print(np.mean(diff), np.min(diff), np.max(diff), (np.abs(diff) > 0.25).sum())
     #setup color scale
@@ -224,7 +224,7 @@ elif (inp == 'n'): #table of ice core numbers and filenames
     colors = cmap(c_norm(vals))
     colors[:,0,:] = [1, 1, 1, 1]
     for i in range(len(colors)):
-        colors[i][3] = cmap(Normalize(vmin=-1, vmax=1)(diff.iloc[i]))
+        colors[i][5] = cmap(Normalize(vmin=-1, vmax=1)(diff.iloc[i]))
     table = plt.table(cellText=vals, colLabels=df_n.columns, loc='center', cellColours=colors)
     table.auto_set_font_size(False)
     table.set_fontsize(3)
