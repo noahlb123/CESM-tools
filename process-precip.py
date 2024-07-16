@@ -25,9 +25,9 @@ if system == "Darwin":
     import pyperclip
     files = pyperclip.paste().split('\n')
 else:
-    files = os.listdir('.')
+    files = os.listdir('/glade/derecho/scratch/nlbills/cmip-precip')
 bads = set([])
-to_eval = ''
+to_eval = 'cd /glade/derecho/scratch/nlbills/cmip-precip && '
 
 #find start and end files
 for filename in files:
@@ -104,7 +104,7 @@ to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O'
 
 #evaluate
 print(to_eval)
-os.system(to_eval)
+#os.system(to_eval)
 #print(list(bads))
 
 #todo:
