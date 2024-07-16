@@ -20,14 +20,15 @@ def get_model_name(filename):
     return filename[T.find_nth(filename, '_', 2) + 1:filename.find('_historical')]
 
 main_dict = {}
+root = '/glade/derecho/scratch/nlbills/cmip-precip'
 system = platform.system() #differentiate local and derecho env by sys platform
 if system == "Darwin":
     import pyperclip
     files = pyperclip.paste().split('\n')
 else:
-    files = os.listdir('/glade/derecho/scratch/nlbills/cmip-precip')
+    files = os.listdir(root)
 bads = set([])
-to_eval = 'cd /glade/derecho/scratch/nlbills/cmip-precip && '
+to_eval = 'cd ' + root + ' && '
 
 #find start and end files
 for filename in files:
@@ -47,7 +48,6 @@ for filename in files:
                 main_dict[model_name]['e_file'] = filename
                 main_dict[model_name]['e_year'] = years[0]
 
-print(main_dict)
 #commands to extract file timeslices
 for model_name, d in main_dict.items():
     if d['s_file'] != None and d['e_file'] != None:
@@ -57,7 +57,7 @@ for model_name, d in main_dict.items():
             file_suffix = '_pi' if year == 1850 else '_pd'
             filename = d[file_index]
             try:
-                f = Dataset(filename)
+                f = Dataset(root + '/' + filename)
             except OSError:
                 #print('wrong format:', model_name)
                 bads.add(model_name)
@@ -91,7 +91,7 @@ for file_name in filenames:
 #commands to resize all models
 for i in range(len(filenames)):
     file_name = filenames[i]
-    f = Dataset(file_name)
+    f = Dataset(root + '/' + file_name)
     print(f.variables['lat'].shape[0], f.variables['lon'].shape[0], file_name)
     if f.variables['lat'].shape[0] > 64 or f.variables['lon'].shape[0] > 128:
         to_eval += 'ncremap -d CanESM5-1.nc ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
