@@ -99,8 +99,6 @@ for i in range(len(filenames)):
         filenames[i] = file_name.replace('.nc', '_re.nc')
     f.close()
 
-filenames = [model_name + '_re.nc' for model_name in valid_models]
-
 #comand to average files
 to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O'
 
