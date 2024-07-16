@@ -105,7 +105,7 @@ to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O'
 
 #evaluate
 print(to_eval)
-#os.system(to_eval)
+os.system(to_eval)
 #print(list(bads))
 
 #todo:
