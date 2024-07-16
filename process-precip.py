@@ -47,6 +47,7 @@ for filename in files:
                 main_dict[model_name]['e_file'] = filename
                 main_dict[model_name]['e_year'] = years[0]
 
+print(main_dict)
 #commands to extract file timeslices
 for model_name, d in main_dict.items():
     if d['s_file'] != None and d['e_file'] != None:
