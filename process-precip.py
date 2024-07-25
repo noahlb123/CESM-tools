@@ -102,6 +102,7 @@ for i in range(len(filenames)):
 #comand to average files
 to_eval += 'echo "doing final step..." && '
 to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O'
+to_eval += 'echo "done!" && '
 
 #evaluate
 print(to_eval)

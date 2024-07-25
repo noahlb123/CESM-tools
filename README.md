@@ -34,13 +34,13 @@ my_lon = -20
 lat_index = T.nearest_search(lats, my_lat)
 lon_index = T.nearest_search(lons, my_lon)
 ```
-5. Acess the variable "x" at that lat and lon
+5. Access the variable "x" at that lat and lon
 ```python
 x = x_var[lat_index][lon_index]
 ```
 6. Each NetCDF file is formatted differently, the lat and lon variable names used in step 3 can vary, the order and number of the dimensions can vary, and the units of everything can vary. You must check these things using Panoply or `ncdump -h filename.nc`. For example many NetCDF files have a time dimension, which would change step 5 to be...
 ```python
-x = x_var[:][time][lat_index][lon_index]
+x = x_var[time][lat_index][lon_index]
 ```
 7. All together this gives:
 ```python

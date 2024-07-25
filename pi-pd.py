@@ -19,9 +19,9 @@ from matplotlib import rcParams
 from scipy.stats import norm
 #import statsmodels.api as sm
 import plotly.express as px
-from netCDF4 import Dataset
+#from netCDF4 import Dataset
 import numpy as np
-import cartopy
+#import cartopy
 import scipy
 import tools
 import math
@@ -86,6 +86,19 @@ def divide(p_d, p_i):
     bad = list(columns.intersection(non_numeric))
     return p_d.drop(bad, axis=1).div(p_i.drop(bad, axis=1))
 
+def divide_pd_pi(p_d, p_i):
+    output_columns = list(p_i.columns)
+    models = list(set(p_d['model']).union(set(p_i['model'])))
+    p_d = p_d.set_index('model')
+    p_i = p_i.set_index('model')
+    init_dict = {key: [] for key in output_columns}
+    df = pd.DataFrame(data=init_dict)
+    for i in range(len(models)):
+        model = models[i]
+        if model in p_d.index and model in p_i.index:
+            df.loc[i] = [model] + list(p_d.loc[model].div(p_i.loc[model]))
+    return df
+
 #fix duplicate pud core lat lons
 dup_index_map = {}
 p_dup = pd.read_csv('data/standardized-ice-cores/index-dup-cores.csv')
@@ -111,9 +124,9 @@ for index, row in p.iterrows():
         #a1, y1 = t.get_avgs(Yr, BC, 1925.49, windows)
         #a2, y2 = t.get_avgs(Yr, BC, 9999, windows)
         a3, y3 = t.get_avgs(Yr, BC, 1980, windows)
-        a4, y4 = t.get_avgs(Yr, BC, 1750, windows)
-        a1800, y5 = t.get_avgs(Yr, BC, 1800, windows)
-        a1900, y5 = t.get_avgs(Yr, BC, 1800, windows)
+        #a4, y4 = t.get_avgs(Yr, BC, 1750, windows)
+        #a1800, y5 = t.get_avgs(Yr, BC, 1800, windows)
+        #a1900, y5 = t.get_avgs(Yr, BC, 1800, windows)
         #add data to datasets
         if (y1 != None and y3 != None and abs(y1 - y3) >= 100):
             for key in windows:
@@ -125,7 +138,7 @@ for index, row in p.iterrows():
                 for region, patch in patches.items():
                     if within_patch(lat, lon, patch, region):
                         filename_region[filename] = region
-            main_dict[filename] = {'lat': lat, 'lon': lon, 'ratio': a3[11] / a1[11], 'abbr': abbr, 'filename': filename, '1750ratio': a3[11] / a1800[11], '1800ratio': a3[11] / a4[11], '1900ratio': a3[11] / a1900[11]}
+            main_dict[filename] = {'lat': lat, 'lon': lon, 'ratio': a3[11] / a1[11], 'abbr': abbr, 'filename': filename}
             name_bc[filename] = BC
             name_yr[filename] = Yr
         else:
@@ -137,7 +150,7 @@ for i in range(len(main_dict.keys())):
 final_pd = pd.DataFrame.from_records(main_dict).T
 
 #plot
-inp = 't' if len(sys.argv) < 2 else sys.argv[1]
+inp = 'z' if len(sys.argv) < 2 else sys.argv[1]
 def format_column(c):
     return np.transpose(c).astype('float64').tolist()[0]
 if (inp == 'm'): #Raw Matplot
@@ -196,13 +209,6 @@ elif (inp == 'n'): #table of ice core numbers and filenames
     index = [i + 1 for i in range(len(filenames))]
     df_n = pd.DataFrame({'core index': pd.Series(index, index=filenames), 'filename': pd.Series(filenames, index=filenames), 'ratio': pd.Series(ratios, index=filenames)}, index=filenames)
     df_n = df_n.drop(['filename'], axis=1)
-    #setup cmip6 data
-    '''cmip_ratios = divide(pd.read_csv('data/model-ice-depo/cmip6/pd.csv'), pd.read_csv('data/model-ice-depo/cmip6/pi.csv')).mean(axis=0)
-    cmip_binned = divide(pd.read_csv('data/model-ice-depo/cmip6/binned-pd.csv'), pd.read_csv('data/model-ice-depo/cmip6/binned-pi.csv')).mean(axis=0)
-    diff = cmip_binned.sub(cmip_ratios)
-    df_n.insert(1, 'no bin', cmip_ratios)
-    df_n.insert(2, 'binned', cmip_binned)
-    df_n.insert(3, 'binned - no bin', diff)'''
     #setup 1750 data
     alt_ratios = pd.Series([x['1750ratio'] for x in main_dict.values()], index=filenames)
     ratio_1800 = pd.Series([x['1800ratio'] for x in main_dict.values()], index=filenames)
@@ -212,8 +218,6 @@ elif (inp == 'n'): #table of ice core numbers and filenames
     df_n.insert(3, 'pd=1800', ratio_1800)
     df_n.insert(4, 'pd=1900', ratio_1900)
     df_n.insert(5, '1750-1850', diff)
-    print('mean, min, max, above 0.25:')
-    print(np.mean(diff), np.min(diff), np.max(diff), (np.abs(diff) > 0.25).sum())
     #setup color scale
     cmap = colormaps['BrBG_r']
     c_norm = Normalize(vmin=0, vmax=2)
@@ -222,14 +226,49 @@ elif (inp == 'n'): #table of ice core numbers and filenames
     fix, ax = plt.subplots(figsize=(4, 2), dpi=300)
     ax.axis('off')
     colors = cmap(c_norm(vals))
-    colors[:,0,:] = [1, 1, 1, 1]
+    colors[:,0,:] = [1, 1, 1, 1] #make first column white
+    #give 5th column different color scale
     for i in range(len(colors)):
         colors[i][5] = cmap(Normalize(vmin=-1, vmax=1)(diff.iloc[i]))
     table = plt.table(cellText=vals, colLabels=df_n.columns, loc='center', cellColours=colors)
     table.auto_set_font_size(False)
     table.set_fontsize(3)
     table.scale(0.5, 0.5)
-    plt.savefig('figures/ice-cores/test-big-table.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
+    plt.savefig('figures/ice-cores/test-big-table-pi-comparison.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
+elif (inp == 'big-table'): #make table comparing individual models
+    #setup cmip6 data
+    filenames = [x['filename'] for x in main_dict.values()]
+    ratios = [x['ratio'] for x in main_dict.values()]
+    index = [i + 1 for i in range(len(filenames))]
+    df = pd.DataFrame({'Index': pd.Series(index, index=filenames), 'filename': pd.Series(filenames, index=filenames), 'Ice Core': pd.Series(ratios, index=filenames)}, index=filenames)
+    df = df.drop(['filename'], axis=1)
+    cmip_binned = divide_pd_pi(pd.read_csv('data/model-ice-depo/cmip6/binned-pd.csv'), pd.read_csv('data/model-ice-depo/cmip6/binned-pi.csv')).T
+    cmip_binned.columns = cmip_binned.loc['model']
+    cmip_binned = cmip_binned.drop(['model'])
+    cmip_binned = cmip_binned.join(cmip_binned.mean(axis=1).rename('CMIP6'))
+    lens = pd.read_csv('data/model-ice-depo/lens/a10lv30.csv')
+    lens = lens.rename(columns={"Unnamed: 0": "Restart"}).T
+    lens.columns = lens.loc['Restart']
+    lens = lens.drop(['Restart'])
+    lens = lens.join(lens.mean(axis=1).rename('LENS'))
+    df = df.join(cmip_binned, how='outer')
+    df = df.join(lens, how='outer')
+    df = df[df['Index'].notna()]
+    df = df.sort_values('Index')
+    #setup color scale
+    cmap = colormaps['BrBG_r']
+    c_norm = Normalize(vmin=0, vmax=2)
+    #plot with color
+    vals = np.vectorize(lambda a : round(a, 3))(df.to_numpy())
+    fix, ax = plt.subplots(figsize=(4, 2), dpi=300)
+    ax.axis('off')
+    colors = cmap(c_norm(vals))
+    colors[:,0,:] = [1, 1, 1, 1] #make first column white
+    table = plt.table(cellText=vals, colLabels=df.columns, loc='center', cellColours=colors, colWidths=[0.1] * len(df.columns))
+    table.auto_set_font_size(False)
+    table.set_fontsize(5)
+    #table.scale(0.5, 0.5)
+    plt.savefig('figures/ice-cores/test-big-table-cmip-models.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
 elif (inp == 'b'): #box plot
     for target_w in [5]:
         data = np.matrix(full_data[target_w])
@@ -352,22 +391,19 @@ elif (inp == 'c'): #Cartopy
     #print(index_name_map)
 elif (inp == 'l'): #Lens data
     #setup data:
-    lens_pi = pd.read_csv('data/model-ice-depo/lens/pi.csv')
-    lens_pd = pd.read_csv('data/model-ice-depo/lens/pd.csv')
-    lens_avg = pd.read_csv('data/model-ice-depo/lens/a10lv30.csv')
     models = {
         'LENS': {
-            'dataset': lens_avg,
+            'dataset': pd.read_csv('data/model-ice-depo/lens/a10lv30.csv'),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': '#F5B341',#IBM Design library's colorblind pallete
             },
         'CESM': {
-            'dataset': divide(pd.read_csv('data/model-ice-depo/cesm-wetdry/pd.csv'), pd.read_csv('data/model-ice-depo/cesm-wetdry/pi.csv')),
+            'dataset': divide_pd_pi(pd.read_csv('data/model-ice-depo/cesm-wetdry/pd.csv'), pd.read_csv('data/model-ice-depo/cesm-wetdry/pi.csv')).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': '#EE692C',
             },
         'CMIP6': {
-            'dataset': divide(pd.read_csv('data/model-ice-depo/cmip6/binned-pd.csv'), pd.read_csv('data/model-ice-depo/cmip6/binned-pi.csv')),
+            'dataset': divide_pd_pi(pd.read_csv('data/model-ice-depo/cmip6/binned-pd.csv'), pd.read_csv('data/model-ice-depo/cmip6/binned-pi.csv')).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': '#CC397C',
             },
@@ -377,7 +413,7 @@ elif (inp == 'l'): #Lens data
             'color': '#6C62E7',
             },
         'CESM-SOOTSN': {
-            'dataset': divide(pd.read_csv('data/model-ice-depo/cesm-sootsn/pd.csv'), pd.read_csv('data/model-ice-depo/cesm-sootsn/pi.csv')),
+            'dataset': divide_pd_pi(pd.read_csv('data/model-ice-depo/cesm-sootsn/pd.csv'), pd.read_csv('data/model-ice-depo/cesm-sootsn/pi.csv')).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': '#638FF6',
             }
@@ -443,6 +479,8 @@ elif (inp == 'l'): #Lens data
             'color': '#6C62E7',
             }
     }'''
+    lens_pi = pd.read_csv('data/model-ice-depo/lens/pi.csv')
+    lens_avg = models['LENS']['dataset']
     models_datasets = {key: value['dataset'] for key, value in models.items()}
     models_colors = {key: value['color'] for key, value in models.items()}
     n_models = len(list(models))
@@ -475,7 +513,8 @@ elif (inp == 'l'): #Lens data
             else:
                 model_ratios = ds[col_name]#lens_pd[col_name] / lens_pi[col_name]
                 model_mean = np.mean(model_ratios)
-                model_std = np.std(model_ratios.dropna())#scipy.stats.gstd(model_ratios.dropna())
+                #model_std = np.std(model_ratios.dropna())#scipy.stats.gstd(model_ratios.dropna())
+                model_std = np.std(model_ratios)
                 bar_stds[model_key].append(0)#(model_std)
                 bar_means[model_key].append(model_mean)
         filenames.append(col_name)
@@ -501,7 +540,7 @@ elif (inp == 'l'): #Lens data
                 transition_indexes.append(i)
         transition_indexes.append(transition_indexes[-1] + 1)
         #get lens distributions by model
-        for index, row in lens_pd.iterrows():
+        for index, row in lens_pi.iterrows():
             model_index = int(row['model number'].split('-')[0])
             ice_based_labels.append(model_index)
             ratio_dists = lens_avg.iloc[model_index - 19].iloc[1:len(lens_avg.iloc[model_index - 19])]#row.iloc[3:len(row)] / lens_pi.iloc[index].iloc[3:len(row)]
@@ -596,7 +635,7 @@ elif (inp == 'l'): #Lens data
                     del new_model_colors[bad_key]
             for i in range(len(list(new_model_colors.items()))):
                 key, color = list(new_model_colors.items())[i]
-                leg.legend_handles[i].set_color(color)
+                leg.legendHandles[i].set_color(color)
             for a in plt.gcf().get_axes():
                 for i in range(len(bar_lables)):
                     filename = bar_lables[i].split('-')[0]
@@ -629,7 +668,7 @@ elif (inp == 'l'): #Lens data
         table = plt.table(cellText=vals, rowLabels=list(map(lambda x: x.replace('ZAmerica', 'America'), rd_df.index)), colLabels=col_index, loc='center', cellColours=colours)
         table.auto_set_font_size(False)
         table.set_fontsize(12)
-        plt.savefig('figures/ice-cores/test-table-color.png', dpi=300)
+        plt.savefig('figures/ice-cores/test-table-color.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
     #plot antartica supersets
     elif sys.argv[2] == 'ant':
         #setup east and west
@@ -673,7 +712,7 @@ elif (inp == 'l'): #Lens data
                 #ax.bar(x + offset, new_data[i::2], width, color=color)
                 plt.hist(new_data[i::2])
                 multiplier += 1
-            plt.savefig('figures/ice-cores/test5' + key + '.png', dpi=200)
+            plt.savefig('figures/ice-cores/test5' + key + '.png', bbox_inches='tight', pad_inches=0.0, dpi=200)
     #plot distribution bars by model
     '''x = np.arange(len(distribution_lables))
     fig, axes = plt.subplots(len(distribution_map), dpi=300, figsize=(4*1000/300, 4*1000/300))
@@ -834,6 +873,6 @@ elif (inp == 't'):
         plt.savefig('figures/ice-cores/test-timesries-' + hem + '.png', dpi=200)
         plt.close()
 elif (inp == 'z'):#testing
-    pass
+    print(divide(pd.read_csv('data/model-ice-depo/cmip6/binned-pd.csv'), pd.read_csv('data/model-ice-depo/cmip6/binned-pi.csv')))
 
 print("n=" + str(len(main_dict)))
