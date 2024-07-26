@@ -251,6 +251,15 @@ elif (inp == 'big-table'): #make table comparing individual models
     lens.columns = lens.loc['Restart']
     lens = lens.drop(['Restart'])
     lens = lens.join(lens.mean(axis=1).rename('LENS'))
+    min_restart = 9999999
+    min_name = ''
+    for column in lens.columns:
+        temp_df = pd.DataFrame(df['Ice Core']).join(lens[column])
+        diff = (temp_df['Ice Core'] - temp_df[column]).abs().sum()
+        if diff < min_restart:
+            min_restart = diff
+            min_name = column
+    print(min_restart, min_name)
     df = df.join(cmip_binned, how='outer')
     df = df.join(lens, how='outer')
     df = df[df['Index'].notna()]
@@ -539,13 +548,6 @@ elif (inp == 'l'): #Lens data
                 old = region
                 transition_indexes.append(i)
         transition_indexes.append(transition_indexes[-1] + 1)
-        #get lens distributions by model
-        for index, row in lens_pi.iterrows():
-            model_index = int(row['model number'].split('-')[0])
-            ice_based_labels.append(model_index)
-            ratio_dists = lens_avg.iloc[model_index - 19].iloc[1:len(lens_avg.iloc[model_index - 19])]#row.iloc[3:len(row)] / lens_pi.iloc[index].iloc[3:len(row)]
-            distribution_map[model_index] = ratio_dists
-        distribution_lables = row.iloc[3:len(row)].index
         #plot mean bars
         x = np.arange(len(bar_lables))  # the label locations
         rcParams.update({'font.size': 9})
@@ -714,7 +716,15 @@ elif (inp == 'l'): #Lens data
                 multiplier += 1
             plt.savefig('figures/ice-cores/test5' + key + '.png', bbox_inches='tight', pad_inches=0.0, dpi=200)
     #plot distribution bars by model
-    '''x = np.arange(len(distribution_lables))
+    '''
+    #get lens distributions by model
+        for index, row in lens_pi.iterrows():
+            model_index = int(row['model number'].split('-')[0])
+            ice_based_labels.append(model_index)
+            ratio_dists = lens_avg.iloc[model_index - 19].iloc[1:len(lens_avg.iloc[model_index - 19])]#row.iloc[3:len(row)] / lens_pi.iloc[index].iloc[3:len(row)]
+            distribution_map[model_index] = ratio_dists
+        distribution_lables = row.iloc[3:len(row)].index
+    x = np.arange(len(distribution_lables))
     fig, axes = plt.subplots(len(distribution_map), dpi=300, figsize=(4*1000/300, 4*1000/300))
     fig.suptitle('LENS BC Distributions')
     i = 0
