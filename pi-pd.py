@@ -259,7 +259,7 @@ elif (inp == 'big-table'): #make table comparing individual models
         if diff < min_restart:
             min_restart = diff
             min_name = column
-    print(min_restart, min_name)
+    #print(min_restart, min_name)
     df = df.join(cmip_binned, how='outer')
     df = df.join(lens, how='outer')
     df = df[df['Index'].notna()]
@@ -269,14 +269,22 @@ elif (inp == 'big-table'): #make table comparing individual models
     c_norm = Normalize(vmin=0, vmax=2)
     #plot with color
     vals = np.vectorize(lambda a : round(a, 3))(df.to_numpy())
+    red_mask = np.zeros(np.shape(df))
+    for column in [n + 18 for n in range(18)] + ['LENS']:
+        for i in range(len(df[column])):
+            if np.abs(df['Ice Core'].iloc[i] - df[column].iloc[i]) < 0.1:
+                red_mask[i][df.columns.get_loc(column)] = 1
     fix, ax = plt.subplots(figsize=(4, 2), dpi=300)
     ax.axis('off')
     colors = cmap(c_norm(vals))
     colors[:,0,:] = [1, 1, 1, 1] #make first column white
+    for il in range(len(colors)):
+        for ic in range(len(colors[il])):
+            if red_mask[il][ic]:
+                colors[il][ic] = [1, 0, 0, 1]
     table = plt.table(cellText=vals, colLabels=df.columns, loc='center', cellColours=colors, colWidths=[0.1] * len(df.columns))
     table.auto_set_font_size(False)
     table.set_fontsize(5)
-    #table.scale(0.5, 0.5)
     plt.savefig('figures/ice-cores/test-big-table-cmip-models.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
 elif (inp == 'b'): #box plot
     for target_w in [5]:
@@ -528,7 +536,8 @@ elif (inp == 'l'): #Lens data
                 bar_means[model_key].append(model_mean)
         filenames.append(col_name)
     #resort everything by region
-    #print('ice core mean', np.mean(bar_means['Ice Core']))
+    print('ice core mean', np.mean(bar_means['Ice Core']))
+    print(np.mean([np.mean(bar_means['CMIP6']), np.mean(bar_means['LENS']), np.mean(bar_means['CESM'])]))
     bar_lables, filenames, bar_means['LENS'], bar_means['Ice Core'], bar_means['CESM'], bar_means['CMIP6'], bar_stds['LENS'], bar_stds['Ice Core'], bar_stds['CESM'], bar_stds['CMIP6'], bar_means['CESM-SOOTSN'], bar_stds['CESM-SOOTSN'], background_colors = zip(*sorted(list(zip(bar_lables, filenames, bar_means['LENS'], bar_means['Ice Core'], bar_means['CESM'], bar_means['CMIP6'], bar_stds['LENS'], bar_stds['Ice Core'], bar_stds['CESM'], bar_stds['CMIP6'], bar_means['CESM-SOOTSN'], bar_stds['CESM-SOOTSN'], background_colors))))
     #bar_lables, bar_means['Ice Core'], bar_stds['Ice Core'], bar_means['LENS-S1'], bar_stds['LENS-S1'], bar_means['LENS-S4'], bar_stds['LENS-S4'], bar_means['LENS-S8'], bar_stds['LENS-S8'], background_colors = zip(*sorted(list(zip(bar_lables, bar_means['Ice Core'], bar_stds['Ice Core'], bar_means['LENS-S1'], bar_stds['LENS-S1'], bar_means['LENS-S4'], bar_stds['LENS-S4'], bar_means['LENS-S8'], bar_stds['LENS-S8'], background_colors))))
     #bar_lables, bar_means['Ice Core'], bar_stds['Ice Core'], bar_means['LENS-LV30'], bar_stds['LENS-LV30'], bar_means['LENS-LV29'], bar_stds['LENS-LV29'], bar_means['LENS-LV28'], bar_stds['LENS-LV28'], background_colors = zip(*sorted(list(zip(bar_lables, bar_means['Ice Core'], bar_stds['Ice Core'], bar_means['LENS-LV30'], bar_stds['LENS-LV30'], bar_means['LENS-LV29'], bar_stds['LENS-LV29'], bar_means['LENS-LV28'], bar_stds['LENS-LV28'], background_colors))))

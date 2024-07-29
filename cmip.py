@@ -59,11 +59,11 @@ def is_within(s_year, e_year, y):
     return s_year - 10 <= y <= e_year + 10
 
 #get paths
-index_path = 'data/standardized-ice-cores/index.csv' if system == "Darwin" else "index.csv"
-dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv' if system == "Darwin" else "index-dup-cores.csv"
+data_path = '/glade/derecho/scratch/nlbills/cmip6-snow-dep' if target_v == 'sootsn' else '/glade/derecho/scratch/nlbills/cmip6-snow-dep/all'
+index_path = 'data/standardized-ice-cores/index.csv' if system == "Darwin" else os.path.join(data_path, "index.csv")
+dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv' if system == "Darwin" else os.path.join(data_path, "index-dup-cores.csv")
 ice_coords = T.get_ice_coords(index_path, dupe_path)
 first_core = list(ice_coords.keys())[0]
-data_path = os.getcwd()
 if system == "Darwin":
     if target_v == 'sootsn':
         data_path = os.path.join(data_path, 'data', 'model-ice-depo', 'sootsn')
@@ -137,6 +137,7 @@ for era, year in sheets.items():
                     lat = T.nearest_search(lats, y)
                     lon = T.nearest_search(lons, x + 180)
                     wet_a, wet_y_out = T.get_avgs(times[:], wetbc[:,lat,lon], (year - year_modifier) * 365, [window])
+                    print(wet_y_out)
                     if target_v != 'sootsn':
                         dry_a, dry_y_out = T.get_avgs(times[:], drybc[:,lat,lon], (year - year_modifier) * 365, [window])
                         total_sootsn += np.abs(wet_a[window]) + np.abs(dry_a[window])
