@@ -48,6 +48,7 @@ model_var_map = {}
 model_path_map = {}
 model_year_map = {}
 viable_models = []
+#the only present var in any run is bc_a1_SRF
 vars = ['bc_a4_SRF', 'bc_a1_SRF'] #these are suspended bc
 vars = ['bc_a4_SRF', 'bc_a1_SRF', 'SFbc_a4',
     'SFbc_a1',

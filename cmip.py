@@ -7,7 +7,7 @@ import os
 
 system = platform.system() #differentiate local and derecho env by sys platform
 target_v = 'wetbc' #sootsn
-target_model = 'CESM'#'?'
+target_model = 'CESM'#'CMIP6'
 T = tools.ToolBox()
 
 #setup some vars
@@ -177,7 +177,7 @@ for era, year in sheets.items():
         [fields.append(name) for name in ice_coords.keys()]
         filename = data_type + '.csv' if data_type != 'main' else era + '.csv'
         subfolder = target_model if target_model != 'CESM' else target_model + '-' + target_v
-        write_path = os.path.join('data', 'model-ice-depo', subfolder, filename)
+        write_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, filename)
         with open(write_path, 'w') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fields)
             writer.writeheader()
