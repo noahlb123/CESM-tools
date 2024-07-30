@@ -137,7 +137,6 @@ for era, year in sheets.items():
                     lat = T.nearest_search(lats, y)
                     lon = T.nearest_search(lons, x + 180)
                     wet_a, wet_y_out = T.get_avgs(times[:], wetbc[:,lat,lon], (year - year_modifier) * 365, [window])
-                    print(wet_y_out)
                     if target_v != 'sootsn':
                         dry_a, dry_y_out = T.get_avgs(times[:], drybc[:,lat,lon], (year - year_modifier) * 365, [window])
                         total_sootsn += np.abs(wet_a[window]) + np.abs(dry_a[window])
@@ -147,6 +146,7 @@ for era, year in sheets.items():
                         row[core_name] += total_sootsn
                     else:
                         row[core_name] = total_sootsn
+                print(wet_y_out)
                 f_wet.close()
                 if target_v != 'sootsn':
                     f_dry.close()
