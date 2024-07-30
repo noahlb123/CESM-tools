@@ -148,10 +148,9 @@ for era, year in sheets.items():
                         total_sootsn += wet_a[window]
                     if core_name in row:
                         row[core_name] += total_sootsn
-                        row_year[core_name] += wet_y_out
                     else:
                         row[core_name] = total_sootsn
-                        row_year[core_name] = wet_y_out
+                    row_year[core_name] = wet_y_out / 365
                     row_coord[core_name] = str(lat) + ',' + str(lon)
                 f_wet.close()
                 if target_v != 'sootsn':
@@ -165,7 +164,8 @@ for era, year in sheets.items():
             if '.csv' in core_name:
                 row[core_name] = value / len(pairs)
                 if core_name in row_year:
-                    row_year[core_name] = value / len(pairs)
+                    #row_year[core_name] = value / len(pairs)
+                    pass
         csv_dict.append(row)
         csv_years.append(row_year)
         csv_coords.append(row_coord)
