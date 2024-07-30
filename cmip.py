@@ -20,7 +20,7 @@ wet_models = {}
 dry_models = {}
 lat_ant_inds = {}
 lon_ant_inds = {}
-year_mods = pd.Dataframe(columns=['Model', 'pi', 'pd'])
+year_mods = pd.DataFrame(columns=['Model', 'pi', 'pd'])
 
 def in_antartica(lat, lon):
     return T.within_patch(lat, lon, (-180, -60, 360, -30), 'Antartica')
