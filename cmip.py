@@ -175,7 +175,7 @@ for era, year in sheets.items():
     for data_type, csv_inst in {'main': csv_dict, 'year': csv_years, 'coords': csv_coords}.items():
         fields = ["model", 'n ensemble members', 'window'] if data_type == 'main' else ["model"]
         [fields.append(name) for name in ice_coords.keys()]
-        filename = data_type + '.csv' if data_type != 'main' else era + '.csv'
+        filename = data_type + '-' + era + '.csv' if data_type != 'main' else era + '.csv'
         subfolder = target_model if target_model != 'CESM' else target_model + '-' + target_v.replace('wetbc', 'wetdry')
         subfolder = subfolder.lower()
         write_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, filename)
