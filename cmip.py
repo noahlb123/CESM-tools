@@ -4,6 +4,7 @@ import numpy as np
 import tools
 import csv
 import os
+import pandas as pd
 
 system = platform.system() #differentiate local and derecho env by sys platform
 target_v = 'wetbc' #sootsn
@@ -19,6 +20,7 @@ wet_models = {}
 dry_models = {}
 lat_ant_inds = {}
 lon_ant_inds = {}
+year_mods = pd.Dataframe(columns=['Model', 'pi', 'pd'])
 
 def in_antartica(lat, lon):
     return T.within_patch(lat, lon, (-180, -60, 360, -30), 'Antartica')
@@ -100,6 +102,7 @@ for wet_name, obj in wet_models.items():
 
 #get output vars
 window = 10 * 365
+pandas_i = 0
 for era, year in sheets.items():
     csv_dict = []
     csv_coords = []
@@ -132,6 +135,8 @@ for era, year in sheets.items():
                     year_modifier = unit_year
                 elif unit_year == 1:
                     year_modifier = start_year
+                year_mods.loc[pandas_i] = [model_name, '', year_modifier] if era == 'pd' else [model_name, year_modifier, '']
+                pandas_i += 1
                 if target_v != 'sootsn':
                     dry_pair = wet_dry['dry']
                     f_dry = Dataset(dry_pair[0])
@@ -183,6 +188,7 @@ for era, year in sheets.items():
             writer = csv.DictWriter(csvfile, fieldnames=fields)
             writer.writeheader()
             writer.writerows(csv_inst)
+year_mods.to_csv(os.path.join(os.getcwd(), 'year-mods.csv'))
 
 #loadbc
 
