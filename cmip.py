@@ -135,7 +135,7 @@ for era, year in sheets.items():
                     year_modifier = unit_year
                 elif unit_year == 1:
                     year_modifier = start_year
-                year_mods.loc[pandas_i] = [model_name, '', year_modifier] if era == 'pd' else [model_name, year_modifier, '']
+                year_mods.loc[pandas_i] = [model_name, '', (year - year_modifier) * 365] if era == 'pd' else [model_name, (year - year_modifier) * 365, '']
                 pandas_i += 1
                 if target_v != 'sootsn':
                     dry_pair = wet_dry['dry']
