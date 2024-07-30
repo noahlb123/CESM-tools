@@ -172,7 +172,7 @@ for era, year in sheets.items():
         i += 1
 
     #save to csv
-    for data_type, csv_inst in {'main': csv_dict, 'year': csv_years, 'coords': csv_coords}:
+    for data_type, csv_inst in {'main': csv_dict, 'year': csv_years, 'coords': csv_coords}.items():
         fields = ["model", 'n ensemble members', 'window'] if data_type == 'main' else ["model"]
         [fields.append(name) for name in ice_coords.keys()]
         filename = data_type + '.csv' if data_type != 'main' else era + '.csv'
