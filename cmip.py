@@ -188,7 +188,7 @@ for era, year in sheets.items():
             writer = csv.DictWriter(csvfile, fieldnames=fields)
             writer.writeheader()
             writer.writerows(csv_inst)
-year_mods.to_csv(os.path.join(os.getcwd(), 'year-mods.csv'))
+year_mods.to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'year-mods.csv'))
 
 #loadbc
 
