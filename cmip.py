@@ -7,14 +7,14 @@ import os
 
 system = platform.system() #differentiate local and derecho env by sys platform
 target_v = 'wetbc' #sootsn
-target_model = '?'#'CESM'
+target_model = 'CESM'#'?'
 T = tools.ToolBox()
 
 #setup some vars
 model_data_map = {'pi': {}, 'pd': {}}
 coord_min_maxes = (90.0, -90.0, 358.75, 0.0) #(np.max(lats), np.min(lats), np.max(lons), np.min(lons))
 models = [1, 35] if system == "Darwin" else range(1, 36)
-sheets = {'pi': 1850.5, 'pd': 1950.5}
+sheets = {'pi': 1850.5, 'pd': 1980.5}
 wet_models = {}
 dry_models = {}
 lat_ant_inds = {}
@@ -102,12 +102,16 @@ for wet_name, obj in wet_models.items():
 window = 10 * 365
 for era, year in sheets.items():
     csv_dict = []
+    csv_coords = []
+    csv_years = []
     print(era)
     length = len(model_data_map[era].items())
     i = 1
     for model_name, pairs in model_data_map[era].items():#{'EC-Earth3-AerChem': model_data_map[era]['EC-Earth3-AerChem']}.items():
         print(model_name, i, '/', length)
         row = {"model": model_name}
+        row_year = {"model": model_name}
+        row_coord = {"model": model_name}
         for wet_dry in pairs:
             try:
                 wet_pair = wet_dry['wet']
@@ -144,9 +148,11 @@ for era, year in sheets.items():
                         total_sootsn += wet_a[window]
                     if core_name in row:
                         row[core_name] += total_sootsn
+                        row_year[core_name] += wet_y_out
                     else:
                         row[core_name] = total_sootsn
-                print(wet_y_out)
+                        row_year[core_name] = wet_y_out
+                    row_coord[core_name] = str(lat) + ',' + str(lon)
                 f_wet.close()
                 if target_v != 'sootsn':
                     f_dry.close()
@@ -158,17 +164,23 @@ for era, year in sheets.items():
         for core_name, value in row.items():
             if '.csv' in core_name:
                 row[core_name] = value / len(pairs)
+                if core_name in row_year:
+                    row_year[core_name] = value / len(pairs)
         csv_dict.append(row)
+        csv_years.append(row_year)
+        csv_coords.append(row_coord)
         i += 1
 
     #save to csv
-    fields = ["model", 'n ensemble members', 'window']
-    [fields.append(name) for name in ice_coords.keys()]
-    output_name = target_model + '-' + era + '.csv'
-    write_path = 'data/model-ice-depo/' + output_name if system == "Darwin" else output_name
-    with open(write_path, 'w') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fields)
-        writer.writeheader()
-        writer.writerows(csv_dict)
+    for data_type, csv_inst in {'main': csv_dict, 'year': csv_years, 'coords': csv_coords}:
+        fields = ["model", 'n ensemble members', 'window'] if data_type == 'main' else ["model"]
+        [fields.append(name) for name in ice_coords.keys()]
+        filename = data_type + '.csv' if data_type != 'main' else era + '.csv'
+        subfolder = target_model if target_model != 'CESM' else target_model + '-' + target_v
+        write_path = os.path.join('data', 'model-ice-depo', subfolder, filename)
+        with open(write_path, 'w') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fields)
+            writer.writeheader()
+            writer.writerows(csv_dict)
 
 print("done.")
