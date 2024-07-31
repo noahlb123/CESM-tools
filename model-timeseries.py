@@ -39,8 +39,9 @@ for index, row in files.iterrows():
     f = Dataset(file)
     yr = f['time']
     bc = f[v]
-    timeseries[file] = np.interp(x, yr, bc)
-    if c >= 10:
+    print(np.shape(bc))
+    #timeseries[file] = np.interp(x, yr, bc)
+    if c >= 1:
         break
 
 print(timeseries)
