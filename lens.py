@@ -155,6 +155,6 @@ for mode in ['pd', 'pi']:
                 writer.writeheader()
                 writer.writerows(csv_dict)
 
-pd.Dataset(data=[model_path_map[model] for model in viable_models], columns=['files']).to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'lens', 'fileuse-index.csv'))
+pd.DataFrame(data=[model_path_map[model] for model in viable_models], columns=['files']).to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'lens', 'fileuse-index.csv'))
 
 print("done.")
