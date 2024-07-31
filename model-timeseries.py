@@ -23,16 +23,19 @@ for file in sootsn_files['wet file']:
     i += 1
 print('any nan present:', files.isnull().values.any())
 
-for index, row in files.iterrows():
-    print(row['files'], row['var'])
-'''
+
+
 #add var each file uses
 vars = pd.Series(['bc_a1_SRF'] * len(lens_files['files']) + ['wetbc'] * len(cmip_files['wet file']) + ['drybc'] * len(cmip_files['dry file']) + ['sootsn'] * len(sootsn_files['wet file']))
 files['var'] = vars
+
+for index, row in files.iterrows():
+    print(row['files'], row['var'])
+
 x = [i + 0.5 for i in range(1850, 1981)]
 timeseries = pd.DataFrame(columns=['year'], data=x)
 c = 0
-for index, row in files.iterrows():
+'''for index, row in files.iterrows():
     file = row['files']
     v = row['var']
     f = Dataset(file)
