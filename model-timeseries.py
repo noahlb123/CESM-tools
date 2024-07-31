@@ -10,13 +10,14 @@ sootsn_files = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', '
 
 #combine files into one dataframe
 files = pd.DataFrame(columns=['files'])
-files['files'] = lens_files['files'] + cmip_files['wet file'] + cmip_files['dry file']
-print(files.isnull().values.any())
+files['files'] = lens_files['files']
+files['files'] = lens_files['files'] + cmip_files['wet file']
+files['files'] = lens_files['files'] + cmip_files['wet file'] + cmip_files['dry file'] #if I remove one of these others become nan
 i = len(files['files']) - 1
 for file in sootsn_files['wet file']: #for some ungodly reason I have to do this for sootsn files
     files.loc[i] = [file]
     i += 1
-print(files.isnull().values.any())
+print('any nan present: ', files.isnull().values.any())
 
 for file in files['files']:
     #print(file)
