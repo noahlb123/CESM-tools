@@ -12,13 +12,13 @@ sootsn_files = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', '
 files = pd.DataFrame(columns=['files'])
 files['files'] = lens_files['files']
 i = len(files['files']) - 1
-for file in sootsn_files['wet file']: #for some ungodly reason I have to do this for all files
-    files.loc[i] = [file]
-    i += 1
-for file in cmip_files['wet file']:
+for file in cmip_files['wet file']: #for some ungodly reason I have to do this for all files
     files.loc[i] = [file]
     i += 1
 for file in cmip_files['dry file']:
+    files.loc[i] = [file]
+    i += 1
+for file in sootsn_files['wet file']:
     files.loc[i] = [file]
     i += 1
 print('any nan present:', files.isnull().values.any())
@@ -41,7 +41,8 @@ for index, row in files.iterrows():
     bc = f[v]
     print(np.shape(bc))
     #timeseries[file] = np.interp(x, yr, bc)
+    c += 1
     if c >= 1:
-        break
+        continue#break
 
 print(timeseries)
