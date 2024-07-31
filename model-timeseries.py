@@ -22,7 +22,7 @@ files['var'] = vars
 x = [i + 0.5 for i in range(1850, 1981)]
 timeseries = pd.DataFrame(columns=['year'], data=x)
 c = 0
-for index, row in timeseries.iterrows():
+for index, row in files.iterrows():
     file = row['files']
     v = row['var']
     f = Dataset(file)
