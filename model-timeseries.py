@@ -12,7 +12,6 @@ files = pd.DataFrame(columns=['files'])
 #files['files'] = lens_files['files'] + cmip_files['wet file'] + cmip_files['dry file'] + sootsn_files['wet file']
 files['files'] = lens_files['files'] + sootsn_files['wet file']
 print(lens_files['files'] + sootsn_files['wet file'])
-=
 
 #print(files)
 #print(sootsn_files)
