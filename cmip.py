@@ -5,10 +5,11 @@ import tools
 import csv
 import os
 import pandas as pd
+import sys
 
 system = platform.system() #differentiate local and derecho env by sys platform
-target_v = 'wetbc' #sootsn
-target_model = 'CESM'#'CMIP6'
+target_v = sys.argv[2] if sys.argv[2] == 'wetbc' or 'sootsn' else 'wetbc'
+target_model = sys.argv[1] if sys.argv[1] == 'CMIP6' or 'CESM' else 'CMIP6'
 T = tools.ToolBox()
 
 #setup some vars
@@ -21,6 +22,7 @@ dry_models = {}
 lat_ant_inds = {}
 lon_ant_inds = {}
 year_mods = pd.DataFrame(columns=['Model', 'pi', 'pd'])
+fileuse_index = pd.DataFrame(columns=['wet file', 'dry file'])
 
 def in_antartica(lat, lon):
     return T.within_patch(lat, lon, (-180, -60, 360, -30), 'Antartica')
@@ -103,6 +105,7 @@ for wet_name, obj in wet_models.items():
 #get output vars
 window = 10 * 365
 pandas_i = 0
+fileuse_i = 0
 for era, year in sheets.items():
     csv_dict = []
     csv_coords = []
@@ -158,6 +161,8 @@ for era, year in sheets.items():
                     row_year[core_name] = wet_y_out / 365
                     row_coord[core_name] = str(lat) + ',' + str(lon)
                 f_wet.close()
+                fileuse_index.loc[fileuse_i] = [wet_dry['wet'][0], wet_dry['dry'][0]] if target_v != 'sootsn' else [wet_dry['wet'][0]]
+                fileuse_i += 1
                 if target_v != 'sootsn':
                     f_dry.close()
             except Exception as e:
@@ -189,6 +194,7 @@ for era, year in sheets.items():
             writer.writeheader()
             writer.writerows(csv_inst)
 year_mods.to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'year-mods.csv'))
+fileuse_index.to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'fileuse-index.csv'))
 
 #loadbc
 
