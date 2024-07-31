@@ -26,7 +26,7 @@ print('any nan present:', files.isnull().values.any())
 
 
 #add var each file uses
-vars = pd.Series(['bc_a1_SRF'] * len(lens_files['files']) + ['wetbc'] * len(cmip_files['wet file']) + ['drybc'] * len(cmip_files['dry file']) + ['sootsn'] * len(sootsn_files['wet file']))
+vars = pd.Series(['bc_a1_SRF'] * len(lens_files['files']) - 1 + ['wetbc'] * len(cmip_files['wet file']) + ['drybc'] * len(cmip_files['dry file']) + ['sootsn'] * len(sootsn_files['wet file']))
 files['var'] = vars
 
 for index, row in files.iterrows():
