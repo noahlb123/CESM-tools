@@ -114,55 +114,55 @@ for era, year in sheets.items():
         row_year = {"model": model_name}
         row_coord = {"model": model_name}
         for wet_dry in pairs:
-            try:
-                wet_pair = wet_dry['wet']
-                model_path, start_year, end_year = wet_pair
-                #formatted as time 1980, lat 192, lon 288
-                f_wet = Dataset(model_path)
-                wetbc = f_wet['sootsn'][:] if target_v == 'sootsn' else f_wet['wetbc'][:]
-                lats = f_wet["lat"][:]
-                lons = f_wet["lon"][:]
-                changes = fix_format(lats, lons)
-                lats = lats + changes[0]
-                lons = lons + changes[1]
-                times = f_wet["time"]
-                total_sootsn = 0
-                unit_year = int(times.units[11:15])
-                year_modifier = 1850
-                if unit_year != start_year and unit_year != 1:
-                    year_modifier = unit_year
-                elif unit_year == 1:
-                    year_modifier = start_year
-                year_mods.loc[pandas_i] = [model_name, '', (year - year_modifier) * 365] if era == 'pd' else [model_name, (year - year_modifier) * 365, '']
-                pandas_i += 1
+            #try:
+            wet_pair = wet_dry['wet']
+            model_path, start_year, end_year = wet_pair
+            #formatted as time 1980, lat 192, lon 288
+            f_wet = Dataset(model_path)
+            wetbc = f_wet['sootsn'][:] if target_v == 'sootsn' else f_wet['wetbc'][:]
+            lats = f_wet["lat"][:]
+            lons = f_wet["lon"][:]
+            changes = fix_format(lats, lons)
+            lats = lats + changes[0]
+            lons = lons + changes[1]
+            times = f_wet["time"]
+            total_sootsn = 0
+            unit_year = int(times.units[11:15])
+            year_modifier = 1850
+            if unit_year != start_year and unit_year != 1:
+                year_modifier = unit_year
+            elif unit_year == 1:
+                year_modifier = start_year
+            year_mods.loc[pandas_i] = [model_name, '', (year - year_modifier) * 365] if era == 'pd' else [model_name, (year - year_modifier) * 365, '']
+            pandas_i += 1
+            if target_v != 'sootsn':
+                dry_pair = wet_dry['dry']
+                f_dry = Dataset(dry_pair[0])
+                drybc = f_dry['drybc'][:]
+            for core_name in ice_coords.keys():#[first_core]:
+                y, x = ice_coords[core_name]
+                lat = T.nearest_search(lats, y)
+                lon = T.nearest_search(lons, x + 180)
+                wet_a, wet_y_out = T.get_avgs(times[:], wetbc[:,lat,lon], (year - year_modifier) * 365, [window])
                 if target_v != 'sootsn':
-                    dry_pair = wet_dry['dry']
-                    f_dry = Dataset(dry_pair[0])
-                    drybc = f_dry['drybc'][:]
-                for core_name in ice_coords.keys():#[first_core]:
-                    y, x = ice_coords[core_name]
-                    lat = T.nearest_search(lats, y)
-                    lon = T.nearest_search(lons, x + 180)
-                    wet_a, wet_y_out = T.get_avgs(times[:], wetbc[:,lat,lon], (year - year_modifier) * 365, [window])
-                    if target_v != 'sootsn':
-                        dry_a, dry_y_out = T.get_avgs(times[:], drybc[:,lat,lon], (year - year_modifier) * 365, [window])
-                        total_sootsn += np.abs(wet_a[window]) + np.abs(dry_a[window])
-                    else:
-                        total_sootsn += wet_a[window]
-                    if core_name in row:
-                        row[core_name] += total_sootsn
-                    else:
-                        row[core_name] = total_sootsn
-                    row_year[core_name] = wet_y_out / 365
-                    row_coord[core_name] = str(lat) + ',' + str(lon)
-                f_wet.close()
-                fileuse_index.loc[fileuse_i] = [wet_dry['wet'][0], wet_dry['dry'][0]] if target_v != 'sootsn' else [wet_dry['wet'][0]]
-                fileuse_i += 1
-                if target_v != 'sootsn':
-                    f_dry.close()
-            except Exception as e:
+                    dry_a, dry_y_out = T.get_avgs(times[:], drybc[:,lat,lon], (year - year_modifier) * 365, [window])
+                    total_sootsn += np.abs(wet_a[window]) + np.abs(dry_a[window])
+                else:
+                    total_sootsn += wet_a[window]
+                if core_name in row:
+                    row[core_name] += total_sootsn
+                else:
+                    row[core_name] = total_sootsn
+                row_year[core_name] = wet_y_out / 365
+                row_coord[core_name] = str(lat) + ',' + str(lon)
+            f_wet.close()
+            fileuse_index.loc[fileuse_i] = [wet_dry['wet'][0], wet_dry['dry'][0]] if target_v != 'sootsn' else [wet_dry['wet'][0]]
+            fileuse_i += 1
+            if target_v != 'sootsn':
+                f_dry.close()
+            '''except Exception as e:
                 print(e)
-                continue
+                continue'''
         row['n ensemble members'] = len(pairs)
         row['window'] = window
         for core_name, value in row.items():
