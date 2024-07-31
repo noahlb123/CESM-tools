@@ -12,12 +12,12 @@ for f in lens_files['files']:
     print(f)
 print('cmip_files')
 for f in cmip_files['wet file']:
-    print(f)'''
+    print(f)
 print('cmip_files dry')
 for f in cmip_files['wet file']:
-    print(f)
+    print(f)'''
 
-
+print(sootsn_files.isnull().values.any(), cmip_files.isnull().values.any(), lens_files.isnull().values.any())
 #combine files into one dataframe
 files = pd.DataFrame(columns=['files'])
 files['files'] = lens_files['files'] + cmip_files['wet file'] + cmip_files['dry file'] + sootsn_files['wet file']
