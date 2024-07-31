@@ -28,7 +28,7 @@ for file in files['files']:
     #print(os.path.isfile(file), file)
 
 #add var each file uses
-'''vars = pd.Series(['bc_a1_SRF'] * len(lens_files['files']) + ['wetbc'] * len(cmip_files['wet file']) + ['drybc'] * len(cmip_files['dry file']) + ['sootsn'] * len(sootsn_files['wet file']))
+vars = pd.Series(['bc_a1_SRF'] * len(lens_files['files']) + ['wetbc'] * len(cmip_files['wet file']) + ['drybc'] * len(cmip_files['dry file']) + ['sootsn'] * len(sootsn_files['wet file']))
 files['var'] = vars
 x = [i + 0.5 for i in range(1850, 1981)]
 timeseries = pd.DataFrame(columns=['year'], data=x)
@@ -43,4 +43,4 @@ for index, row in files.iterrows():
     if c >= 10:
         break
 
-print(timeseries)'''
+print(timeseries)
