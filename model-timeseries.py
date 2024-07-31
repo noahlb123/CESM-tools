@@ -9,8 +9,15 @@ sootsn_files = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', '
 
 #combine files into one dataframe
 files = pd.DataFrame(columns=['files'])
+files['files'] = lens_files['files']
+print(files.isnull().values.any())
+files['files'] = lens_files['files'] + cmip_files['wet file']
+print(files.isnull().values.any())
+files['files'] = lens_files['files'] + cmip_files['wet file'] + cmip_files['dry file']
+print(files.isnull().values.any())
 files['files'] = lens_files['files'] + cmip_files['wet file'] + cmip_files['dry file'] + sootsn_files['wet file']
-print(files)
+print(files.isnull().values.any())
+
 
 #print(files)
 #print(sootsn_files)
