@@ -156,7 +156,7 @@ for era, year in sheets.items():
                 row_year[core_name] = wet_y_out / 365
                 row_coord[core_name] = str(lat) + ',' + str(lon)
             f_wet.close()
-            fileuse_index.loc[fileuse_i] = [wet_dry['wet'][0], wet_dry['dry'][0]] if target_v != 'sootsn' else [wet_dry['wet'][0]]
+            fileuse_index.loc[fileuse_i] = [wet_dry['wet'][0], wet_dry['dry'][0]] if target_v != 'sootsn' else [wet_dry['wet'][0], '']
             fileuse_i += 1
             if target_v != 'sootsn':
                 f_dry.close()
