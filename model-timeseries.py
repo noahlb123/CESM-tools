@@ -8,13 +8,13 @@ cmip_files = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cm
 sootsn_files = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cesm-sootsn', 'fileuse-index.csv'))
 
 print('lens_files')
-for f in lens_files:
+for f in lens_files['files']:
     print(f)
 print('cmip_files')
-for f in cmip_files:
+for f in cmip_files['wet file']:
     print(f)
 print('sootsn_files')
-for f in sootsn_files:
+for f in sootsn_files['wet file']:
     print(f)
 
 
