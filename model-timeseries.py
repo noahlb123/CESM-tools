@@ -20,7 +20,8 @@ for file in sootsn_files['wet file']: #for some ungodly reason I have to do this
 print('any nan present:', files.isnull().values.any())
 
 for file in files['files']:
-    print(os.path.isfile(file), file)
+    if not os.path.isfile(file):
+        print(file)
 
 #add var each file uses
 vars = pd.Series(['bc_a1_SRF'] * len(lens_files['files']) + ['wetbc'] * len(cmip_files['wet file']) + ['drybc'] * len(cmip_files['dry file']) + ['sootsn'] * len(sootsn_files['wet file']))
