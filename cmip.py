@@ -64,15 +64,10 @@ def is_within(s_year, e_year, y):
 
 #get paths
 data_path = '/glade/derecho/scratch/nlbills/cmip6-snow-dep' if target_v == 'sootsn' else '/glade/derecho/scratch/nlbills/cmip6-snow-dep/all'
-index_path = 'data/standardized-ice-cores/index.csv' if system == "Darwin" else os.path.join(data_path, "index.csv")
-dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv' if system == "Darwin" else os.path.join(data_path, "index-dup-cores.csv")
+index_path = 'data/standardized-ice-cores/index.csv'
+dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
 ice_coords = T.get_ice_coords(index_path, dupe_path)
 first_core = list(ice_coords.keys())[0]
-if system == "Darwin":
-    if target_v == 'sootsn':
-        data_path = os.path.join(data_path, 'data', 'model-ice-depo', 'sootsn')
-    else:
-        data_path = os.path.join(data_path, 'data', 'model-ice-depo', 'wetdrybc')
 
 #divide files into wet and dry
 for filename in os.listdir(data_path): #from https://esgf-node.ipsl.upmc.fr/search/cmip6-ipsl/
