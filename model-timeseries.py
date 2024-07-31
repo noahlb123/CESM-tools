@@ -11,13 +11,16 @@ sootsn_files = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', '
 #combine files into one dataframe
 files = pd.DataFrame(columns=['files'])
 files['files'] = lens_files['files'] + cmip_files['wet file'] + cmip_files['dry file']
+print(files.isnull().values.any())
 i = len(files['files']) - 1
 for file in sootsn_files['wet file']: #for some ungodly reason I have to do this for sootsn files
     files.loc[i] = [file]
     i += 1
+print(files.isnull().values.any())
 
 for file in files['files']:
-    print(file)
+    #print(file)
+    pass
     #print(os.path.isfile(file), file)
 
 #add var each file uses
