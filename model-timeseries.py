@@ -1,5 +1,6 @@
 from netCDF4 import Dataset
 import pandas as pd
+import numpy as np
 import os
 
 #get files from each model
@@ -11,9 +12,24 @@ sootsn_files = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', '
 files = pd.DataFrame(columns=['files'])
 files['files'] = lens_files['files'] + cmip_files['wet file'] + cmip_files['dry file']
 i = len(files['files']) - 1
-for file in sootsn_files['wet file']:
+for file in sootsn_files['wet file']: #for some ungodly reason I have to do this for sootsn files
     files.loc[i] = [file]
     i += 1
 
-print(files)
-#print(sootsn_files)
+#add var each file uses
+vars = pd.Series(['bc_a1_SRF'] * len(lens_files['files']) + ['wetbc'] * len(cmip_files['wet file']) + ['drybc'] * len(cmip_files['dry file']) + ['sootsn'] * len(sootsn_files['wet file']))
+files['var'] = vars
+x = [i + 0.5 for i in range(1850, 1981)]
+timeseries = pd.DataFrame(columns=['year'], data=x)
+c = 0
+for index, row in timeseries.iterrows():
+    file = row['file']
+    v = row['var']
+    f = Dataset(file)
+    yr = f['time']
+    bc = f[v]
+    timeseries[file] = np.interp(x, yr, bc)
+    if c >= 10:
+        break
+
+print(timeseries)
