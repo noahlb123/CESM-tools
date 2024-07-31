@@ -17,8 +17,8 @@ for file in sootsn_files['wet file']: #for some ungodly reason I have to do this
     i += 1
 
 for file in files['files']:
-    print(type(file), file)
-    print(os.path.isfile(file), file)
+    print(file)
+    #print(os.path.isfile(file), file)
 
 #add var each file uses
 '''vars = pd.Series(['bc_a1_SRF'] * len(lens_files['files']) + ['wetbc'] * len(cmip_files['wet file']) + ['drybc'] * len(cmip_files['dry file']) + ['sootsn'] * len(sootsn_files['wet file']))
