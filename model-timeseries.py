@@ -38,8 +38,9 @@ for index, row in files.iterrows():
     v = row['var']
     f = Dataset(file)
     yr = f['time']
+    print(f.variables, v)
     bc = f[v]
-    print(np.shape(bc))
+    #print(np.shape(bc))
     #timeseries[file] = np.interp(x, yr, bc)
     c += 1
     if c >= 1:
