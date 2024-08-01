@@ -28,6 +28,7 @@ import math
 import json
 import csv
 import sys
+import os
 
 #read index file
 t = tools.ToolBox()
@@ -67,6 +68,7 @@ patches = { #Okabe and Ito colorblind pallet
     'Greenland': (-55, s_g, 35, 90 - s_g, '#880D1E'),
     'East Antarctica': (-180, -60, 180, -30, '#000000'),
     'West Antarctica': (0, -60, 180, -30, '#6CB3E4'),'''
+model_colors = {'CESM': '#EE692C', 'CMIP6': '#CC397C', 'Ice Core': '#6C62E7', 'CESM-SOOTSN': '#638FF6', 'LENS': '#F5B341'}
 
 def within_patch(lat, lon, patch, name):
     lat_min, lat_max, lon_min, lon_max = t.patch_min_max(patch)
@@ -412,27 +414,27 @@ elif (inp == 'l'): #Lens data
         'LENS': {
             'dataset': pd.read_csv('data/model-ice-depo/lens/a10lv30.csv'),
             'data': {'ratios': None, 'means': None, 'stds': None},
-            'color': '#F5B341',#IBM Design library's colorblind pallete
+            'color': model_colors['LENS'],#IBM Design library's colorblind pallete
             },
         'CESM': {
             'dataset': divide_pd_pi(pd.read_csv('data/model-ice-depo/cesm-wetdry/pd.csv'), pd.read_csv('data/model-ice-depo/cesm-wetdry/pi.csv')).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
-            'color': '#EE692C',
+            'color': model_colors['CESM'],
             },
         'CMIP6': {
             'dataset': divide_pd_pi(pd.read_csv('data/model-ice-depo/cmip6/binned-pd.csv'), pd.read_csv('data/model-ice-depo/cmip6/binned-pi.csv')).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
-            'color': '#CC397C',
+            'color': model_colors['CMIP6'],
             },
         'Ice Core': {
             'dataset': main_dict,
             'data': {'ratios': None, 'means': None, 'stds': None},
-            'color': '#6C62E7',
+            'color': model_colors['Ice Core'],
             },
         'CESM-SOOTSN': {
             'dataset': divide_pd_pi(pd.read_csv('data/model-ice-depo/cesm-sootsn/pd.csv'), pd.read_csv('data/model-ice-depo/cesm-sootsn/pi.csv')).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
-            'color': '#638FF6',
+            'color': model_colors['CESM-SOOTSN'],
             }
     }
     '''models = {
@@ -862,35 +864,43 @@ elif (inp == 's'): #smoothing
                 plt.show()
 #timeseries
 elif (inp == 't'):
+    df_time = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'binned-timeseries.csv'))
     big_arr = []
     csv_filenames = []
     dont_use = set(['thompson-2002-1.csv', 'liu-2021-1.csv', 'liu-2021-2.csv', 'liu-2021-3.csv', 'liu-2021-4.csv', 'liu-2021-5.csv', 'mcconnell-2022-1.csv'])
-    for hem in ['Northern Hemisphere', 'Southern Hemisphere']:
-        x = [i + 0.5 for i in range(1850, 1981)]
-        fig, ax = plt.subplots()
-        for name in name_bc.keys():
-            if name in dont_use:
-                continue
-            elif (main_dict[name]['lat'] > 0 and hem == 'Northern Hemisphere') or (main_dict[name]['lat'] < 0 and hem == 'Southern Hemisphere'):
-                #y = t.moving_average(np.interp(x, name_yr[name], name_bc[name]), 10)
-                y = np.interp(x, name_yr[name], name_bc[name])
-                big_arr.append(y)
-                csv_filenames.append(name)
-        #x = [i + 0.5 for i in range(1850+5, 1981-5)]
-        path = 'data/timeseries-' + hem + '.csv'
-        np.savetxt(path, np.asarray(big_arr).T, delimiter=",", header=','.join(csv_filenames), comments='')
-        big_arr = []
-        df_t = pd.read_csv(path)
-        std = df_t.std(axis=1)
-        avg = df_t.mean(axis=1)
-        ax.plot(x, avg, c='black') #avg line
-        ax.plot(x, avg - std, c='grey') #lower bound
-        ax.plot(x, avg + std, c='grey') #upper bound
-        ax.plot(x, [0 for i in x], c='grey') #line at y=0
-        plt.title(hem)
-        plt.xlim([1850, 1980])
-        plt.savefig('figures/ice-cores/test-timesries-' + hem + '.png', dpi=200)
-        plt.close()
+    #for hem in ['Northern Hemisphere', 'Southern Hemisphere']:
+    x = [i + 0.5 for i in range(1850, 1981)]
+    for name in name_bc.keys():
+        if name in dont_use:
+            continue
+        #elif (main_dict[name]['lat'] > 0 and hem == 'Northern Hemisphere') or (main_dict[name]['lat'] < 0 and hem == 'Southern Hemisphere'):
+        if main_dict[name]['lat'] <= -60:
+            y = np.interp(x, name_yr[name], name_bc[name])
+            big_arr.append(y)
+            csv_filenames.append(name)
+    path = 'data/model-ice-depo/timeseries-.csv'
+    np.savetxt(path, np.asarray(big_arr).T, delimiter=",", header=','.join(csv_filenames), comments='')
+    df_ice = pd.read_csv(path)
+    df_time['Ice Core'] = df_ice.mean(axis=1)
+    fig, ax = plt.subplots()
+    ax.plot(x, [0 for i in x], c='grey') #line at y=0
+    legend_elms = []
+    for model in df_time.columns:
+        if model in ['Unnamed: 0', 'LENS']:
+            continue
+        color = model_colors[model]
+        ax.plot(x, df_time[model], c=color) #avg line
+        legend_elms.append(Patch(facecolor=color, label=model))
+        if model == 'Ice Core':
+            ax.plot(x, df_ice.min(axis=1), c='grey') #lower bound
+            ax.plot(x, df_ice.max(axis=1), c='grey') #upper bound
+    plt.yscale("log")
+    plt.xlim([1850, 1980])
+    #plt.ylim([0, 1])
+    legend_elms.append(Patch(facecolor='grey', label='Ice Core Min/Max'))
+    ax.legend(handles=legend_elms)
+    plt.savefig('figures/ice-cores/test-timesries.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
+    plt.close()
 elif (inp == 'z'):#testing
     print(divide(pd.read_csv('data/model-ice-depo/cmip6/binned-pd.csv'), pd.read_csv('data/model-ice-depo/cmip6/binned-pi.csv')))
 

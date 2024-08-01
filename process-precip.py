@@ -1,4 +1,5 @@
 import os
+import sys
 import platform
 from tools import ToolBox
 from netCDF4 import Dataset
@@ -20,7 +21,10 @@ def get_model_name(filename):
     return filename[T.find_nth(filename, '_', 2) + 1:filename.find('_historical')]
 
 main_dict = {}
-root = '/glade/derecho/scratch/nlbills/cmip-precip'
+if len(sys.argv < 3):
+    raise Exception('2 command line arguments required: "root directory" "name of .nc file with lowest resolution grid"')
+root = sys.argv[1]
+smallest_grid = sys.argv[2]
 system = platform.system() #differentiate local and derecho env by sys platform
 if system == "Darwin":
     import pyperclip
@@ -95,7 +99,7 @@ for i in range(len(filenames)):
     to_eval += "ncap2 -O -s 'prsn=double(prsn);' " + file_name + ' ' + file_name + ' && '
     if f.variables['lat'].shape[0] > 64 or f.variables['lon'].shape[0] > 128:
         to_eval += 'echo "regridding ' + file_name + '" && '
-        to_eval += 'ncremap -d CanESM5-1.nc ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
+        to_eval += 'ncremap -d ' + smallest_grid + ' ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
         filenames[i] = file_name.replace('.nc', '_re.nc')
     f.close()
 
