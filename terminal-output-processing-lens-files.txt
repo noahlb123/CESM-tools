@@ -789,3 +789,10 @@ ncatted -a _FillValue,,o,f,nan in.nc && ncatted -a _FillValue,var_name,o,d,0 in.
 
 #remove variable
 ncks -C -O -x -v var_name in.nc out.nc
+
+#subtract two files/variables
+ncks -A a.nc b.nc && 
+ncap2 -s 'new_var=(a-b)' b.nc output.nc
+
+ncks -A output-dry.nc output-wet.nc && 
+ncap2 -s 'new_var=(drybc-wetbc)' output-wet.nc output.nc

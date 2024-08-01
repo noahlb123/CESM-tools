@@ -19,7 +19,7 @@ from matplotlib import rcParams
 from scipy.stats import norm
 #import statsmodels.api as sm
 import plotly.express as px
-#from netCDF4 import Dataset
+from netCDF4 import Dataset
 import numpy as np
 #import cartopy
 import scipy
@@ -100,6 +100,14 @@ def divide_pd_pi(p_d, p_i):
         if model in p_d.index and model in p_i.index:
             df.loc[i] = [model] + list(p_d.loc[model].div(p_i.loc[model]))
     return df
+
+#alternative workflow cmip6 data:
+alt_df = pd.DataFrame()
+f = Dataset('data/model-ice-depo/cmip6/cmip6-bc-depo.nc')
+print(np.shape(f['new_var']))
+for filename, coords in t.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv'):
+    #alt_df[filename] =
+    pass
 
 #fix duplicate pud core lat lons
 dup_index_map = {}
