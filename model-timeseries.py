@@ -24,27 +24,28 @@ for file in sootsn_files['wet file']:
     files.loc[i] = [file]
     i += 1
 
-
 #add var each file uses
 vars = pd.Series(['bc_a1_SRF'] * (len(lens_files['files']) - 1) + ['wetbc'] * len(cmip_files['wet file']) + ['drybc'] * len(cmip_files['dry file']) + ['sootsn'] * len(sootsn_files['wet file']))
 files['var'] = vars
 
-#using location of southernmost ice core, mcconnell-2021-4.csv, 
-print(T.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv')['mcconnell-2021-4.csv'])
+#use location of southernmost ice core (#23), mcconnell-2021-4.csv, lat, lon = (-82.1, 54.9)
+s_lat, s_lon = T.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv')['mcconnell-2021-4.csv']
+
 #get timeseries
-'''x = [i + 0.5 for i in range(1850, 1981)]
+x = [i + 0.5 for i in range(1850, 1981)]
 timeseries = pd.DataFrame(columns=['year'], data=x)
 for index, row in files.iterrows():
     file = row['files']
     v = row['var']
-    if v == 'bc_a1_SRF':
+    if v == 'bc_a1_SRF': #skip lens files bec they only have 1 time pt
         continue
     f = Dataset(file)
+    lat = T.nearest_search(f['lat'], s_lat)
+    lon = T.nearest_search(f['lon'], s_lon)
     yr = f['time']
-    bc = f[v]
+    bc = f[v]#f[v][:,lat,lon]
     print(np.shape(bc))
-    #print(np.shape(bc))
     #timeseries[file] = np.interp(x, yr, bc)
-    f.close()'''
+    f.close()
 
 #print(timeseries)
