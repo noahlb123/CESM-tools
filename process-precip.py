@@ -39,7 +39,6 @@ to_eval = 'cd ' + root + ' && '
 for filename in files:
     if common_var in filename:
         model_name = get_model_name(filename)
-        print(model_name)
         years = get_years(filename)
         if contains(years, 1850):
             if model_name not in main_dict:
@@ -94,6 +93,7 @@ for file_name in filenames:
     to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
 
 print('evaluating step 2/2 ...')
+print(to_eval)
 os.system(to_eval)
 to_eval = ''
 
