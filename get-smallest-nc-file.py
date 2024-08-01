@@ -9,6 +9,7 @@ min_lat = 999999999
 min_lon = 999999999
 min_name = ''
 
+print('searching...')
 for filename in os.listdir(dir):
     if '.nc' in filename:
         f = Dataset(os.path.join(dir, filename))

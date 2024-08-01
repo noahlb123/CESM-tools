@@ -25,6 +25,7 @@ if len(sys.argv) < 3:
 common_var = sys.argv[1]
 root = sys.argv[2]
 smallest_grid = sys.argv[3]
+#for cmip6 python3 process-precip.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all wetbc_AERmon_CanESM5-1_historical_r11i1p2f1_gn_185001-201412.nc
 system = platform.system() #differentiate local and derecho env by sys platform
 if system == "Darwin":
     import pyperclip
@@ -91,6 +92,10 @@ filenames = [model_name + '.nc' for model_name in valid_models]
 for file_name in filenames:
     to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
 
+print('evaluating step 2/2 ...')
+os.system(to_eval)
+to_eval = ''
+
 #commands to resize all models
 for i in range(len(filenames)):
     file_name = filenames[i]
@@ -109,7 +114,7 @@ to_eval += 'echo "done!" && '
 
 #evaluate
 #print(to_eval)
-print('evaluating...')
+print('evaluating step 2/2 ...')
 os.system(to_eval)
 print('done.')
 #print(list(bads))
