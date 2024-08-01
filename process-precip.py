@@ -21,10 +21,11 @@ def get_model_name(filename):
 
 main_dict = {}
 if len(sys.argv) < 3:
-    raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <name of .nc file with lowest resolution grid>')
+    raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <name of .nc file with lowest resolution grid> <"True/False" negate files (optinoal)>')
 common_var = sys.argv[1]
 root = sys.argv[2]
 smallest_grid = sys.argv[3]
+negate = False if len(sys.argv) < 4 else sys.argv[4] == 'True'
 #for cmip6 python3 process-precip.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all wetbc_AERmon_CanESM5-1_historical_r11i1p2f1_gn_185001-201412.nc
 system = platform.system() #differentiate local and derecho env by sys platform
 if system == "Darwin":
@@ -96,7 +97,7 @@ print('evaluating step 1/2 ...')
 os.system(to_eval[0:len(to_eval) - 4]) #remove trailing ' && '
 to_eval = 'cd ' + root + ' && '
 
-#commands to resize all models
+#commands to regrid all models
 for i in range(len(filenames)):
     file_name = filenames[i]
     f = Dataset(root + '/' + file_name)
@@ -110,6 +111,8 @@ for i in range(len(filenames)):
 #comand to average files
 to_eval += 'echo "doing final step..." && '
 to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O && '
+if negate:
+    to_eval += "ncap2 -s '" + common_var + "*=-1' output.nc output.nc -O && "
 to_eval += 'echo "done!"'
 
 #evaluate
