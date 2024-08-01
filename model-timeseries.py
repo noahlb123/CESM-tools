@@ -29,8 +29,8 @@ for file in sootsn_files['wet file']:
 vars = pd.Series(['bc_a1_SRF'] * (len(lens_files['files']) - 1) + ['wetbc'] * len(cmip_files['wet file']) + ['drybc'] * len(cmip_files['dry file']) + ['sootsn'] * len(sootsn_files['wet file']))
 files['var'] = vars
 
-
-print(T.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv'))
+#using location of southernmost ice core, mcconnell-2021-4.csv, 
+print(T.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv')['mcconnell-2021-4.csv'])
 #get timeseries
 '''x = [i + 0.5 for i in range(1850, 1981)]
 timeseries = pd.DataFrame(columns=['year'], data=x)
