@@ -43,7 +43,7 @@ for index, row in files.iterrows():
     f = Dataset(file)
     lat = T.nearest_search(f['lat'], s_lat)
     lon = T.nearest_search(f['lon'], s_lon)
-    yr = f['time']
+    yr = f['time'][:]
     bc = f[v][:,lat,lon]
     print(np.shape(x))
     print(yr)
