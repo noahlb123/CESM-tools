@@ -26,7 +26,7 @@ common_var = sys.argv[1]
 root = sys.argv[2]
 smallest_grid = sys.argv[3]
 negate = False if len(sys.argv) < 4 else sys.argv[4] == 'True'
-#for cmip6 python3 process-precip.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all wetbc_AERmon_CanESM5-1_historical_r11i1p2f1_gn_185001-201412.nc
+#python3 process-precip.py wetbc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all wetbc_AERmon_CanESM5-1_historical_r11i1p2f1_gn_185001-201412.nc True
 system = platform.system() #differentiate local and derecho env by sys platform
 if system == "Darwin":
     import pyperclip
@@ -112,6 +112,7 @@ for i in range(len(filenames)):
 to_eval += 'echo "doing final step..." && '
 to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O && '
 if negate:
+    to_eval += 'echo "negating..." && '
     to_eval += "ncap2 -s '" + common_var + "*=-1' output.nc output.nc -O && "
 to_eval += 'echo "done!"'
 
