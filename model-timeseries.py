@@ -51,7 +51,6 @@ for index, row in files.iterrows():
     timeseries[file] = np.interp(x, yr, bc)
     f.close()
     c += 1
-    if c > 10:
-        break
 
 timeseries.to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'model-timeseries.csv'))
+print('done.')
