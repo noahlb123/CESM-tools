@@ -10,7 +10,7 @@ min_lon = 999999999
 min_name = ''
 
 for filename in os.listdir(dir):
-    if '.nc' in filename
+    if '.nc' in filename:
         f = Dataset(filename)
         lat = f['lat'].shape
         lon = f['lon'].shape
