@@ -39,6 +39,7 @@ to_eval = 'cd ' + root + ' && '
 for filename in files:
     if common_var in filename:
         model_name = get_model_name(filename)
+        print(model_name)
         years = get_years(filename)
         if contains(years, 1850):
             if model_name not in main_dict:
