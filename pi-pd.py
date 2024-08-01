@@ -21,6 +21,7 @@ from scipy.stats import norm
 #import plotly.express as px
 from netCDF4 import Dataset
 import numpy as np
+import platform
 #import cartopy
 import scipy
 import tools
@@ -38,6 +39,7 @@ p = p.reset_index()
 #setup vars
 exclude = set([])#set(['mcconnell-2017-1.csv', 'brugger-2021-1.csv'])
 windows = [11]#[1, 3, 5, 11]
+system = platform.system()
 full_data = {}
 for key in windows:
     full_data[key] = [] #filename, lat, lon, PI averge, PD averge, ratio, PI year, PD year, 3 averege, 3 year
@@ -102,16 +104,17 @@ def divide_pd_pi(p_d, p_i):
     return df
 
 #alternative workflow cmip6 data:
-alt_df = pd.DataFrame()
-f = Dataset('data/model-ice-depo/cmip6/cmip6-bc-depo.nc')
-temp = f['new_var'][:]
-lats = f['lat'][:]
-lons = f['lon'][:]
-for filename, coords in t.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv').items():
-    lat, lon = coords
-    alt_df[filename] = [temp[0][t.nearest_search(lats, lat)][t.nearest_search(lons, lon)]]
-f.close()
-alt_df.to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cmip6', 'alt-method.csv'))
+if system == 'Linux':
+    alt_df = pd.DataFrame()
+    f = Dataset('data/model-ice-depo/cmip6/cmip6-bc-depo.nc')
+    temp = f['new_var'][:]
+    lats = f['lat'][:]
+    lons = f['lon'][:]
+    for filename, coords in t.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv').items():
+        lat, lon = coords
+        alt_df[filename] = [temp[0][t.nearest_search(lats, lat)][t.nearest_search(lons, lon)]]
+    f.close()
+    alt_df.to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cmip6', 'alt-method.csv'))
 
 #fix duplicate pud core lat lons
 dup_index_map = {}
