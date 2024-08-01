@@ -45,6 +45,9 @@ for index, row in files.iterrows():
     lon = T.nearest_search(f['lon'], s_lon)
     yr = f['time']
     bc = f[v][:,lat,lon]
+    print(x)
+    print(np.shape(yr))
+    print(np.shape(bc))
     timeseries[file] = np.interp(x, yr, bc)
     f.close()
     if c > 10:
