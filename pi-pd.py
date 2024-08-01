@@ -110,7 +110,8 @@ lons = f['lon'][:]
 for filename, coords in t.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv').items():
     lat, lon = coords
     alt_df[filename] = [temp[0][t.nearest_search(lats, lat)][t.nearest_search(lons, lon)]]
-print(alt_df)
+f.close()
+alt_df.to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cmip6', 'alt-method.csv'))
 
 #fix duplicate pud core lat lons
 dup_index_map = {}
@@ -913,6 +914,6 @@ elif (inp == 't'):
     plt.savefig('figures/ice-cores/test-timesries.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
     plt.close()
 elif (inp == 'z'):#testing
-    print(divide(pd.read_csv('data/model-ice-depo/cmip6/binned-pd.csv'), pd.read_csv('data/model-ice-depo/cmip6/binned-pi.csv')))
+    pass
 
 print("n=" + str(len(main_dict)))
