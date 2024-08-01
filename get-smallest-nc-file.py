@@ -14,4 +14,10 @@ for filename in os.listdir(dir):
         f = Dataset(os.path.join(dir, filename))
         lat = f['lat'].shape[0]
         lon = f['lon'].shape[0]
-        print(lat, lon)
+        if lat < min_lat or lon < min_lon:
+            min_lat = lat
+            min_lon = lon
+            min_name = filename
+
+print('min lat, lon (', lat, lon, '):')
+print(min_name)
