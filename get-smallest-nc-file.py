@@ -12,6 +12,6 @@ min_name = ''
 for filename in os.listdir(dir):
     if '.nc' in filename:
         f = Dataset(os.path.join(dir, filename))
-        lat = f['lat'].shape
-        lon = f['lon'].shape
+        lat = f['lat'].shape[0]
+        lon = f['lon'].shape[0]
         print(lat, lon)
