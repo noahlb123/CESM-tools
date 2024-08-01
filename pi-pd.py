@@ -104,10 +104,13 @@ def divide_pd_pi(p_d, p_i):
 #alternative workflow cmip6 data:
 alt_df = pd.DataFrame()
 f = Dataset('data/model-ice-depo/cmip6/cmip6-bc-depo.nc')
-print(np.shape(f['new_var']))
-for filename, coords in t.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv'):
-    #alt_df[filename] =
-    pass
+temp = f['new_var'][:]
+lats = f['lat'][:]
+lons = f['lon'][:]
+for filename, coords in t.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv').items():
+    lat, lon = coords
+    alt_df[filename] = temp[0][t.nearest_search(lats, lat)][t.nearest_search(lons, lon)]
+print(alt_df)
 
 #fix duplicate pud core lat lons
 dup_index_map = {}
