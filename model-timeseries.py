@@ -46,7 +46,7 @@ for index, row in files.iterrows():
     yr = f['time']
     bc = f[v][:,lat,lon]
     print(np.shape(x))
-    print(np.shape(yr))
+    print(yr)
     print(np.shape(bc))
     timeseries[file] = np.interp(x, yr, bc)
     f.close()
