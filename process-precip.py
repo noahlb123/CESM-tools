@@ -20,7 +20,7 @@ def get_model_name(filename):
     return filename[T.find_nth(filename, '_', 2) + 1:filename.find('_historical')]
 
 main_dict = {}
-if len(sys.argv < 3):
+if len(sys.argv) < 3:
     raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <name of .nc file with lowest resolution grid>')
 common_var = sys.argv[1]
 root = sys.argv[2]
