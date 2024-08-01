@@ -94,7 +94,7 @@ for file_name in filenames:
 
 print('evaluating step 1/2 ...')
 os.system(to_eval[0:len(to_eval) - 4]) #remove trailing ' && '
-to_eval = ''
+to_eval = 'cd ' + root + ' && '
 
 #commands to resize all models
 for i in range(len(filenames)):
