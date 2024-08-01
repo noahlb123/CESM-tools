@@ -93,8 +93,7 @@ for file_name in filenames:
     to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
 
 print('evaluating step 2/2 ...')
-print(to_eval)
-os.system(to_eval)
+os.system(to_eval[0:len(to_eval) - 4]) #remove trailing ' && '
 to_eval = ''
 
 #commands to resize all models
