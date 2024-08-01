@@ -18,7 +18,7 @@ from matplotlib import rcParams
 #from scipy.stats import lognorm
 from scipy.stats import norm
 #import statsmodels.api as sm
-import plotly.express as px
+#import plotly.express as px
 from netCDF4 import Dataset
 import numpy as np
 #import cartopy
