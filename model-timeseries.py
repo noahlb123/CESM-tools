@@ -34,8 +34,10 @@ s_lat, s_lon = T.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/s
 #get timeseries
 x = [i + 0.5 for i in range(1850, 1981)]
 timeseries = pd.DataFrame(columns=['year'], data=x)
-c = 0
+c = 1
+l = len(files.index) - len(lens_files.index)
 for index, row in files.iterrows():
+    print(c, '/', l)
     file = row['files']
     v = row['var']
     if v == 'bc_a1_SRF': #skip lens files bec they only have 1 time pt
@@ -45,11 +47,9 @@ for index, row in files.iterrows():
     lon = T.nearest_search(f['lon'], s_lon)
     yr = f['time'][:]
     bc = f[v][:,lat,lon]
-    print(np.shape(x))
-    print(yr)
-    print(np.shape(bc))
     timeseries[file] = np.interp(x, yr, bc)
     f.close()
+    c += 1
     if c > 10:
         break
 
