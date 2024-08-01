@@ -37,11 +37,11 @@ timeseries = pd.DataFrame(columns=['year'], data=x)
 c = 1
 l = len(files.index) - len(lens_files.index)
 for index, row in files.iterrows():
-    print(c, '/', l)
     file = row['files']
     v = row['var']
     if v == 'bc_a1_SRF': #skip lens files bec they only have 1 time pt
         continue
+    print(c, '/', l)
     f = Dataset(file)
     lat = T.nearest_search(f['lat'], s_lat)
     lon = T.nearest_search(f['lon'], s_lon)
@@ -53,4 +53,4 @@ for index, row in files.iterrows():
     if c > 10:
         break
 
-print(timeseries)
+timeseries.to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'model-timeseries.csv'))
