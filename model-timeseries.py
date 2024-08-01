@@ -33,7 +33,7 @@ s_lat, s_lon = T.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/s
 
 #get timeseries
 x = [i + 0.5 for i in range(1850, 1981)]
-timeseries = pd.DataFrame(columns=['year'], data=x)
+timeseries = pd.DataFrame(index=['year'], data=x)
 c = 1
 l = len(files.index) - len(lens_files.index)
 for index, row in files.iterrows():
