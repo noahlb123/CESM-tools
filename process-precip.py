@@ -17,14 +17,14 @@ def contains(years, target_year):
     return False
 
 def get_model_name(filename):
-    #prsn_day_MIROC-ES2L_historical_r21i1p1f2_gn_19800101-19801231.nc
     return filename[T.find_nth(filename, '_', 2) + 1:filename.find('_historical')]
 
 main_dict = {}
 if len(sys.argv < 3):
-    raise Exception('2 command line arguments required: "root directory" "name of .nc file with lowest resolution grid"')
-root = sys.argv[1]
-smallest_grid = sys.argv[2]
+    raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <name of .nc file with lowest resolution grid>')
+common_var = sys.argv[1]
+root = sys.argv[2]
+smallest_grid = sys.argv[3]
 system = platform.system() #differentiate local and derecho env by sys platform
 if system == "Darwin":
     import pyperclip
@@ -36,7 +36,7 @@ to_eval = 'cd ' + root + ' && '
 
 #find start and end files
 for filename in files:
-    if 'prsn' in filename:
+    if common_var in filename:
         model_name = get_model_name(filename)
         years = get_years(filename)
         if contains(years, 1850):
@@ -69,7 +69,6 @@ for model_name, d in main_dict.items():
             time_var = f.variables['time']
             times = f['time'][:]
             assert 'days since' in time_var.units
-            #print(f.variables['prsn'].shape)
             time_index = T.nearest_search(times, year)
             f.close()
             new_filename = model_name + file_suffix + '.nc'
@@ -96,7 +95,7 @@ for file_name in filenames:
 for i in range(len(filenames)):
     file_name = filenames[i]
     f = Dataset(root + '/' + file_name)
-    to_eval += "ncap2 -O -s 'prsn=double(prsn);' " + file_name + ' ' + file_name + ' && '
+    to_eval += "ncap2 -O -s '" + common_var + "=double(" + common_var + ");' " + file_name + ' ' + file_name + ' && '
     if f.variables['lat'].shape[0] > 64 or f.variables['lon'].shape[0] > 128:
         to_eval += 'echo "regridding ' + file_name + '" && '
         to_eval += 'ncremap -d ' + smallest_grid + ' ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
@@ -109,8 +108,10 @@ to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O'
 to_eval += 'echo "done!" && '
 
 #evaluate
-print(to_eval)
+#print(to_eval)
+print('evaluating...')
 os.system(to_eval)
+print('done.')
 #print(list(bads))
 
 #todo:
