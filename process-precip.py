@@ -92,7 +92,7 @@ filenames = [model_name + '.nc' for model_name in valid_models]
 for file_name in filenames:
     to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
 
-print('evaluating step 2/2 ...')
+print('evaluating step 1/2 ...')
 os.system(to_eval[0:len(to_eval) - 4]) #remove trailing ' && '
 to_eval = ''
 
@@ -109,14 +109,13 @@ for i in range(len(filenames)):
 
 #comand to average files
 to_eval += 'echo "doing final step..." && '
-to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O'
-to_eval += 'echo "done!" && '
+to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O && '
+to_eval += 'echo "done!"'
 
 #evaluate
 #print(to_eval)
 print('evaluating step 2/2 ...')
 os.system(to_eval)
-print('done.')
 #print(list(bads))
 
 #todo:
