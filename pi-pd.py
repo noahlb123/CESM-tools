@@ -109,7 +109,7 @@ lats = f['lat'][:]
 lons = f['lon'][:]
 for filename, coords in t.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv').items():
     lat, lon = coords
-    alt_df[filename] = temp[0][t.nearest_search(lats, lat)][t.nearest_search(lons, lon)]
+    alt_df[filename] = [temp[0][t.nearest_search(lats, lat)][t.nearest_search(lons, lon)]]
 print(alt_df)
 
 #fix duplicate pud core lat lons
