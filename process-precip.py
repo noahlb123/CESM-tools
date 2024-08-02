@@ -78,8 +78,8 @@ for model_name, d in main_dict.items():
             assert 'days since' in time_var.units
             time_index = T.nearest_search(times, year)
             f.close()
-            new_filename = model_name + file_suffix
-            to_eval += 'ncks -d time,' + str(time_index) + ' ' + filename + ' ' + new_filename + '.nc -O && '
+            new_filename = model_name + file_suffix + '.nc'
+            to_eval += 'ncks -d time,' + str(time_index) + ' ' + filename + ' ' + new_filename + ' -O && '
     else:
         #print('doesnt have start and end:', model_name)
         bads.add(model_name)
@@ -94,8 +94,8 @@ for model_name in valid_models:
     for suffix in ['_pi.nc', '_pd.nc']:
         m_suffix = model_name + suffix
         p_suffix = partner + suffix
-        new_name = m_suffix.replace('_a', '')
-        to_eval += 'ncbo --op_typ=sub ' + m_suffix + ' ' + p_suffix + ' ' + new_name + ' -O && '
+        new_name = m_suffix.replace('_a', '').replace('.nc', '')
+        to_eval += 'ncbo --op_typ=sub ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
         valid_er_models.append(new_name)
 
 
