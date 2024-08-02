@@ -26,7 +26,7 @@ if len(sys.argv) < 3:
 common_var = sys.argv[1]
 root = sys.argv[2]
 smallest_grid = sys.argv[3]
-#python3 process-precip.py wetbc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all wetbc_AERmon_CanESM5-1_historical_r11i1p2f1_gn_185001-201412.nc
+#python3 process-precip.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all drybc_AERmon_CanESM5-1_historical_r11i1p2f1_gn_185001-201412.nc
 system = platform.system() #differentiate local and derecho env by sys platform
 partners = {}
 if system == "Darwin":
@@ -40,7 +40,7 @@ to_eval = 'cd ' + root + ' && '
 #find start and end files
 for filename in files:
     if common_var in filename:
-        partner_name = filename.replace('wetbc', 'drybc') if 'wetbc' in partner_name else filename.replace('drybc', 'wetbc')
+        partner_name = filename.replace('wetbc', 'drybc') if 'wetbc' in filename else filename.replace('drybc', 'wetbc')
         if os.path.isfile(os.path.join(root, partner_name)):
             for f_name in [filename, partner_name]:
                 model_name = get_model_name(f_name)
