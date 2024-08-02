@@ -60,6 +60,7 @@ for filename in files:
                         main_dict[model_name]['e_year'] = years[0]
 
 #commands to extract file timeslices
+to_eval += 'echo "extracting timeslices..." && '
 for model_name, d in main_dict.items():
     if d['s_file'] != None and d['e_file'] != None:
         for year in (1850, 1980):
@@ -85,6 +86,7 @@ for model_name, d in main_dict.items():
         bads.add(model_name)
 
 #comands to combine files with their partners
+to_eval += 'echo "combining files with partners..." && '
 valid_models = list(set(main_dict.keys()).difference(bads))
 valid_er_models = set()
 for model_name in valid_models:
@@ -98,8 +100,8 @@ for model_name in valid_models:
         to_eval += 'ncbo --op_typ=sub ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
         valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
 
-print(valid_er_models)
 #commands to divide files
+to_eval += 'echo "dividing..." && '
 for model_name in valid_er_models:
     pi = model_name + '_pi.nc'
     pd = model_name + '_pd.nc'
@@ -109,14 +111,16 @@ for model_name in valid_er_models:
 filenames = [model_name + '.nc' for model_name in valid_er_models]
 
 #commands to remove time_bnds variable
+to_eval += 'echo "removing time_bnds variable..." && '
 for file_name in filenames:
     to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
 
-print('evaluating step 1/2 ...')
+print('evaluating section 1/2 ...')
 os.system(to_eval[0:len(to_eval) - 4]) #remove trailing ' && '
 to_eval = 'cd ' + root + ' && '
 
 #commands to regrid all models
+to_eval += 'echo "regriding..." && '
 for i in range(len(filenames)):
     file_name = filenames[i]
     f = Dataset(root + '/' + file_name)
@@ -128,13 +132,13 @@ for i in range(len(filenames)):
     f.close()
 
 #comand to average files
-to_eval += 'echo "doing final step..." && '
+to_eval += 'echo "averaging..." && '
 to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O && '
 to_eval += 'echo "done!"'
 
 #evaluate
 #print(to_eval)
-print('evaluating step 2/2 ...')
+print('evaluating section 2/2 ...')
 os.system(to_eval)
 #print(list(bads))
 
