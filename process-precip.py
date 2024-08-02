@@ -98,7 +98,7 @@ for model_name in valid_models:
         to_eval += 'ncbo --op_typ=sub ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
         valid_er_models.append(new_name)
 
-
+print(valid_er_models)
 #commands to divide files
 for model_name in valid_er_models:
     pi = model_name + '_pi.nc'
@@ -112,7 +112,7 @@ filenames = [model_name + '.nc' for model_name in valid_er_models]
 for file_name in filenames:
     to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
 
-print('compiling commands ...')
+print('evaluating step 1/2 ...')
 os.system(to_eval[0:len(to_eval) - 4]) #remove trailing ' && '
 to_eval = 'cd ' + root + ' && '
 
@@ -133,8 +133,8 @@ to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O && '
 to_eval += 'echo "done!"'
 
 #evaluate
-print(to_eval)
-print('evaluating commands ...')
+#print(to_eval)
+print('evaluating step 2/2 ...')
 os.system(to_eval)
 #print(list(bads))
 
