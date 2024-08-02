@@ -19,6 +19,7 @@ def contains(years, target_year):
 def get_model_name(filename):
     return filename[T.find_nth(filename, '_', 2) + 1:filename.find('_historical')]
 
+#DRY MUST COME FIRST IF USING WET DRY PAIRS
 main_dict = {}
 if len(sys.argv) < 3:
     raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <name of .nc file with lowest resolution grid>')
@@ -27,6 +28,7 @@ root = sys.argv[2]
 smallest_grid = sys.argv[3]
 #python3 process-precip.py wetbc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all wetbc_AERmon_CanESM5-1_historical_r11i1p2f1_gn_185001-201412.nc
 system = platform.system() #differentiate local and derecho env by sys platform
+partners = {}
 if system == "Darwin":
     import pyperclip
     files = pyperclip.paste().split('\n')
@@ -38,20 +40,24 @@ to_eval = 'cd ' + root + ' && '
 #find start and end files
 for filename in files:
     if common_var in filename:
-        model_name = get_model_name(filename)
-        years = get_years(filename)
-        if contains(years, 1850):
-            if model_name not in main_dict:
-                main_dict[model_name] = {'s_file': filename, 'e_file': None, 's_year': years[0]}
-            else:
-                main_dict[model_name]['s_file'] = filename
-                main_dict[model_name]['s_year'] = years[0]
-        if contains(years, 1980):
-            if model_name not in main_dict:
-                main_dict[model_name] = {'e_file': filename, 's_file': None, 'e_year': years[0]}
-            else:
-                main_dict[model_name]['e_file'] = filename
-                main_dict[model_name]['e_year'] = years[0]
+        partner_name = filename.replace('wetbc', 'drybc') if 'wetbc' in partner_name else filename.replace('drybc', 'wetbc')
+        if os.path.isfile(os.path.join(root, partner_name)):
+            for f_name in [filename, partner_name]:
+                model_name = get_model_name(f_name)
+                model_name += '_b' if f_name == partner_name else '_a'
+                years = get_years(f_name)
+                if contains(years, 1850):
+                    if model_name not in main_dict:
+                        main_dict[model_name] = {'s_file': f_name, 'e_file': None, 's_year': years[0]}
+                    else:
+                        main_dict[model_name]['s_file'] = f_name
+                        main_dict[model_name]['s_year'] = years[0]
+                if contains(years, 1980):
+                    if model_name not in main_dict:
+                        main_dict[model_name] = {'e_file': f_name, 's_file': None, 'e_year': years[0]}
+                    else:
+                        main_dict[model_name]['e_file'] = f_name
+                        main_dict[model_name]['e_year'] = years[0]
 
 #commands to extract file timeslices
 for model_name, d in main_dict.items():
@@ -78,15 +84,29 @@ for model_name, d in main_dict.items():
         #print('doesnt have start and end:', model_name)
         bads.add(model_name)
 
-#commands to divide files
+#comands to combine files with their partners
 valid_models = list(set(main_dict.keys()).difference(bads))
+valid_er_models = []
 for model_name in valid_models:
+    if '_b' in model_name:
+        continue
+    partner = model_name.replace('_a', '_b')
+    for suffix in ['_pi.nc', '_pd.nc']:
+        m_suffix = model_name + suffix
+        p_suffix = partner + suffix
+        new_name = m_suffix.replace('_a', '')
+        to_eval += 'ncbo --op_typ=sub ' + m_suffix + ' ' + p_suffix + ' ' + new_name + ' -O && '
+        valid_er_models.append(new_name)
+
+
+#commands to divide files
+for model_name in valid_er_models:
     pi = model_name + '_pi.nc'
     pd = model_name + '_pd.nc'
     new_name = model_name + '.nc'
     to_eval += 'ncbo --op_typ=dvd ' + pd + ' ' + pi + ' ' + new_name + ' -O && '
 
-filenames = [model_name + '.nc' for model_name in valid_models]
+filenames = [model_name + '.nc' for model_name in valid_er_models]
 
 #commands to remove time_bnds variable
 for file_name in filenames:

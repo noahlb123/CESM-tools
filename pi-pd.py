@@ -19,7 +19,7 @@ from matplotlib import rcParams
 from scipy.stats import norm
 #import statsmodels.api as sm
 #import plotly.express as px
-from netCDF4 import Dataset
+#from netCDF4 import Dataset
 import numpy as np
 import platform
 #import cartopy
@@ -437,7 +437,7 @@ elif (inp == 'l'): #Lens data
             'color': model_colors['CESM'],
             },
         'CMIP6': {
-            'dataset': divide_pd_pi(pd.read_csv('data/model-ice-depo/cmip6/binned-pd.csv'), pd.read_csv('data/model-ice-depo/cmip6/binned-pi.csv')).mean(axis=0),
+            'dataset': pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cmip6', 'alt-method.csv')),#divide_pd_pi(pd.read_csv('data/model-ice-depo/cmip6/binned-pd.csv'), pd.read_csv('data/model-ice-depo/cmip6/binned-pi.csv')).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CMIP6'],
             },
@@ -545,7 +545,7 @@ elif (inp == 'l'): #Lens data
                 bar_lables.append(filename_region[col_name] + '-' + str(filename_index[col_name]).zfill(2))
                 bar_stds[model_key].append(0)
             else:
-                model_ratios = ds[col_name]#lens_pd[col_name] / lens_pi[col_name]
+                model_ratios = ds[col_name]
                 model_mean = np.mean(model_ratios)
                 #model_std = np.std(model_ratios.dropna())#scipy.stats.gstd(model_ratios.dropna())
                 model_std = np.std(model_ratios)
