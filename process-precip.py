@@ -86,7 +86,7 @@ for model_name, d in main_dict.items():
 
 #comands to combine files with their partners
 valid_models = list(set(main_dict.keys()).difference(bads))
-valid_er_models = []
+valid_er_models = set()
 for model_name in valid_models:
     if '_b' in model_name:
         continue
@@ -96,7 +96,7 @@ for model_name in valid_models:
         p_suffix = partner + suffix
         new_name = m_suffix.replace('_a', '').replace('.nc', '')
         to_eval += 'ncbo --op_typ=sub ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
-        valid_er_models.append(new_name)
+        valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
 
 print(valid_er_models)
 #commands to divide files
