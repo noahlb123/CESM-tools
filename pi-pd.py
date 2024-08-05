@@ -901,7 +901,7 @@ elif (inp == 't'):
     ax.plot(x, [0 for i in x], c='grey') #line at y=0
     legend_elms = []
     for model in df_time.columns:
-        if model in ['Unnamed: 0', 'LENS']:
+        if model in ['Unnamed: 0', 'LENS', 'CMIP6', 'CESM', 'Ice Core']:#['Unnamed: 0', 'LENS']:#
             continue
         color = model_colors[model]
         ax.plot(x, df_time[model], c=color) #avg line

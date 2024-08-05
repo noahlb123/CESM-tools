@@ -144,4 +144,8 @@ os.system(to_eval)
 #print(list(bads))
 
 #todo:
+#wetbc and drybc are being removed in subtraction step because the main var in each files is different, use different subtraction method I wrote in notes
 #remove nan and infinity from all files, I can do this using my notes
+
+#ncap2 -s [wetdep=wetdep*-1] in.nc out.nc
+#ncdivide 1.nc 2.nc 3.nc
