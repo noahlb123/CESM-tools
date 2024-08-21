@@ -91,7 +91,6 @@ for wet_name, obj in wet_models.items():
     model_name, file_path, start_year, end_year = obj
     if dry_name in dry_models.keys() or target_v != 'wetbc':
         model_dict = {'wet': wet_models[wet_name][1:4]} if target_v != 'wetbc' else {'wet': wet_models[wet_name][1:4], 'dry': dry_models[dry_name][1:4]}
-        print(start_year, end_year, np.abs(start_year - sheets['pi']) < 10 or start_year < sheets['pi'], np.abs(end_year - sheets['pd']) < 10 or end_year > sheets['pd'])
         if np.abs(start_year - sheets['pi']) < 10 or start_year < sheets['pi']:
             if model_name not in model_data_map['pi']:
                 model_data_map['pi'][model_name] = [model_dict]
@@ -116,6 +115,7 @@ for era, year in sheets.items():
     i = 1
     for model_name, pairs in model_data_map[era].items():#{'EC-Earth3-AerChem': model_data_map[era]['EC-Earth3-AerChem']}.items():
         print(model_name, i, '/', length)
+        print(csv_dict)
         row = {"model": model_name}
         row_year = {"model": model_name}
         row_coord = {"model": model_name}
