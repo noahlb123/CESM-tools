@@ -124,8 +124,10 @@ for era, year in sheets.items():
             model_path, start_year, end_year = wet_pair
             #formatted as time 1980, lat 192, lon 288
             print('load netcdf')
+            #load netcdf file
             f_wet = Dataset(model_path)
             print('format arrays')
+            #format arrays
             wetbc = f_wet[target_v][:]
             lats = f_wet["lat"][:]
             lons = f_wet["lon"][:]
@@ -148,6 +150,7 @@ for era, year in sheets.items():
                 f_dry = Dataset(dry_pair[0])
                 drybc = f_dry['drybc'][:]
             print('get avereges')
+            #get vars
             for core_name in ice_coords.keys():#[first_core]:
                 y, x = ice_coords[core_name]
                 lat = T.nearest_search(lats, y)
@@ -164,7 +167,10 @@ for era, year in sheets.items():
                     row[core_name] = total_v
                 row_year[core_name] = wet_y_out / 365
                 row_coord[core_name] = str(lat) + ',' + str(lon)
+            #memory management
+            print('#memory management')
             f_wet.close()
+            del wetbc, lats, lons
             fileuse_index.loc[fileuse_i] = [wet_dry['wet'][0], wet_dry['dry'][0]] if target_v == 'wetbc' else [wet_dry['wet'][0], '']
             fileuse_i += 1
             if target_v == 'wetbc':
