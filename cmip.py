@@ -115,20 +115,22 @@ for era, year in sheets.items():
     i = 1
     for model_name, pairs in model_data_map[era].items():#{'EC-Earth3-AerChem': model_data_map[era]['EC-Earth3-AerChem']}.items():
         print(model_name, i, '/', length)
-        print(csv_dict)
+        print('dict setup')
         row = {"model": model_name}
         row_year = {"model": model_name}
         row_coord = {"model": model_name}
         for wet_dry in pairs:
-            #try:
             wet_pair = wet_dry['wet']
             model_path, start_year, end_year = wet_pair
             #formatted as time 1980, lat 192, lon 288
+            print('load netcdf')
             f_wet = Dataset(model_path)
+            print('format arrays')
             wetbc = f_wet[target_v][:]
             lats = f_wet["lat"][:]
             lons = f_wet["lon"][:]
             changes = fix_format(lats, lons)
+            print('small funcs')
             lats = lats + changes[0]
             lons = lons + changes[1]
             times = f_wet["time"]
@@ -145,6 +147,7 @@ for era, year in sheets.items():
                 dry_pair = wet_dry['dry']
                 f_dry = Dataset(dry_pair[0])
                 drybc = f_dry['drybc'][:]
+            print('get avereges')
             for core_name in ice_coords.keys():#[first_core]:
                 y, x = ice_coords[core_name]
                 lat = T.nearest_search(lats, y)
