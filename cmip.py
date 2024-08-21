@@ -21,7 +21,7 @@ wet_models = {}
 dry_models = {}
 lat_ant_inds = {}
 lon_ant_inds = {}
-year_mods = pd.DataFrame(columns=['Model', 'pi', 'pd'])
+year_mods = pd.DataFrame(columns=['pi', 'pd'])
 fileuse_index = pd.DataFrame(columns=['wet file', 'dry file'])
 
 def in_antartica(lat, lon):
@@ -133,7 +133,7 @@ for era, year in sheets.items():
                 year_modifier = unit_year
             elif unit_year == 1:
                 year_modifier = start_year
-            year_mods.loc[pandas_i] = [model_name, '', (year - year_modifier) * 365] if era == 'pd' else [model_name, (year - year_modifier) * 365, '']
+            year_mods.at[model_name, era] = (year - year_modifier) * 365
             pandas_i += 1
             if target_v != 'sootsn':
                 dry_pair = wet_dry['dry']

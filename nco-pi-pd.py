@@ -26,7 +26,7 @@ if len(sys.argv) < 3:
 common_var = sys.argv[1]
 root = sys.argv[2]
 smallest_grid = sys.argv[3]
-#python3 process-precip.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all drybc_AERmon_CanESM5-1_historical_r11i1p2f1_gn_185001-201412.nc
+#python3 nco-pi-pd.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all drybc_AERmon_CanESM5-1_historical_r11i1p2f1_gn_185001-201412.nc
 system = platform.system() #differentiate local and derecho env by sys platform
 partners = {}
 if system == "Darwin":
@@ -85,7 +85,7 @@ for model_name, d in main_dict.items():
         #print('doesnt have start and end:', model_name)
         bads.add(model_name)
 
-#comands to combine files with their partners
+#comands to combine files with their partners (subtraction)
 to_eval += 'echo "combining files with partners..." && '
 valid_models = list(set(main_dict.keys()).difference(bads))
 valid_er_models = set()
