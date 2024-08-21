@@ -43,6 +43,7 @@ def add_ant_ind(lat_i, lon_i, lat, lon):
 #file name to model name
 def filename2modelname(filename):
     prefix = 'LImon_' if target_v == 'sootsn' else 'AERmon_'
+    print(prefix, filename)
     model_name = filename[filename.index(prefix) + len(prefix): filename.index('_historical')]
     start_year = filename[filename.rfind("_") + 1:filename.rfind("-") - 2]
     end_year = filename[filename.rfind("-") + 1:filename.rfind(".") - 2]#sootsn_LImon_TaiESM1_historical_r1i1p1f1_gn_185001-201412.nc
