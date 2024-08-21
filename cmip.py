@@ -132,6 +132,8 @@ for era, year in sheets.items():
             #format arrays
             lats = f_wet["lat"][:]
             lons = f_wet["lon"][:]
+            wetbc = f_wet[target_v]
+            print('dims:', wetbc.units)
             changes = fix_format(lats, lons)
             print('small funcs')
             lats = lats + changes[0]
@@ -150,8 +152,6 @@ for era, year in sheets.items():
                 dry_pair = wet_dry['dry']
                 f_dry = Dataset(dry_pair[0])
                 drybc = f_dry['drybc'][:]
-            print('format wetbc')
-            wetbc = f_wet[target_v][:]
             print('get avereges')
             #get vars
             for core_name in ice_coords.keys():#[first_core]:
