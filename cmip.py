@@ -67,7 +67,7 @@ def is_within(s_year, e_year, y):
 
 #get paths
 data_path_map = {'sootsn': 'cmip6-snow-dep', 'wetbc': os.path.join('cmip6-snow-dep', 'all'), 'loadbc': 'cmip-atmos'}
-data_path = os.path.join('glade', 'derecho', 'scratch', 'nlbills', data_path_map[target_v])
+data_path = os.path.join('/', 'glade', 'derecho', 'scratch', 'nlbills', data_path_map[target_v])
 index_path = 'data/standardized-ice-cores/index.csv'
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
 ice_coords = T.get_ice_coords(index_path, dupe_path)
