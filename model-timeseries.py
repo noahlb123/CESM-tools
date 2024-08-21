@@ -10,6 +10,12 @@ lens_files = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'le
 cmip_files = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cmip6', 'fileuse-index.csv'))
 sootsn_files = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cesm-sootsn', 'fileuse-index.csv'))
 
+#testing
+for file in cmip_files['dry file']:
+    if 'CESM' in file:
+        print(file)
+        [][0]
+
 #combine files into one dataframe
 files = pd.DataFrame(columns=['files'])
 files['files'] = lens_files['files']
