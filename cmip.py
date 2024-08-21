@@ -23,6 +23,7 @@ lat_ant_inds = {}
 lon_ant_inds = {}
 year_mods = pd.DataFrame(columns=['pi', 'pd'])
 fileuse_index = pd.DataFrame(columns=['wet file', 'dry file'])
+prefix = 'LImon_' if target_v == 'sootsn' else 'AERmon_'
 
 def in_antartica(lat, lon):
     return T.within_patch(lat, lon, (-180, -60, 360, -30), 'Antartica')
@@ -42,8 +43,6 @@ def add_ant_ind(lat_i, lon_i, lat, lon):
 
 #file name to model name
 def filename2modelname(filename):
-    prefix = 'LImon_' if target_v == 'sootsn' else 'AERmon_'
-    print(prefix, filename)
     model_name = filename[filename.index(prefix) + len(prefix): filename.index('_historical')]
     start_year = filename[filename.rfind("_") + 1:filename.rfind("-") - 2]
     end_year = filename[filename.rfind("-") + 1:filename.rfind(".") - 2]#sootsn_LImon_TaiESM1_historical_r1i1p1f1_gn_185001-201412.nc
@@ -72,7 +71,7 @@ first_core = list(ice_coords.keys())[0]
 
 #divide files into wet and dry
 for filename in os.listdir(data_path): #from https://esgf-node.ipsl.upmc.fr/search/cmip6-ipsl/
-    if '.nc' in filename:
+    if '.nc' in filename and prefix in filename:
         file_path = os.path.join(data_path, filename)
         model_name, start_year, end_year = filename2modelname(filename)
         if (target_model == 'CESM' and 'CESM' in model_name) or target_model != 'CESM':
