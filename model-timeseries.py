@@ -15,7 +15,7 @@ for file in cmip_files['dry file']:
     if 'CESM' in file:
         f = Dataset(file)
         times = f['time'][:]
-        print('1850, 1980:', times[T.nearest_search(times, 1850)] / 365, times[T.nearest_search(times, 1980)] / 365)
+        print('1850, 1980:', times[T.nearest_search(times, 1850 * 365)] / 365, times[T.nearest_search(times, 1980 * 365)] / 365)
         print(np.divide(times, 365))
         [][0]
 
