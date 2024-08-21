@@ -113,7 +113,9 @@ for era, year in sheets.items():
     print(era)
     length = len(model_data_map[era].items())
     i = 1
-    for model_name, pairs in model_data_map[era].items():#{'EC-Earth3-AerChem': model_data_map[era]['EC-Earth3-AerChem']}.items():
+    for model_name, pairs in model_data_map[era].items():
+        if 'MIROC6' in model_name:
+            continue
         print(model_name, i, '/', length)
         print('dict setup')
         row = {"model": model_name}
@@ -128,7 +130,6 @@ for era, year in sheets.items():
             f_wet = Dataset(model_path)
             print('format arrays')
             #format arrays
-            wetbc = f_wet[target_v][:]
             lats = f_wet["lat"][:]
             lons = f_wet["lon"][:]
             changes = fix_format(lats, lons)
@@ -149,6 +150,8 @@ for era, year in sheets.items():
                 dry_pair = wet_dry['dry']
                 f_dry = Dataset(dry_pair[0])
                 drybc = f_dry['drybc'][:]
+            print('format wetbc')
+            wetbc = f_wet[target_v][:]
             print('get avereges')
             #get vars
             for core_name in ice_coords.keys():#[first_core]:
