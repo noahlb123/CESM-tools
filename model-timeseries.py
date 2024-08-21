@@ -13,7 +13,9 @@ sootsn_files = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', '
 #testing
 for file in cmip_files['dry file']:
     if 'CESM' in file:
-        print(file)
+        f = Dataset(file)
+        times = f['time']
+        print('1850, 1980:', T.nearest_search(times, 1850), T.nearest_search(times, 1980))
         [][0]
 
 #combine files into one dataframe
