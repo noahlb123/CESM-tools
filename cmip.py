@@ -9,8 +9,8 @@ import sys
 
 system = platform.system() #differentiate local and derecho env by sys platform
 target_model = sys.argv[1] if sys.argv[1] == 'CMIP6' or 'CESM' else 'CMIP6'
-target_v = sys.argv[2] if sys.argv[2] == 'wetbc' or 'sootsn' else 'wetbc'
-if target_v != 'wetbc' and target_v != 'sootsn':
+target_v = sys.argv[2] if sys.argv[2] in ['wetbc', 'sootsn', 'loadbc'] else 'wetbc'
+if not target_v in ['wetbc', 'sootsn', 'loadbc']:
     raise Exception('format command as: python3 cmip.py <MODEL> <VAR>')
 T = tools.ToolBox()
 
@@ -23,9 +23,10 @@ wet_models = {}
 dry_models = {}
 lat_ant_inds = {}
 lon_ant_inds = {}
+prefix_map = {'sootsn': 'LImon_', 'wetbc': 'AERmon_', 'loadbc': 'Eday_'}
+prefix = prefix_map[target_v]
 year_mods = pd.DataFrame(columns=['pi', 'pd'])
 fileuse_index = pd.DataFrame(columns=['wet file', 'dry file'])
-prefix = 'LImon_' if target_v == 'sootsn' else 'AERmon_'
 
 def in_antartica(lat, lon):
     return T.within_patch(lat, lon, (-180, -60, 360, -30), 'Antartica')
@@ -47,7 +48,7 @@ def add_ant_ind(lat_i, lon_i, lat, lon):
 def filename2modelname(filename):
     model_name = filename[filename.index(prefix) + len(prefix): filename.index('_historical')]
     start_year = filename[filename.rfind("_") + 1:filename.rfind("-") - 2]
-    end_year = filename[filename.rfind("-") + 1:filename.rfind(".") - 2]#sootsn_LImon_TaiESM1_historical_r1i1p1f1_gn_185001-201412.nc
+    end_year = filename[filename.rfind("-") + 1:filename.rfind(".") - 2]
     return model_name, int(start_year), int(end_year)
 
 #check lat lons are all in same format
@@ -65,7 +66,8 @@ def is_within(s_year, e_year, y):
     return s_year - 10 <= y <= e_year + 10
 
 #get paths
-data_path = '/glade/derecho/scratch/nlbills/cmip6-snow-dep' if target_v == 'sootsn' else '/glade/derecho/scratch/nlbills/cmip6-snow-dep/all'
+data_path_map = {'sootsn': 'cmip6-snow-dep', 'wetbc': os.path.join('cmip6-snow-dep', 'all'), 'loadbc': 'cmip-atmos'}
+data_path = os.path.join('glade', 'derecho', 'scratch', 'nlbills', data_path_map[target_v])
 index_path = 'data/standardized-ice-cores/index.csv'
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
 ice_coords = T.get_ice_coords(index_path, dupe_path)
@@ -77,7 +79,7 @@ for filename in os.listdir(data_path): #from https://esgf-node.ipsl.upmc.fr/sear
         file_path = os.path.join(data_path, filename)
         model_name, start_year, end_year = filename2modelname(filename)
         if (target_model == 'CESM' and 'CESM' in model_name) or target_model != 'CESM':
-            if 'wetbc' in filename or target_v == 'sootsn':
+            if 'wetbc' in filename or target_v != 'wetbc':
                 wet_models[filename] = (model_name, file_path, start_year, end_year)
             elif 'drybc' in filename:
                 dry_models[filename] = (model_name, file_path, start_year, end_year)
@@ -86,8 +88,8 @@ for filename in os.listdir(data_path): #from https://esgf-node.ipsl.upmc.fr/sear
 for wet_name, obj in wet_models.items():
     dry_name = wet_name.replace('wetbc', 'drybc')
     model_name, file_path, start_year, end_year = obj
-    if dry_name in dry_models.keys() or target_v == 'sootsn':
-        model_dict = {'wet': wet_models[wet_name][1:4]} if target_v == 'sootsn' else {'wet': wet_models[wet_name][1:4], 'dry': dry_models[dry_name][1:4]}
+    if dry_name in dry_models.keys() or target_v != 'wetbc':
+        model_dict = {'wet': wet_models[wet_name][1:4]} if target_v != 'wetbc' else {'wet': wet_models[wet_name][1:4], 'dry': dry_models[dry_name][1:4]}
         if np.abs(start_year - sheets['pi']) < 10 or start_year < sheets['pi']:
             if model_name not in model_data_map['pi']:
                 model_data_map['pi'][model_name] = [model_dict]
@@ -121,14 +123,14 @@ for era, year in sheets.items():
             model_path, start_year, end_year = wet_pair
             #formatted as time 1980, lat 192, lon 288
             f_wet = Dataset(model_path)
-            wetbc = f_wet['sootsn'][:] if target_v == 'sootsn' else f_wet['wetbc'][:]
+            wetbc = f_wet[target_v][:]
             lats = f_wet["lat"][:]
             lons = f_wet["lon"][:]
             changes = fix_format(lats, lons)
             lats = lats + changes[0]
             lons = lons + changes[1]
             times = f_wet["time"]
-            total_sootsn = 0
+            total_v = 0
             unit_year = int(times.units[11:15])
             year_modifier = 1850
             if unit_year != start_year and unit_year != 1:
@@ -137,7 +139,7 @@ for era, year in sheets.items():
                 year_modifier = start_year
             year_mods.at[model_name, era] = (year - year_modifier) * 365
             pandas_i += 1
-            if target_v != 'sootsn':
+            if target_v == 'wetbc':
                 dry_pair = wet_dry['dry']
                 f_dry = Dataset(dry_pair[0])
                 drybc = f_dry['drybc'][:]
@@ -146,25 +148,22 @@ for era, year in sheets.items():
                 lat = T.nearest_search(lats, y)
                 lon = T.nearest_search(lons, x + 180)
                 wet_a, wet_y_out = T.get_avgs(times[:], wetbc[:,lat,lon], (year - year_modifier) * 365, [window])
-                if target_v != 'sootsn':
+                if target_v == 'wetbc':
                     dry_a, dry_y_out = T.get_avgs(times[:], drybc[:,lat,lon], (year - year_modifier) * 365, [window])
-                    total_sootsn += np.abs(wet_a[window]) + np.abs(dry_a[window])
+                    total_v += np.abs(wet_a[window]) + np.abs(dry_a[window])
                 else:
-                    total_sootsn += wet_a[window]
+                    total_v += wet_a[window]
                 if core_name in row:
-                    row[core_name] += total_sootsn
+                    row[core_name] += total_v
                 else:
-                    row[core_name] = total_sootsn
+                    row[core_name] = total_v
                 row_year[core_name] = wet_y_out / 365
                 row_coord[core_name] = str(lat) + ',' + str(lon)
             f_wet.close()
-            fileuse_index.loc[fileuse_i] = [wet_dry['wet'][0], wet_dry['dry'][0]] if target_v != 'sootsn' else [wet_dry['wet'][0], '']
+            fileuse_index.loc[fileuse_i] = [wet_dry['wet'][0], wet_dry['dry'][0]] if target_v == 'wetbc' else [wet_dry['wet'][0], '']
             fileuse_i += 1
-            if target_v != 'sootsn':
+            if target_v == 'wetbc':
                 f_dry.close()
-            '''except Exception as e:
-                print(e)
-                continue'''
         row['n ensemble members'] = len(pairs)
         row['window'] = window
         for core_name, value in row.items():

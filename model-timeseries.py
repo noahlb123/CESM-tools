@@ -6,18 +6,9 @@ import os
 T = tools.ToolBox()
 
 #get files from each model
-#lens_files = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'lens', 'fileuse-index.csv'))
+lens_files = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'lens', 'fileuse-index.csv'))
 cmip_files = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cmip6', 'fileuse-index.csv'))
-#sootsn_files = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cesm-sootsn', 'fileuse-index.csv'))
-
-#testing
-for file in cmip_files['dry file']:
-    if 'CESM' in file:
-        f = Dataset(file)
-        times = f['time'][:]
-        print('1850, 1980:', times[T.nearest_search(times, 1850 * 365)] / 365, times[T.nearest_search(times, 1980 * 365)] / 365)
-        print(np.divide(times, 365))
-        [][0]
+sootsn_files = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cesm-sootsn', 'fileuse-index.csv'))
 
 #combine files into one dataframe
 files = pd.DataFrame(columns=['files'])
