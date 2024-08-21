@@ -8,8 +8,10 @@ import pandas as pd
 import sys
 
 system = platform.system() #differentiate local and derecho env by sys platform
-target_v = sys.argv[2] if sys.argv[2] == 'wetbc' or 'sootsn' else 'wetbc'
 target_model = sys.argv[1] if sys.argv[1] == 'CMIP6' or 'CESM' else 'CMIP6'
+target_v = sys.argv[2] if sys.argv[2] == 'wetbc' or 'sootsn' else 'wetbc'
+if target_v != 'wetbc' and target_v != 'sootsn':
+    raise Exception('format command as: python3 cmip.py <MODEL> <VAR>')
 T = tools.ToolBox()
 
 #setup some vars
@@ -24,12 +26,6 @@ lon_ant_inds = {}
 year_mods = pd.DataFrame(columns=['pi', 'pd'])
 fileuse_index = pd.DataFrame(columns=['wet file', 'dry file'])
 prefix = 'LImon_' if target_v == 'sootsn' else 'AERmon_'
-
-#testing
-filename = data_type + '-' + era + '.csv' if data_type != 'main' else era + '.csv'
-subfolder = target_model if target_model != 'CESM' else target_model + '-' + target_v.replace('wetbc', 'wetdry')
-subfolder = subfolder.lower()
-print(subfolder)
 
 def in_antartica(lat, lon):
     return T.within_patch(lat, lon, (-180, -60, 360, -30), 'Antartica')
