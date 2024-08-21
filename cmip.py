@@ -46,9 +46,10 @@ def add_ant_ind(lat_i, lon_i, lat, lon):
 
 #file name to model name
 def filename2modelname(filename):
+    dist = 4 if target_v == 'loadbc' else 2
     model_name = filename[filename.index(prefix) + len(prefix): filename.index('_historical')]
-    start_year = filename[filename.rfind("_") + 1:filename.rfind("-") - 2]
-    end_year = filename[filename.rfind("-") + 1:filename.rfind(".") - 2]
+    start_year = filename[filename.rfind("_") + 1:filename.rfind("-") - dist]
+    end_year = filename[filename.rfind("-") + 1:filename.rfind(".") - dist]
     return model_name, int(start_year), int(end_year)
 
 #check lat lons are all in same format
