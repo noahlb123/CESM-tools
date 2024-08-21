@@ -29,6 +29,7 @@ prefix = 'LImon_' if target_v == 'sootsn' else 'AERmon_'
 filename = data_type + '-' + era + '.csv' if data_type != 'main' else era + '.csv'
 subfolder = target_model if target_model != 'CESM' else target_model + '-' + target_v.replace('wetbc', 'wetdry')
 subfolder = subfolder.lower()
+print(subfolder)
 
 def in_antartica(lat, lon):
     return T.within_patch(lat, lon, (-180, -60, 360, -30), 'Antartica')
