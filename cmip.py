@@ -122,7 +122,6 @@ for era, year in sheets.items():
     i = 1
     for model_name, pairs in model_data_map[era].items():
         print(model_name, i, '/', length)
-        print('dict setup')
         row = {"model": model_name}
         row_year = {"model": model_name}
         row_coord = {"model": model_name}
@@ -170,7 +169,6 @@ for era, year in sheets.items():
                 row_year[core_name] = wet_y_out / 365
                 row_coord[core_name] = str(lat) + ',' + str(lon)
             #memory management
-            print('#memory management')
             f_wet.close()
             del wetbc, lats, lons
             fileuse_index.loc[fileuse_i] = [wet_dry['wet'][0], wet_dry['dry'][0]] if target_v == 'wetbc' else [wet_dry['wet'][0], '']
@@ -195,7 +193,12 @@ for era, year in sheets.items():
         fields = ["model", 'n ensemble members', 'window'] if data_type == 'main' else ["model"]
         [fields.append(name) for name in ice_coords.keys()]
         filename = data_type + '-' + era + '.csv' if data_type != 'main' else era + '.csv'
-        subfolder = target_model if target_model != 'CESM' else target_model + '-' + target_v.replace('wetbc', 'wetdry')
+        if target_v == 'loadbc':
+            subfolder = 'loadbc'
+        elif target_model != 'CESM':
+            subfolder = target_model
+        else:
+            subfolder = target_model + '-' + target_v.replace('wetbc', 'wetdry')
         subfolder = subfolder.lower()
         write_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, filename)
         with open(write_path, 'w') as csvfile:
