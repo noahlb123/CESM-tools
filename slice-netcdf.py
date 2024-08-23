@@ -39,9 +39,14 @@ s_y, e_y = get_years(filename)
 f = Dataset(path)
 time_var = f.variables['time']
 times = f['time'][:]
-assert 'days since 1850' in time_var.units
-time_index = T.nearest_search(times, day - (1850 * 365))
-file_day = times[time_index] + 1850 * 365
+unit_year = int(time_var.units[11:15])
+year_modifier = 1850
+if unit_year != s_y and unit_year != 1:
+    year_modifier = unit_year
+elif unit_year == 1:
+    year_modifier = s_y
+time_index = T.nearest_search(times, day - (year_modifier * 365))
+file_day = times[time_index] + year_modifier * 365
 if np.abs(file_day / 365 - year) > 2 or (not (s_y < year < e_y)):
     raise Exception('year ' + str(year) + ' is not in file')
 f.close()
