@@ -81,7 +81,14 @@ for filename in os.listdir(data_path): #from https://esgf-node.ipsl.upmc.fr/sear
         model_name, start_year, end_year = filename2modelname(filename)
         if (target_model == 'CESM' and 'CESM' in model_name) or target_model != 'CESM':
             if 'wetbc' in filename or target_v != 'wetbc':
-                wet_models[filename] = (model_name, file_path, start_year, end_year)
+                #if file is too big to open
+                if ('CNRM-ESM2-1' in model_name or 'CanESM5' in model_name) and target_v == 'loadbc':
+                    name_1850 = filename[0:filename.rfind('_')+1] + '18500101-18510101.nc'
+                    name_1980 = filename[0:filename.rfind('_')+1] + '19793105-19803105.nc'
+                    wet_models[name_1850] = (model_name, os.path.join(data_path, name_1850), 1850, 1851)
+                    wet_models[name_1980] = (model_name, os.path.join(data_path, name_1980), 1979, 1980)
+                else:
+                    wet_models[filename] = (model_name, file_path, start_year, end_year)
             elif 'drybc' in filename:
                 dry_models[filename] = (model_name, file_path, start_year, end_year)
 
@@ -90,17 +97,17 @@ for wet_name, obj in wet_models.items():
     dry_name = wet_name.replace('wetbc', 'drybc')
     model_name, file_path, start_year, end_year = obj
     if dry_name in dry_models.keys() or target_v != 'wetbc':
-        model_dict = {'wet': wet_models[wet_name][1:4]} if target_v != 'wetbc' else {'wet': wet_models[wet_name][1:4], 'dry': dry_models[dry_name][1:4]}
-        if np.abs(start_year - sheets['pi']) < 10 or start_year < sheets['pi']:
-            if model_name not in model_data_map['pi']:
-                model_data_map['pi'][model_name] = [model_dict]
-            else: 
-                model_data_map['pi'][model_name].append(model_dict)
-        if np.abs(end_year - sheets['pd']) < 10 or end_year > sheets['pd']:
-            if model_name not in model_data_map['pd']:
-                model_data_map['pd'][model_name] = [model_dict]
-            else: 
-                model_data_map['pd'][model_name].append(model_dict)
+        for era in ['pi', 'pd']:
+            if era == 'pi':
+                contains_era = np.abs(start_year - sheets['pi']) < 10 or start_year < sheets['pi']
+            else:
+                contains_era = np.abs(end_year - sheets['pd']) < 10 or end_year > sheets['pd']
+            if contains_era:
+                model_dict = {'wet': wet_models[wet_name][1:4]} if target_v != 'wetbc' else {'wet': wet_models[wet_name][1:4], 'dry': dry_models[dry_name][1:4]}
+                if model_name not in model_data_map[era]:
+                    model_data_map[era][model_name] = [model_dict]
+                else: 
+                    model_data_map[era][model_name].append(model_dict)
 
 #get output vars
 window = 10 * 365
@@ -114,8 +121,6 @@ for era, year in sheets.items():
     length = len(model_data_map[era].items())
     i = 1
     for model_name, pairs in model_data_map[era].items():
-        if 'MIROC6' in model_name:
-            continue
         print(model_name, i, '/', length)
         print('dict setup')
         row = {"model": model_name}
