@@ -47,8 +47,8 @@ elif unit_year == 1:
     year_modifier = s_y
 time_index = T.nearest_search(times, day - (year_modifier * 365))
 file_day = times[time_index] + year_modifier * 365
-if np.abs(file_day / 365 - year) > 2 or (not (s_y < year < e_y)):
-    print(not (s_y < year < e_y), s_y, e_y)
+if np.abs(file_day / 365 - year) > 2 or (not (s_y <= year <= e_y)):
+    print(not (s_y <= year <= e_y), s_y, e_y)
     print('file year, year:', file_day / 365, year)
     print('raw file min, max:', np.min(times) / 365, np.max(times) / 365)
     raise Exception('year ' + str(year) + ' is not in file')
