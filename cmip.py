@@ -124,18 +124,13 @@ for era, year in sheets.items():
         for wet_dry in pairs:
             wet_pair = wet_dry['wet']
             model_path, start_year, end_year = wet_pair
-            #formatted as time 1980, lat 192, lon 288
-            print('load netcdf')
             #load netcdf file
             f_wet = Dataset(model_path)
-            print('format arrays')
             #format arrays
             lats = f_wet["lat"][:]
             lons = f_wet["lon"][:]
-            wetbc = f_wet[target_v]
-            print('dims:', wetbc.units)
+            wetbc = f_wet[target_v][:]
             changes = fix_format(lats, lons)
-            print('small funcs')
             lats = lats + changes[0]
             lons = lons + changes[1]
             times = f_wet["time"]
@@ -152,7 +147,6 @@ for era, year in sheets.items():
                 dry_pair = wet_dry['dry']
                 f_dry = Dataset(dry_pair[0])
                 drybc = f_dry['drybc'][:]
-            print('get avereges')
             #get vars
             for core_name in ice_coords.keys():#[first_core]:
                 y, x = ice_coords[core_name]
@@ -206,6 +200,6 @@ for era, year in sheets.items():
 year_mods.to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'year-mods.csv'))
 fileuse_index.to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'fileuse-index.csv'))
 
-#loadbc
+#todo: use nco to make files for a single year files for CanESM5 and CNRM-ESM2 and add logic in this file to handle them. This will solving killing problem because files are too large to stay below derecho's memory limit
 
 print("done.")
