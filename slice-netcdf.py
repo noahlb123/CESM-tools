@@ -52,7 +52,7 @@ if np.abs(file_day / 365 - year) > 2 or (not (s_y <= year <= e_y)):
     print('raw file min, max:', np.min(times) / 365, np.max(times) / 365)
     raise Exception('year ' + str(year) + ' is not in file')
 f.close()
-new_filename = filename[0:filename.rfind('_')+1] + date(file_day) + '-' + date(file_day + 365)
+new_filename = filename[0:filename.rfind('_')+1] + date(file_day) + '-' + date(file_day + 365) + '.nc'
 new_path = path[0:path.rfind('/') + 1] + new_filename
 to_eval = 'ncks -d time,' + str(time_index) + ',' + str(time_index + 365) + ' ' + path + ' ' + new_path + ' -O && '
 to_eval += 'echo "success!"'
