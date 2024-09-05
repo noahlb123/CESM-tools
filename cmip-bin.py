@@ -1,9 +1,15 @@
 import pandas as pd
 import numpy as np
 import json
+import sys
 import os
 
-for dir in ['cmip6']:
+#cmip6, loadbc
+if len(sys.argv) < 2:
+    raise Exception('format command as:\npython3 cmip-bin.py <MODEL-ICE-DEPO SUBFOLDER> <...>')
+dirs = sys.argv[1:len(sys.argv)]
+
+for dir in dirs:
     root_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', dir)
     file_suffix = '-lv30.csv' if dir == 'lens' else '.csv'
     base_model_dict = {}
@@ -17,10 +23,13 @@ for dir in ['cmip6']:
     }
 
     def base_model(model):
-        if 'MIROC6' in model:
-            base_model = 'MIROC'
-        if '-' in model:
-            base_model = model[0:model.index('-')]
+        if dir != 'loadbc':
+            if 'MIROC6' in model:
+                base_model = 'MIROC'
+            if '-' in model:
+                base_model = model[0:model.index('-')]
+            else:
+                base_model = model
         else:
             base_model = model
         if base_model in base_model_dict:

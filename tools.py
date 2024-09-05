@@ -220,3 +220,9 @@ class ToolBox:
         ret = np.cumsum(a, dtype=float)
         ret[n:] = ret[n:] - ret[:-n]
         return ret[n:] / n
+    
+    #for dicts with structure {'k': ['a', 'b', 'c']}
+    def invert_dict_list(self, input_dict):
+        output = {}
+        [output.update(d) for d in [{value: key for value in l} for key, l in input_dict.items()]]
+        return output

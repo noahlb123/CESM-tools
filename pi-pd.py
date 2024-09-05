@@ -70,7 +70,7 @@ patches = { #Okabe and Ito colorblind pallet
     'Greenland': (-55, s_g, 35, 90 - s_g, '#880D1E'),
     'East Antarctica': (-180, -60, 180, -30, '#000000'),
     'West Antarctica': (0, -60, 180, -30, '#6CB3E4'),'''
-model_colors = {'CESM': '#EE692C', 'CMIP6': '#CC397C', 'Ice Core': '#6C62E7', 'CESM-SOOTSN': '#638FF6', 'LENS': '#F5B341'}
+model_colors = {'CESM': '#EE692C', 'CMIP6': '#CC397C', 'Ice Core': '#6C62E7', 'CESM-SOOTSN': '#638FF6', 'LENS': '#F5B341', 'loadbc': '#CC397C'}
 
 def within_patch(lat, lon, patch, name):
     lat_min, lat_max, lon_min, lon_max = t.patch_min_max(patch)
@@ -101,7 +101,7 @@ def divide_pd_pi(p_d, p_i):
         model = models[i]
         if model in p_d.index and model in p_i.index:
             df.loc[i] = [model] + list(p_d.loc[model].div(p_i.loc[model]))
-    return df
+    return df.drop(['model'], axis=1)
 
 #alternative workflow cmip6 data:
 if system == 'Linux':
@@ -437,7 +437,7 @@ elif (inp == 'l'): #Lens data
             'color': model_colors['CESM'],
             },
         'CMIP6': {
-            'dataset': pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cmip6', 'alt-method.csv')),#divide_pd_pi(pd.read_csv('data/model-ice-depo/cmip6/binned-pd.csv'), pd.read_csv('data/model-ice-depo/cmip6/binned-pi.csv')).mean(axis=0),
+            'dataset': divide_pd_pi(pd.read_csv('data/model-ice-depo/cmip6/binned-pd.csv'), pd.read_csv('data/model-ice-depo/cmip6/binned-pi.csv')).mean(axis=0), #pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cmip6', 'alt-method.csv')),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CMIP6'],
             },
@@ -450,6 +450,11 @@ elif (inp == 'l'): #Lens data
             'dataset': divide_pd_pi(pd.read_csv('data/model-ice-depo/cesm-sootsn/pd.csv'), pd.read_csv('data/model-ice-depo/cesm-sootsn/pi.csv')).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CESM-SOOTSN'],
+            },
+        'loadbc': {
+            'dataset': divide_pd_pi(pd.read_csv('data/model-ice-depo/loadbc/binned-pd.csv'), pd.read_csv('data/model-ice-depo/loadbc/binned-pi.csv')).mean(axis=0),
+            'data': {'ratios': None, 'means': None, 'stds': None},
+            'color': model_colors['CMIP6'],
             }
     }
     '''models = {
@@ -519,7 +524,7 @@ elif (inp == 'l'): #Lens data
     models_colors = {key: value['color'] for key, value in models.items()}
     n_models = len(list(models))
     dont_use = dont_use.union({'model number', 'Unnamed: 0', 'BC_vars', 'year'})
-    bar_lables = []
+    bar_labels = []
     bar_means = {key: [] for key in models.keys()}
     bar_stds = {key: [] for key in models.keys()}
     distribution_map = {}
@@ -542,7 +547,7 @@ elif (inp == 'l'): #Lens data
                 ice_mean = main_dict[col_name]['ratio']
                 bar_means[model_key].append(ice_mean)
                 #ice_based_dists[col_name] = {'PD': lens_pd[col_name], 'PI': lens_pi[col_name]}
-                bar_lables.append(filename_region[col_name] + '-' + str(filename_index[col_name]).zfill(2))
+                bar_labels.append(filename_region[col_name] + '-' + str(filename_index[col_name]).zfill(2))
                 bar_stds[model_key].append(0)
             else:
                 model_ratios = ds[col_name]
@@ -555,13 +560,13 @@ elif (inp == 'l'): #Lens data
     #resort everything by region
     print('ice core mean', np.mean(bar_means['Ice Core']))
     print(np.mean([np.mean(bar_means['CMIP6']), np.mean(bar_means['LENS']), np.mean(bar_means['CESM'])]))
-    bar_lables, filenames, bar_means['LENS'], bar_means['Ice Core'], bar_means['CESM'], bar_means['CMIP6'], bar_stds['LENS'], bar_stds['Ice Core'], bar_stds['CESM'], bar_stds['CMIP6'], bar_means['CESM-SOOTSN'], bar_stds['CESM-SOOTSN'], background_colors = zip(*sorted(list(zip(bar_lables, filenames, bar_means['LENS'], bar_means['Ice Core'], bar_means['CESM'], bar_means['CMIP6'], bar_stds['LENS'], bar_stds['Ice Core'], bar_stds['CESM'], bar_stds['CMIP6'], bar_means['CESM-SOOTSN'], bar_stds['CESM-SOOTSN'], background_colors))))
-    #bar_lables, bar_means['Ice Core'], bar_stds['Ice Core'], bar_means['LENS-S1'], bar_stds['LENS-S1'], bar_means['LENS-S4'], bar_stds['LENS-S4'], bar_means['LENS-S8'], bar_stds['LENS-S8'], background_colors = zip(*sorted(list(zip(bar_lables, bar_means['Ice Core'], bar_stds['Ice Core'], bar_means['LENS-S1'], bar_stds['LENS-S1'], bar_means['LENS-S4'], bar_stds['LENS-S4'], bar_means['LENS-S8'], bar_stds['LENS-S8'], background_colors))))
-    #bar_lables, bar_means['Ice Core'], bar_stds['Ice Core'], bar_means['LENS-LV30'], bar_stds['LENS-LV30'], bar_means['LENS-LV29'], bar_stds['LENS-LV29'], bar_means['LENS-LV28'], bar_stds['LENS-LV28'], background_colors = zip(*sorted(list(zip(bar_lables, bar_means['Ice Core'], bar_stds['Ice Core'], bar_means['LENS-LV30'], bar_stds['LENS-LV30'], bar_means['LENS-LV29'], bar_stds['LENS-LV29'], bar_means['LENS-LV28'], bar_stds['LENS-LV28'], background_colors))))
-    #bar_lables, bar_means['CMIP6 PD'], bar_stds['CMIP6 PD'], bar_means['CMIP6 PI'], bar_stds['CMIP6 PI'], background_colors = zip(*sorted(list(zip(bar_lables, bar_means['CMIP6 PD'], bar_stds['CMIP6 PD'], bar_means['CMIP6 PI'], bar_stds['CMIP6 PI'], background_colors))))
+    bar_labels, filenames, bar_means['LENS'], bar_means['Ice Core'], bar_means['CESM'], bar_means['CMIP6'], bar_stds['LENS'], bar_stds['Ice Core'], bar_stds['CESM'], bar_stds['CMIP6'], bar_means['CESM-SOOTSN'], bar_stds['CESM-SOOTSN'], background_colors = zip(*sorted(list(zip(bar_labels, filenames, bar_means['LENS'], bar_means['Ice Core'], bar_means['CESM'], bar_means['CMIP6'], bar_stds['LENS'], bar_stds['Ice Core'], bar_stds['CESM'], bar_stds['CMIP6'], bar_means['CESM-SOOTSN'], bar_stds['CESM-SOOTSN'], background_colors))))
+    #bar_labels, bar_means['Ice Core'], bar_stds['Ice Core'], bar_means['LENS-S1'], bar_stds['LENS-S1'], bar_means['LENS-S4'], bar_stds['LENS-S4'], bar_means['LENS-S8'], bar_stds['LENS-S8'], background_colors = zip(*sorted(list(zip(bar_labels, bar_means['Ice Core'], bar_stds['Ice Core'], bar_means['LENS-S1'], bar_stds['LENS-S1'], bar_means['LENS-S4'], bar_stds['LENS-S4'], bar_means['LENS-S8'], bar_stds['LENS-S8'], background_colors))))
+    #bar_labels, bar_means['Ice Core'], bar_stds['Ice Core'], bar_means['LENS-LV30'], bar_stds['LENS-LV30'], bar_means['LENS-LV29'], bar_stds['LENS-LV29'], bar_means['LENS-LV28'], bar_stds['LENS-LV28'], background_colors = zip(*sorted(list(zip(bar_labels, bar_means['Ice Core'], bar_stds['Ice Core'], bar_means['LENS-LV30'], bar_stds['LENS-LV30'], bar_means['LENS-LV29'], bar_stds['LENS-LV29'], bar_means['LENS-LV28'], bar_stds['LENS-LV28'], background_colors))))
+    #bar_labels, bar_means['CMIP6 PD'], bar_stds['CMIP6 PD'], bar_means['CMIP6 PI'], bar_stds['CMIP6 PI'], background_colors = zip(*sorted(list(zip(bar_labels, bar_means['CMIP6 PD'], bar_stds['CMIP6 PD'], bar_means['CMIP6 PI'], bar_stds['CMIP6 PI'], background_colors))))
     #Remove Duplicate Region Labels
-    region_lables = list(map(lambda x: x.split('-')[0], bar_lables))
-    if len(sys.argv) == 2:
+    region_lables = list(map(lambda x: x.split('-')[0], bar_labels))
+    if len(sys.argv) == 2 or sys.argv[2] == 'var':
         transition_indexes = []
         csv_dict = []
         models_in_csv = set(['Ice Core'])
@@ -575,9 +580,10 @@ elif (inp == 'l'): #Lens data
                 transition_indexes.append(i)
         transition_indexes.append(transition_indexes[-1] + 1)
         #plot mean bars
-        x = np.arange(len(bar_lables))  # the label locations
+        x = np.arange(len(bar_labels))  # the label locations
         rcParams.update({'font.size': 9})
         #divide data for each subfigure
+        #sub_figures = [dict([['Ice Core', bar_means['Ice Core']], ['loadbc', bar_means['loadbc']], ['CESM', bar_means['CESM']], ['CESM-SOOTSN', bar_means['CESM-SOOTSN']], ['+2', 0]])]
         sub_figures = [
             dict(
                 [['Ice Core', bar_means['Ice Core']], ['LENS', bar_means['LENS']], ['+1', 0], ['+2', 0], ['+3', 0]],
@@ -587,6 +593,9 @@ elif (inp == 'l'): #Lens data
                 ),
             dict(
                 [['Ice Core', bar_means['Ice Core']], ['CESM', bar_means['CESM']], ['CESM-SOOTSN', bar_means['CESM-SOOTSN']], ['+1', 0], ['+2', 0]],
+                ),
+            dict(
+                [['Ice Core', bar_means['Ice Core']], ['loadbc', bar_means['loadbc']], ['CESM', bar_means['CESM']], ['CESM-SOOTSN', bar_means['CESM-SOOTSN']], ['+2', 0]],
                 )
         ]
         #plot rest of data
@@ -620,9 +629,9 @@ elif (inp == 'l'): #Lens data
                 for i in range(len(transition_indexes) - 1):
                     trans_i = transition_indexes[i]
                     next_i = transition_indexes[i + 1]
-                    region = bar_lables[trans_i].split('-')[0]
-                    x_start = (plt.getp(bars[trans_i], 'x') - offset + width + 0.07 - (trans_i / len(bar_lables)) * (1 - width * n_models)) / len(bar_lables)
-                    x_end   = x_start + ((next_i - trans_i) - width - 0.07) / len(bar_lables) #(x_start + width * 4 * (next_i - trans_i)) / 36
+                    region = bar_labels[trans_i].split('-')[0]
+                    x_start = (plt.getp(bars[trans_i], 'x') - offset + width + 0.07 - (trans_i / len(bar_labels)) * (1 - width * n_models)) / len(bar_labels)
+                    x_end   = x_start + ((next_i - trans_i) - width - 0.07) / len(bar_labels) #(x_start + width * 4 * (next_i - trans_i)) / 36
                     plt.axhline(np.mean(bar_means[model_key][trans_i:next_i]), c=color, xmin=x_start, xmax=x_end, linewidth=0.75)
                     row[region] = str(round(np.mean(bar_means[model_key][trans_i:next_i]) - np.mean(bar_means['Ice Core'][trans_i:next_i]), 2))
                 if model_key not in models_in_csv:
@@ -644,7 +653,7 @@ elif (inp == 'l'): #Lens data
             ax2 = ax.twiny()
             plt.xlim([-width, x[-1] + width * n_models])
             plt.ylim([min_h - 0.01, max_lens_h])
-            ax2.set_xticks(x + width, [int(label[len(label)-2:len(label)]) for label in bar_lables], fontsize=10)
+            ax2.set_xticks(x + width, [int(label[len(label)-2:len(label)]) for label in bar_labels], fontsize=10)
             plt.xticks(rotation=90)
             ax2.set_xlabel('Ice Core Number')
             ax2.set_yscale('log')
@@ -663,15 +672,15 @@ elif (inp == 'l'): #Lens data
                     del new_model_colors[bad_key]
             for i in range(len(list(new_model_colors.items()))):
                 key, color = list(new_model_colors.items())[i]
-                leg.legendHandles[i].set_color(color)
+                leg.legend_handles[i].set_color(color)
             for a in plt.gcf().get_axes():
-                for i in range(len(bar_lables)):
-                    filename = bar_lables[i].split('-')[0]
+                for i in range(len(bar_labels)):
+                    filename = bar_labels[i].split('-')[0]
                     color = patches[filename][-1]
                     a.get_xticklabels()[i].set_color(color)
             plt.savefig('figures/ice-cores/test4' + list(sub.keys())[1] + '.png', dpi=300)
         plt.close()
-        #save to csv
+    if sys.argv[2] == 'test-table-color':
         #Model - Ice Core PD/PI Mean Regional Difference
         fields = [region for region in csv_dict[0].keys()]
         write_path = 'data/model-ice-depo/regional-model-diffs.csv'
@@ -697,6 +706,76 @@ elif (inp == 'l'): #Lens data
         table.auto_set_font_size(False)
         table.set_fontsize(12)
         plt.savefig('figures/ice-cores/test-table-color.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
+        plt.close()
+    #plot variable figure
+    if sys.argv[2] == 'var':
+        print('var comparison boxplot')
+        region2region = {'North Pole': 'Arctic', 'South Pole': 'Antarctica', 'Rest': 'Africa'}
+        sub = dict(
+            [['Ice Core', bar_means['Ice Core']],
+                ['loadbc', bar_means['loadbc']],
+                ['CESM', bar_means['CESM']],
+                ['CESM-SOOTSN', bar_means['CESM-SOOTSN']]]
+            )
+        #get regional means
+        new_regions = {
+            'North Pole': ['North Greenland', 'South Greenland', 'Arctic'],
+            'South Pole': ['Antarctica'],
+            'Rest': ['Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica'],
+            }
+        old2new = t.invert_dict_list(new_regions)
+        rdf = pd.DataFrame(columns=['label'], data=bar_labels)
+        rdf.insert(len(rdf.columns), 'region', [s.split('-')[0] for s in bar_labels])
+        [rdf.insert(len(rdf.columns), model_key, bar_means[model_key]) for model_key in sub.keys()]
+        rdf['region'] = rdf['region'].apply(lambda x: old2new[x])
+        #organize into final datastruct
+        data = {key: [] for key in sub.keys()}
+        for model in data.keys():
+            for region in new_regions.keys():
+                data[model].append(rdf[rdf['region'] == region][model])
+        #plot
+        fig, ax = plt.subplots(layout='constrained')
+        x = np.arange(len(list(new_regions.keys())))
+        multiplier = 0
+        width = 0.2
+        bar_labels = list(new_regions.keys())
+        bar_colors = [patches[region2region[s]][-1] + '30' for s in bar_labels]
+        #for i in range(3): + (1/3) * i
+        bar_width = 1
+        box_heights = []
+        for model in data.keys():
+            c = model_colors[model]
+            offset = width * multiplier
+            bplot = ax.boxplot(data[model], widths=0.2, positions=x+offset, patch_artist=True, boxprops=dict(facecolor=c, color=c), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c))
+            box_heights += [item.get_ydata()[1] for item in bplot['whiskers']]
+            multiplier += 1
+        bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors)
+        ax.set_yscale('log')
+        ax.set_xticks(x + width * 1.5, bar_labels)
+        ax.set_xlim([x[0] + width * 1.5 - bar_width / 2, x[-1] + width * 1.5 + bar_width / 2])
+        ax.set_ylim([0, np.max(box_heights) + 0.1])
+        ax.set_yticks([0.3, 0.5, 1, 2, 4])
+        ax.set_ylabel("1980/1850 Ratio")
+        ax.set_xlabel("Region")
+        ax.get_yaxis().set_major_formatter(ScalarFormatter())
+        #manually setup legend
+        legend_handels = []
+        leg_dict = {'Ice Core': 'Ice Core', 'loadbc': 'loadbc', 'CESM': 'drybc - wetbc', 'CESM-SOOTSN': 'sootsn'}
+        for label in sub.keys():
+            if '+' not in label:
+                legend_handels.append(Patch(label=leg_dict[label]))
+        ax.legend(handles=legend_handels)
+        #manualy change legend colors
+        leg = ax.get_legend()
+        new_model_colors = {k: models_colors[k] for k in list(sub.keys())}
+        for i in range(len(list(new_model_colors.items()))):
+            key, color = list(new_model_colors.items())[i]
+            leg.legend_handles[i].set_color(color)
+        for i in range(len(bar_labels)):
+            color = patches[region2region[bar_labels[i]]][-1]
+            ax.get_xticklabels()[i].set_color(color)
+        plt.savefig('figures/ice-cores/test-var.png', bbox_inches='tight', pad_inches=0.1, dpi=300)
+        plt.close()
     #plot antartica supersets
     elif sys.argv[2] == 'ant':
         #setup east and west
@@ -741,6 +820,17 @@ elif (inp == 'l'): #Lens data
                 plt.hist(new_data[i::2])
                 multiplier += 1
             plt.savefig('figures/ice-cores/test5' + key + '.png', bbox_inches='tight', pad_inches=0.0, dpi=200)
+            plt.close()
+    elif sys.argv[2] == 'scatter':
+        fig, ax = plt.subplots(layout='constrained')
+        slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(bar_means['loadbc'], bar_means['CESM-SOOTSN'])
+        plt.scatter(bar_means['loadbc'], bar_means['CESM-SOOTSN'], color=model_colors['CMIP6'])
+        perfect_x = [x * ax.get_xlim()[1] / 100 for x in range(100)]
+        plt.plot(perfect_x, perfect_x, color='black')
+        plt.xlabel('loadbc pd/pi')
+        plt.ylabel('sootsn pd/pi')
+        plt.title('R^2 = ' + str(r_value**2))
+        plt.savefig('figures/ice-cores/sootsn-loadbc-scatter.png', bbox_inches='tight', pad_inches=0.0, dpi=200)
     #plot distribution bars by model
     '''
     #get lens distributions by model
