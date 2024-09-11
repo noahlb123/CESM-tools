@@ -97,8 +97,8 @@ for model_name in valid_models:
         m_suffix = model_name + suffix
         p_suffix = partner + suffix
         new_name = m_suffix.replace('_a', '').replace('.nc', '')
-        #to_eval += 'ncbo --op_typ=sub ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
-        to_eval += "ncks -A " + m_suffix + " " + p_suffix + " && ncap2 -s 'new_var=(drybc-wetbc)'" + p_suffix + " " + new_name + ".nc -O && "
+        to_eval += 'ncbo --op_typ=sub ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
+        #to_eval += "ncks -A " + m_suffix + " " + p_suffix + " && ncap2 -s 'new_var=(drybc-wetbc)'" + p_suffix + " " + new_name + ".nc -O && "
         common_var = 'new_var'
         valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
 
