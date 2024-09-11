@@ -102,6 +102,8 @@ for model_name in valid_models:
         common_var = 'new_var'
         valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
 
+print(valid_er_models)
+
 #commands to divide files
 to_eval += 'echo "dividing..." && '
 for model_name in valid_er_models:
