@@ -1,6 +1,7 @@
 import os
 import sys
 import platform
+import random
 from tools import ToolBox
 from netCDF4 import Dataset
 T = ToolBox()
@@ -158,7 +159,7 @@ for i in range(len(filenames)):
     f = Dataset(root + '/' + file_name)
     print(file_name, list(f.variables.keys()))
 to_eval += 'echo "averaging..." && '
-to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O && '
+to_eval += 'ncra ' + ' '.join(filenames) + ' output_' + str(random.randint(1000, 9999)) + '.nc -O && '
 to_eval += 'echo "done!"'
 print(to_eval)
 
