@@ -228,12 +228,12 @@ class ToolBox:
         [output.update(d) for d in [{value: key for value in l} for key, l in input_dict.items()]]
         return output
     
-    def smallest_grid(self, dir, qual_f=lambda s: '.nc' in s):
+    def smallest_grid(self, dir, qual_f=lambda s, p: '.nc' in s, f_param=None):
         smallest_name = ''
         small_lat = 10000000
         small_lon = 10000000
         for file in os.listdir(dir):
-            if qual_f(file):
+            if qual_f(file, f_param):
                 f = Dataset(os.path.join(dir, file))
                 has_lat_lon = 'lat' in f.variables and 'lat' in f.variables
                 if not has_lat_lon:

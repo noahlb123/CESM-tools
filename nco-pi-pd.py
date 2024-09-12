@@ -25,7 +25,7 @@ if len(sys.argv) < 2:
     raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <name of .nc file with lowest resolution grid>')
 common_var = sys.argv[1]
 root = sys.argv[2]
-smallest_grid = sys.argv[3] if len(sys.argv) >= 3 else T.smallest_grid(root, lambda s: '.nc' in s and common_var in s)
+smallest_grid = sys.argv[3] if len(sys.argv) >= 3 else T.smallest_grid(root, lambda s, p: '.nc' in s and p in s, common_var)
 #python3 nco-pi-pd.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all drybc_AERmon_CanESM5-1_historical_r11i1p2f1_gn_185001-201412.nc
 system = platform.system() #differentiate local and derecho env by sys platform
 partners = {}
