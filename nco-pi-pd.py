@@ -18,6 +18,7 @@ def contains(years, target_year):
 
 def get_model_name(filename):
     return filename[T.find_nth(filename, '_', 2) + 1:filename.find('_historical')]
+    
 
 #DRY MUST COME FIRST IF USING WET DRY PAIRS
 main_dict = {}
@@ -36,6 +37,13 @@ else:
     files = os.listdir(root)
 bads = set([])
 to_eval = 'cd ' + root + ' && '
+
+def evaluate(s):
+    l = len(s)
+    if s[l - 4:l] == ' && ':
+        s = s[0:l - 4]
+    os.system(s)
+    return 'cd ' + root + ' && '
 
 #find start and end files
 for filename in files:
@@ -85,6 +93,8 @@ for model_name, d in main_dict.items():
         #print('doesnt have start and end:', model_name)
         bads.add(model_name)
 
+to_eval = evaluate(to_eval)
+
 #comands to combine files with their partners (subtraction)
 to_eval += 'echo "combining files with partners..." && '
 valid_models = list(set(main_dict.keys()).difference(bads))
@@ -102,27 +112,28 @@ for model_name in valid_models:
         common_var = 'new_var'
         valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
 
+to_eval = evaluate(to_eval)
+exit()
+
 #commands to divide files
-#to_eval += 'echo "dividing..." && '
+to_eval += 'echo "dividing..." && '
 for model_name in valid_er_models:
     pi = model_name + '_pi.nc'
     pd = model_name + '_pd.nc'
     new_name = model_name + '.nc'
-    #to_eval += 'ncbo --op_typ=dvd ' + pd + ' ' + pi + ' ' + new_name + ' -O && '
+    to_eval += 'ncbo --op_typ=dvd ' + pd + ' ' + pi + ' ' + new_name + ' -O && '
 
 filenames = [model_name + '.nc' for model_name in valid_er_models]
+to_eval = evaluate(to_eval)
 
 #commands to remove time_bnds variable
-#to_eval += 'echo "removing time_bnds variable..." && '
+to_eval += 'echo "removing time_bnds variable..." && '
 for file_name in filenames:
     #to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
     pass
 
 print('evaluating section 1/2 ...')
-print(to_eval[0:len(to_eval) - 4])
-os.system(to_eval[0:len(to_eval) - 4]) #remove trailing ' && '
-exit()
-to_eval = 'cd ' + root + ' && '
+to_eval = evaluate(to_eval)
 
 #commands to regrid all models
 to_eval += 'echo "regriding..." && '
@@ -137,15 +148,16 @@ for i in range(len(filenames)):
         filenames[i] = file_name.replace('.nc', '_re.nc')
     f.close()
 
+to_eval = evaluate(to_eval)
+
 #comand to average files
 to_eval += 'echo "averaging..." && '
 to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O && '
 to_eval += 'echo "done!"'
 
 #evaluate
-#print(to_eval)
 print('evaluating section 2/2 ...')
-os.system(to_eval)
+to_eval = evaluate(to_eval)
 #print(list(bads))
 
 #todo:
