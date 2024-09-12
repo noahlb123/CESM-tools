@@ -215,7 +215,8 @@ for core_name in ice_coords.keys():
     y, x = ice_coords[core_name]
     lat = T.nearest_search(lats, y)
     lon = T.nearest_search(lons, x + 180)
-    print(x[:,lat,lon])
+    print(x)
+    print(x[lat,lon])
     exit()
 
 #todo:
