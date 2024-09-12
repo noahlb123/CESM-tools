@@ -206,8 +206,8 @@ index_path = 'data/standardized-ice-cores/index.csv'
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
 ice_coords = T.get_ice_coords(index_path, dupe_path)
 f = Dataset(os.path.join(root, 'output.nc'))
-lats = f['lats'][:]
-lons = f['lats'][:]
+lats = f['lat'][:]
+lons = f['lon'][:]
 times = f['time']
 x = f['drybc'][:]
 
