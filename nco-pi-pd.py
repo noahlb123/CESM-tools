@@ -4,6 +4,7 @@ import platform
 from tools import ToolBox
 from netCDF4 import Dataset
 import numpy as np
+import pandas as pd
 T = ToolBox()
 
 def get_years(filename):
@@ -197,8 +198,6 @@ evaluate(to_eval)
 
 
 
-
-
 print('begin python workflow...')
 
 index_path = 'data/standardized-ice-cores/index.csv'
@@ -209,13 +208,19 @@ lats = f['lat'][:]
 lons = f['lon'][:]
 times = f['time']
 v = f['drybc'][:]
+df = pd.DataFrame(columns=ice_coords.keys())
+df.loc[len(df)] = pd.Series()
 
 for core_name in ice_coords.keys():
     y, x = ice_coords[core_name]
     lat = T.nearest_search(lats, y)
     lon = T.nearest_search(lons, x + 180)
-    print(v[0,lat,lon])
-    exit()
+    df.loc[len(df), core_name] = v[0,lat,lon]
+
+subfolder = 'wetdry'
+df.to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'year-mods.csv'))
+
+print('everthing is finished!')
 
 #todo:
 #remove nan and infinity from all files, I can do this using my notes
