@@ -1,3 +1,4 @@
+python3 nco-pi-pd.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all &&
 python3 cmip.py CMIP6 wetbc &&
 python3 cmip.py CESM loadbc &&
 python3 cmip.py CESM sootsn &&
