@@ -218,7 +218,7 @@ for core_name in ice_coords.keys():
     df.loc[len(df), core_name] = v[0,lat,lon]
 
 subfolder = 'wetdry'
-df.to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'year-mods.csv'))
+df.to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'nco.csv'))
 
 print('everthing is finished!')
 
