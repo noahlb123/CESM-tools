@@ -109,11 +109,24 @@ for model_name in valid_models:
         m_suffix = model_name + suffix
         p_suffix = partner + suffix
         new_name = m_suffix.replace('_a', '').replace('.nc', '')
+        #get sign of wetbc
+        f = Dataset(root + '/' + p_suffix)
+        wet_arr = f['drybc'][:]
+        if np.min(wet_arr) >= 0 and not np.max(wet_arr) <= 0:
+            partner_sign = '+'
+        elif np.max(wet_arr) <= 0 and not np.min(wet_arr) >= 0:
+            partner_sign = '-'
+        if np.max(wet_arr) > 0 and np.min(wet_arr) < 0:
+            raise Exception('this wetbc file contains both negative and positive values: ' + p_suffix)
+        f.close()
         to_eval += 'ncrename -h -O -v wetbc,drybc ' + p_suffix + ' && '
-        to_eval += 'ncbo --op_typ=sub ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
+        if partner_sign == '-':
+            to_eval += 'ncbo --op_typ=sub ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
+        elif partner_sign == '+':
+            to_eval += 'ncbo --op_typ=add ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
         valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
         print(m_suffix, np.min(Dataset(root + '/' + m_suffix)['drybc'][:]) >= 0)
-        print(p_suffix, np.max(Dataset(root + '/' + p_suffix)['wetbc'][:]) <= 0)
+        #print(p_suffix, np.max(Dataset(root + '/' + p_suffix)['wetbc'][:]) <= 0)
         print(new_name, np.min(Dataset(root + '/' + new_name + '.nc')['drybc'][:]) >= 0)
 
 to_eval = evaluate(to_eval)
