@@ -164,7 +164,6 @@ for i in range(len(filenames)):
     f = Dataset(root + '/' + file_name)
     to_eval += "ncap2 -O -s '" + common_var + "=double(" + common_var + ");' " + file_name + ' ' + file_name + ' && '
     if f.variables['lat'].shape[0] > 64 or f.variables['lon'].shape[0] > 128:
-        to_eval += 'echo "regridding ' + file_name + '" && '
         to_eval += 'ncremap -d ' + smallest_grid + ' ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
         filenames[i] = file_name.replace('.nc', '_re.nc')
     f.close()
@@ -209,14 +208,13 @@ f = Dataset(os.path.join(root, 'output.nc'))
 lats = f['lat'][:]
 lons = f['lon'][:]
 times = f['time']
-x = f['drybc'][:]
+v = f['drybc'][:]
 
 for core_name in ice_coords.keys():
     y, x = ice_coords[core_name]
     lat = T.nearest_search(lats, y)
     lon = T.nearest_search(lons, x + 180)
-    print(x)
-    print(x[lat,lon])
+    print(v[lat,lon])
     exit()
 
 #todo:
