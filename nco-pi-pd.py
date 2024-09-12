@@ -115,7 +115,7 @@ for model_name in valid_models:
 
 print(to_eval)
 to_eval = evaluate(to_eval)
-exit()
+#exit()
 
 #commands to divide files
 to_eval += 'echo "dividing..." && '
