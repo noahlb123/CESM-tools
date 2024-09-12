@@ -30,10 +30,6 @@ def base_model(model):
                 base_model = model
         else:
             base_model = model
-        if base_model in base_model_dict:
-            base_model_dict[base_model].append(model)
-        else:
-            base_model_dict[base_model] = [model]
         return base_model
     
 
