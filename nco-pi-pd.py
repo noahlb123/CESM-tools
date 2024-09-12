@@ -198,7 +198,7 @@ evaluate(to_eval)
 
 
 print('begin python workflow...')
-import pandas as pd
+import pandas as pd #this has to be here otherwise var "pd" is overwritten
 
 index_path = 'data/standardized-ice-cores/index.csv'
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
