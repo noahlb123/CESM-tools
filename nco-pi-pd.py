@@ -133,7 +133,7 @@ to_eval = evaluate(to_eval)
 #commands to remove time_bnds variable
 to_eval += 'echo "removing time_bnds variable..." && '
 for file_name in filenames:
-    #to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
+    to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
     pass
 
 to_eval = evaluate(to_eval)
