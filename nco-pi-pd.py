@@ -119,6 +119,7 @@ for file_name in filenames:
     pass
 
 print('evaluating section 1/2 ...')
+print(to_eval[0:len(to_eval) - 4])
 os.system(to_eval[0:len(to_eval) - 4]) #remove trailing ' && '
 exit()
 to_eval = 'cd ' + root + ' && '
