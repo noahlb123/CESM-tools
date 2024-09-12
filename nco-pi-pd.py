@@ -112,9 +112,9 @@ for model_name in valid_models:
         to_eval += 'ncrename -h -O -v wetbc,drybc ' + p_suffix + ' && '
         to_eval += 'ncbo --op_typ=sub ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
         valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
-        print(p_suffix, np.min(Dataset(root + '/' + m_suffix)['drybc'][:]) >= 0)
+        print(m_suffix, np.min(Dataset(root + '/' + m_suffix)['drybc'][:]) >= 0)
         print(p_suffix, np.max(Dataset(root + '/' + p_suffix)['wetbc'][:]) <= 0)
-        print(p_suffix, np.min(Dataset(root + '/' + new_name + '.nc')['drybc'][:]) >= 0)
+        print(new_name, np.min(Dataset(root + '/' + new_name + '.nc')['drybc'][:]) >= 0)
 
 to_eval = evaluate(to_eval)
 
