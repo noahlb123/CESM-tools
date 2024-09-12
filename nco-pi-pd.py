@@ -122,12 +122,12 @@ for model_name in valid_models:
         to_eval += 'ncrename -h -O -v wetbc,drybc ' + p_suffix + ' && '
         to_eval += 'ncbo --op_typ=' + operation + ' ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
         valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
-        print(m_suffix, np.min(Dataset(root + '/' + m_suffix)['drybc'][:]) >= 0)
-        print(p_suffix, (np.max(Dataset(root + '/' + p_suffix)['wetbc'][:]) <= 0 and operation == 'sub') or (np.min(Dataset(root + '/' + p_suffix)['wetbc'][:]) >= 0 and operation == 'sub'))
+        #print(m_suffix, np.min(Dataset(root + '/' + m_suffix)['drybc'][:]) >= 0)
+        print(p_suffix, (np.max(Dataset(root + '/' + p_suffix)['wetbc'][:]) <= 0 and operation == 'sub') or (np.min(Dataset(root + '/' + p_suffix)['wetbc'][:]) >= 0 and operation == 'add'))
         print(new_name, np.min(Dataset(root + '/' + new_name + '.nc')['drybc'][:]) >= 0)
 
 to_eval = evaluate(to_eval)
-exit()
+#exit()
 
 #commands to divide files
 to_eval += 'echo "dividing..." && '
