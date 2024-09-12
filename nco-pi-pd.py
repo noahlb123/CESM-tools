@@ -193,8 +193,31 @@ to_eval = evaluate(to_eval)
 #comand to average files
 to_eval += 'echo "averaging..." && '
 to_eval += 'ncra ' + ' '.join(bases) + ' output.nc -O && '
-to_eval += 'echo "done!"'
+to_eval += 'echo "nco workflow done!"'
 evaluate(to_eval)
+
+
+
+
+
+print('begin python workflow...')
+
+index_path = 'data/standardized-ice-cores/index.csv'
+dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
+ice_coords = T.get_ice_coords(index_path, dupe_path)
+f = Dataset(os.path.join(root, 'output.nc'))
+lats = f['lats'][:]
+lons = f['lats'][:]
+times = f['time']
+x = f['drybc'][:]
+
+for core_name in ice_coords.keys():
+    y, x = ice_coords[core_name]
+    lat = T.nearest_search(lats, y)
+    lon = T.nearest_search(lons, x + 180)
+    print(x[:,lat,lon])
+    exit()
 
 #todo:
 #remove nan and infinity from all files, I can do this using my notes
+#add 10 year averaging
