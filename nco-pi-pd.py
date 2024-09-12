@@ -103,21 +103,23 @@ for model_name in valid_models:
         valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
 
 #commands to divide files
-to_eval += 'echo "dividing..." && '
+#to_eval += 'echo "dividing..." && '
 for model_name in valid_er_models:
     pi = model_name + '_pi.nc'
     pd = model_name + '_pd.nc'
     new_name = model_name + '.nc'
-    to_eval += 'ncbo --op_typ=dvd ' + pd + ' ' + pi + ' ' + new_name + ' -O && '
+    #to_eval += 'ncbo --op_typ=dvd ' + pd + ' ' + pi + ' ' + new_name + ' -O && '
 
 filenames = [model_name + '.nc' for model_name in valid_er_models]
 
 #commands to remove time_bnds variable
-to_eval += 'echo "removing time_bnds variable..." && '
+#to_eval += 'echo "removing time_bnds variable..." && '
 for file_name in filenames:
-    to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
+    #to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
+    pass
 
 print('evaluating section 1/2 ...')
+print(to_eval[0:len(to_eval) - 4])
 os.system(to_eval[0:len(to_eval) - 4]) #remove trailing ' && '
 to_eval = 'cd ' + root + ' && '
 
