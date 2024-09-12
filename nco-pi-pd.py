@@ -4,7 +4,6 @@ import platform
 from tools import ToolBox
 from netCDF4 import Dataset
 import numpy as np
-import pandas as pd
 T = ToolBox()
 
 def get_years(filename):
@@ -199,6 +198,7 @@ evaluate(to_eval)
 
 
 print('begin python workflow...')
+import pandas as pd
 
 index_path = 'data/standardized-ice-cores/index.csv'
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
