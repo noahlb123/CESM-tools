@@ -19,6 +19,22 @@ def contains(years, target_year):
 
 def get_model_name(filename):
     return filename[T.find_nth(filename, '_', 2) + 1:filename.find('_historical')]
+
+def base_model(model):
+        if dir != 'loadbc':
+            if 'MIROC6' in model:
+                base_model = 'MIROC'
+            if '-' in model:
+                base_model = model[0:model.index('-')]
+            else:
+                base_model = model
+        else:
+            base_model = model
+        if base_model in base_model_dict:
+            base_model_dict[base_model].append(model)
+        else:
+            base_model_dict[base_model] = [model]
+        return base_model
     
 
 #DRY MUST COME FIRST IF USING WET DRY PAIRS
@@ -159,10 +175,28 @@ for i in range(len(filenames)):
 
 to_eval = evaluate(to_eval)
 
+#bin models
+bins = {}
+for file in filenames:
+    base = base_model(file)
+    if base in bins:
+        bins[base].append(file)
+    else:
+        bins[base] = [file]
+inverse_bins = T.invert_dict_list(bins)
+
+#average bases
+to_eval += 'echo "binning..." && '
+bases = []
+for base, files in bins.items():
+    to_eval += 'ncra ' + ' '.join(files) + ' ' + base + '.nc -O && '
+    bases.append(base + '.nc')
+
+to_eval = evaluate(to_eval)
+
 #comand to average files
-print(filenames)
 to_eval += 'echo "averaging..." && '
-to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O && '
+to_eval += 'ncra ' + ' '.join(bases) + ' output.nc -O && '
 to_eval += 'echo "done!"'
 evaluate(to_eval)
 
