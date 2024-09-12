@@ -797,3 +797,6 @@ ncap2 -s 'new_var=(a-b)' b.nc output.nc
 #append (combine) files, then subtract two vars
 ncks -A output-dry.nc output-wet.nc && 
 ncap2 -s 'new_var=(drybc-wetbc)' output-wet.nc output.nc
+
+
+ncbo --op_typ=sub ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && 
