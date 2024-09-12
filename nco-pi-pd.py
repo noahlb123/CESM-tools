@@ -111,7 +111,7 @@ for model_name in valid_models:
         new_name = m_suffix.replace('_a', '').replace('.nc', '')
         #get sign of wetbc
         f = Dataset(root + '/' + p_suffix)
-        wet_arr = f['drybc'][:]
+        wet_arr = f['wetbc'][:]
         if np.min(wet_arr) >= 0 and not np.max(wet_arr) <= 0:
             partner_sign = '+'
         elif np.max(wet_arr) <= 0 and not np.min(wet_arr) >= 0:
