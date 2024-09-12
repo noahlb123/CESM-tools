@@ -27,7 +27,8 @@ if len(sys.argv) < 2:
 common_var = sys.argv[1]
 root = sys.argv[2]
 smallest_grid = sys.argv[3] if len(sys.argv) >= 4 else T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), common_var)
-#python3 nco-pi-pd.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all drybc_AERmon_CanESM5-1_historical_r11i1p2f1_gn_185001-201412.nc
+#python3 nco-pi-pd.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all
+#old smallest grid: drybc_AERmon_CanESM5-1_historical_r11i1p2f1_gn_185001-201412.nc
 system = platform.system() #differentiate local and derecho env by sys platform
 partners = {}
 if system == "Darwin":
@@ -112,6 +113,7 @@ for model_name in valid_models:
         common_var = 'new_var'
         valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
 
+print(to_eval)
 to_eval = evaluate(to_eval)
 exit()
 
