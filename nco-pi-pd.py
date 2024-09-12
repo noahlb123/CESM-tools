@@ -135,7 +135,6 @@ for file_name in filenames:
     #to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
     pass
 
-print('evaluating section 1/2 ...')
 to_eval = evaluate(to_eval)
 
 #commands to regrid all models
@@ -143,7 +142,7 @@ to_eval += 'echo "regriding..." && '
 for i in range(len(filenames)):
     file_name = filenames[i]
     f = Dataset(root + '/' + file_name)
-    print(file_name, list(f.variables.keys()))
+    #print(file_name, list(f.variables.keys()))
     to_eval += "ncap2 -O -s '" + common_var + "=double(" + common_var + ");' " + file_name + ' ' + file_name + ' && '
     if f.variables['lat'].shape[0] > 64 or f.variables['lon'].shape[0] > 128:
         to_eval += 'echo "regridding ' + file_name + '" && '
@@ -154,12 +153,15 @@ for i in range(len(filenames)):
 to_eval = evaluate(to_eval)
 
 #comand to average files
+for i in range(len(filenames)):
+    file_name = filenames[i]
+    f = Dataset(root + '/' + file_name)
+    print(file_name, list(f.variables.keys()))
 to_eval += 'echo "averaging..." && '
 to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O && '
 to_eval += 'echo "done!"'
 
 #evaluate
-print('evaluating section 2/2 ...')
 to_eval = evaluate(to_eval)
 #print(list(bads))
 
