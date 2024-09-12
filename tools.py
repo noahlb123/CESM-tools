@@ -1,7 +1,8 @@
 import math
-#from netCDF4 import Dataset
+from netCDF4 import Dataset
 import pandas as pd
 import numpy as np
+import os
 
 class ToolBox:
     def __init__(self):
@@ -226,3 +227,21 @@ class ToolBox:
         output = {}
         [output.update(d) for d in [{value: key for value in l} for key, l in input_dict.items()]]
         return output
+    
+    def smallest_grid(self, dir, qual_f=lambda s: '.nc' in s):
+        smallest_name = ''
+        small_lat = 10000000
+        small_lon = 10000000
+        for file in os.listdir(dir):
+            if qual_f(file):
+                f = Dataset(os.path.join(dir, file))
+                has_lat_lon = 'lat' in f.variables and 'lat' in f.variables
+                if not has_lat_lon:
+                    continue
+                this_lat = f.variables['lat'].shape[0]
+                this_lon = f.variables['lon'].shape[0]
+                if this_lat < small_lat or this_lon < small_lon:
+                    smallest_name = file
+                    small_lat = this_lat
+                    small_lon = this_lon
+        return smallest_name

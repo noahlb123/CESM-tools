@@ -21,11 +21,11 @@ def get_model_name(filename):
 
 #DRY MUST COME FIRST IF USING WET DRY PAIRS
 main_dict = {}
-if len(sys.argv) < 3:
+if len(sys.argv) < 2:
     raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <name of .nc file with lowest resolution grid>')
 common_var = sys.argv[1]
 root = sys.argv[2]
-smallest_grid = sys.argv[3]
+smallest_grid = sys.argv[3] if len(sys.argv) >= 3 else T.smallest_grid(root, lambda s: '.nc' in s and common_var in s)
 #python3 nco-pi-pd.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all drybc_AERmon_CanESM5-1_historical_r11i1p2f1_gn_185001-201412.nc
 system = platform.system() #differentiate local and derecho env by sys platform
 partners = {}
@@ -97,8 +97,8 @@ for model_name in valid_models:
         m_suffix = model_name + suffix
         p_suffix = partner + suffix
         new_name = m_suffix.replace('_a', '').replace('.nc', '')
-        to_eval += 'ncbo --op_typ=sub ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
-        #to_eval += "ncks -A " + m_suffix + " " + p_suffix + " && ncap2 -s 'new_var=(drybc-wetbc)'" + p_suffix + " " + new_name + ".nc -O && "
+        #to_eval += 'ncbo --op_typ=sub ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
+        to_eval += "ncks -A " + m_suffix + " " + p_suffix + " && ncap2 -s 'new_var=(drybc-wetbc)'" + p_suffix + " " + new_name + ".nc -O && "
         common_var = 'new_var'
         valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
 
@@ -146,6 +146,7 @@ os.system(to_eval)
 #print(list(bads))
 
 #todo:
+#not even
 #wetbc and drybc are being removed in subtraction step because the main var in each files is different, use different subtraction method I wrote in notes
 #remove nan and infinity from all files, I can do this using my notes
 
