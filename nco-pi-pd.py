@@ -160,6 +160,7 @@ for i in range(len(filenames)):
 to_eval += 'echo "averaging..." && '
 to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O && '
 to_eval += 'echo "done!"'
+print(to_eval)
 
 #evaluate
 to_eval = evaluate(to_eval)
