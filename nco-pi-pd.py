@@ -111,13 +111,9 @@ for model_name in valid_models:
         new_name = m_suffix.replace('_a', '').replace('.nc', '')
         to_eval += 'ncrename -h -O -v wetbc,drybc ' + p_suffix + ' && '
         to_eval += 'ncbo --op_typ=sub ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
-        #to_eval += "ncks -A " + m_suffix + " " + p_suffix + " && ncap2 -s 'new_var=(drybc-wetbc)'" + p_suffix + " " + new_name + ".nc -O && "
-        #common_var = 'new_var'
         valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
 
-#print(to_eval)
 to_eval = evaluate(to_eval)
-#exit()
 
 #commands to divide files
 to_eval += 'echo "dividing..." && '
@@ -143,7 +139,6 @@ to_eval += 'echo "regriding..." && '
 for i in range(len(filenames)):
     file_name = filenames[i]
     f = Dataset(root + '/' + file_name)
-    #print(file_name, list(f.variables.keys()))
     to_eval += "ncap2 -O -s '" + common_var + "=double(" + common_var + ");' " + file_name + ' ' + file_name + ' && '
     if f.variables['lat'].shape[0] > 64 or f.variables['lon'].shape[0] > 128:
         to_eval += 'echo "regridding ' + file_name + '" && '
@@ -154,23 +149,10 @@ for i in range(len(filenames)):
 to_eval = evaluate(to_eval)
 
 #comand to average files
-for i in range(len(filenames)):
-    file_name = filenames[i]
-    f = Dataset(root + '/' + file_name)
-    print(file_name, list(f.variables.keys()))
 to_eval += 'echo "averaging..." && '
-to_eval += 'ncra ' + ' '.join(filenames) + ' output_' + str(random.randint(1000, 9999)) + '.nc -O && '
+to_eval += 'ncra ' + ' '.join(filenames) + ' output.nc -O && '
 to_eval += 'echo "done!"'
-print(to_eval)
-
-#evaluate
-to_eval = evaluate(to_eval)
-#print(list(bads))
+evaluate(to_eval)
 
 #todo:
-#not even
-#wetbc and drybc are being removed in subtraction step because the main var in each files is different, use different subtraction method I wrote in notes
 #remove nan and infinity from all files, I can do this using my notes
-
-#ncap2 -s [wetdep=wetdep*-1] in.nc out.nc
-#ncdivide 1.nc 2.nc 3.nc

@@ -800,5 +800,3 @@ ncap2 -s 'new_var=(drybc-wetbc)' output-wet.nc output.nc
 
 #rename variable
 ncrename -h -O -v wetbc,drybc MRI-ESM2-0_b_pi.nc
-
-ncbo --op_typ=sub MRI-ESM2-0_a_pi.nc MRI-ESM2-0_b_pi.nc MRI-ESM2-0_pi.nc -O
