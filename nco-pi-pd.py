@@ -26,9 +26,9 @@ to_eval = 'cd ' + root + ' && '
 
 def get_years(filename):
     dist = 4 if target_v == 'loadbc' else 2
-    years = filename[filename.rfind('_') + 1 - dist:filename.rfind(".") - dist].split('-')
-    print(years)
+    years = filename[filename.rfind('_') + 1:filename.rfind(".")].split('-')
     years = [int(year[0:4]) for year in years]
+    print(years)
     print('reasonable years?: ' + ' '.join(years))
     return years
 
