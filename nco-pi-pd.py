@@ -206,8 +206,8 @@ ice_coords = T.get_ice_coords(index_path, dupe_path)
 df = pd.DataFrame(columns=['model'] + list(ice_coords.keys()))
 
 for file in bases:
-    df.loc[len(df)] = pd.Series()
-    df.loc[len(df), 'model'] = file.replace('.nc', '')
+    row = pd.Series()
+    row.at['model'] = file.replace('.nc', '')
     f = Dataset(os.path.join(root, file))
     lats = f['lat'][:]
     lons = f['lon'][:]
@@ -217,8 +217,9 @@ for file in bases:
         y, x = ice_coords[core_name]
         lat = T.nearest_search(lats, y)
         lon = T.nearest_search(lons, x + 180)
-        df.loc[len(df), core_name] = v[0,lat,lon]
+        row.at[core_name] = v[0,lat,lon]
     f.close()
+    df.loc[len(df)] = row
 
 var2subfolder = {'drybc': 'cmip6', 'loadbc': 'loadbc', 'sootsn': 'cesm-sootsn'}
 subfolder = var2subfolder[target_v]
