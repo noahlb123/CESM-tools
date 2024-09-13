@@ -7,7 +7,7 @@ import numpy as np
 T = ToolBox()
 
 #DRY MUST COME FIRST IF USING WET DRY PAIRS
-bad_boy_mode = False #should the output be written in the cwd
+bad_boy_mode = True #should the output be written in the cwd
 main_dict = {}
 if len(sys.argv) < 2:
     raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <name of .nc file with lowest resolution grid>')
@@ -215,7 +215,7 @@ for file in bases:
     lats = f['lat'][:]
     lons = f['lon'][:]
     times = f['time']
-    v = f['drybc'][:]
+    v = f[target_v][:]
     for core_name in ice_coords.keys():
         y, x = ice_coords[core_name]
         lat = T.nearest_search(lats, y)
