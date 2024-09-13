@@ -64,7 +64,8 @@ for filename in files:
         if (target_v == 'drybc'):
             partner_name = filename.replace('wetbc', 'drybc') if 'wetbc' in filename else filename.replace('drybc', 'wetbc')
         if target_v != 'drybc' or os.path.isfile(os.path.join(root, partner_name)):
-            for f_name in [filename, partner_name]:
+            partners = [filename, partner_name] if target_v == 'drybc' else [filename]
+            for f_name in partners:
                 model_name = get_model_name(f_name)
                 years = get_years(f_name)
                 if (target_v == 'drybc'):
