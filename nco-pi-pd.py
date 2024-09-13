@@ -7,7 +7,7 @@ import numpy as np
 T = ToolBox()
 
 #DRY MUST COME FIRST IF USING WET DRY PAIRS
-bad_boy_mode = True #should the output be written in the cwd
+bad_boy_mode = False #should the output be written in the cwd
 main_dict = {}
 if len(sys.argv) < 2:
     raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <name of .nc file with lowest resolution grid>')
@@ -67,7 +67,8 @@ for filename in files:
             for f_name in [filename, partner_name]:
                 model_name = get_model_name(f_name)
                 years = get_years(f_name)
-                model_name += '_b' if target_v == 'drybc' and f_name == partner_name else '_a'
+                if (target_v == 'drybc'):
+                    model_name += '_b' if target_v == 'drybc' and f_name == partner_name else '_a'
                 if contains(years, 1850):
                     if model_name not in main_dict:
                         main_dict[model_name] = {'s_file': f_name, 'e_file': None, 's_year': years[0]}
@@ -110,33 +111,32 @@ for model_name, d in main_dict.items():
 to_eval = evaluate(to_eval)
 
 #comands to combine files with their partners (subtraction)
-to_eval += 'echo "combining files with partners..." && '
-valid_models = list(set(main_dict.keys()).difference(bads))
-valid_er_models = set()
-for model_name in valid_models:
-    if '_b' in model_name:
-        continue
-    partner = model_name.replace('_a', '_b')
-    for suffix in ['_pi.nc', '_pd.nc']:
-        m_suffix = model_name + suffix
-        p_suffix = partner + suffix
-        new_name = m_suffix.replace('_a', '').replace('.nc', '')
-        #get sign of wetbc
-        f = Dataset(root + '/' + p_suffix)
-        wet_arr = f['wetbc'][:]
-        f.close()
-        if np.min(wet_arr) >= 0 and not np.max(wet_arr) <= 0:
-            operation = 'add'
-        elif np.max(wet_arr) <= 0 and not np.min(wet_arr) >= 0:
-            operation = 'sub'
-        if np.max(wet_arr) > 0 and np.min(wet_arr) < 0:
-            raise Exception('this wetbc file contains both negative and positive values: ' + p_suffix)
-        to_eval += 'ncrename -h -O -v wetbc,drybc ' + p_suffix + ' && '
-        to_eval += 'ncbo --op_typ=' + operation + ' ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
-        valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
-
-to_eval = evaluate(to_eval)
-#exit()
+if target_v == 'drybc':
+    to_eval += 'echo "combining files with partners..." && '
+    valid_models = list(set(main_dict.keys()).difference(bads))
+    valid_er_models = set()
+    for model_name in valid_models:
+        if '_b' in model_name:
+            continue
+        partner = model_name.replace('_a', '_b')
+        for suffix in ['_pi.nc', '_pd.nc']:
+            m_suffix = model_name + suffix
+            p_suffix = partner + suffix
+            new_name = m_suffix.replace('_a', '').replace('.nc', '')
+            #get sign of wetbc
+            f = Dataset(root + '/' + p_suffix)
+            wet_arr = f['wetbc'][:]
+            f.close()
+            if np.min(wet_arr) >= 0 and not np.max(wet_arr) <= 0:
+                operation = 'add'
+            elif np.max(wet_arr) <= 0 and not np.min(wet_arr) >= 0:
+                operation = 'sub'
+            if np.max(wet_arr) > 0 and np.min(wet_arr) < 0:
+                raise Exception('this wetbc file contains both negative and positive values: ' + p_suffix)
+            to_eval += 'ncrename -h -O -v wetbc,drybc ' + p_suffix + ' && '
+            to_eval += 'ncbo --op_typ=' + operation + ' ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
+            valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
+    to_eval = evaluate(to_eval)
 
 #commands to divide files
 to_eval += 'echo "dividing..." && '
