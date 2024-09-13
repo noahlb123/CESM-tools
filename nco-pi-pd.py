@@ -15,7 +15,7 @@ root = sys.argv[2]
 if len(sys.argv) < 3:
     cesm_mode = sys.argv[3].lower() == 'cesm'
 smallest_grid = T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), target_v)
-prefix_map = {'sootsn': 'LImon_', 'wetbc': 'AERmon_', 'loadbc': 'Eday_'}
+prefix_map = {'sootsn': 'LImon_', 'drybc': 'AERmon_', 'loadbc': 'Eday_'}
 prefix = prefix_map[target_v]
 system = platform.system() #differentiate local and derecho env by sys platform
 partners = {}
