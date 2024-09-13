@@ -12,7 +12,8 @@ if len(sys.argv) < 2:
     raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <name of .nc file with lowest resolution grid>')
 target_v = sys.argv[1]
 root = sys.argv[2]
-cesm_mode = sys.argv[3].lower() == 'cesm'
+if len(sys.argv) < 3:
+    cesm_mode = sys.argv[3].lower() == 'cesm'
 smallest_grid = T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), target_v)
 prefix_map = {'sootsn': 'LImon_', 'wetbc': 'AERmon_', 'loadbc': 'Eday_'}
 prefix = prefix_map[target_v]
