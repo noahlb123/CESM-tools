@@ -224,7 +224,7 @@ var2subfolder = {'drybc': 'cmip6', 'loadbc': 'loadbc', 'sootsn': 'cesm-sootsn'}
 subfolder = var2subfolder[target_v]
 if subfolder == 'cmip' and cesm_mode:
     subfolder = 'cesm-wetdry'
-output_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'nco.csv') if not bad_boy_mode else os.getcwd()
+output_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'nco.csv') if not bad_boy_mode else os.path.join(os.getcwd(), 'nco.csv')
 df.to_csv(output_path)
 
 print('nco.csv saved to ' + output_path + '!')
