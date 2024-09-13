@@ -138,6 +138,8 @@ if target_v == 'drybc':
             to_eval += 'ncbo --op_typ=' + operation + ' ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
             valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
     to_eval = evaluate(to_eval)
+else:
+    valid_er_models = list(set(main_dict.keys()).difference(bads))
 
 #commands to divide files
 to_eval += 'echo "dividing..." && '
