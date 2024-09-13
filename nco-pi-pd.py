@@ -28,8 +28,6 @@ def get_years(filename):
     dist = 4 if target_v == 'loadbc' else 2
     years = filename[filename.rfind('_') + 1:filename.rfind(".")].split('-')
     years = [int(year[0:4]) for year in years]
-    print(years)
-    print('reasonable years?:', years[0], years[1])
     return years
 
 def contains(years, target_year):
@@ -205,7 +203,7 @@ import pandas as pd #this has to be here otherwise var "pd" is overwritten
 index_path = 'data/standardized-ice-cores/index.csv'
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
 ice_coords = T.get_ice_coords(index_path, dupe_path)
-df = pd.DataFrame(columns=['model'] + ice_coords.keys())
+df = pd.DataFrame(columns=['model'] + list(ice_coords.keys()))
 
 for file in bases:
     df.loc[len(df)] = pd.Series()
