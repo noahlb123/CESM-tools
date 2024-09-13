@@ -6,9 +6,27 @@ from netCDF4 import Dataset
 import numpy as np
 T = ToolBox()
 
+#DRY MUST COME FIRST IF USING WET DRY PAIRS
+main_dict = {}
+if len(sys.argv) < 2:
+    raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <name of .nc file with lowest resolution grid>')
+target_v = sys.argv[1]
+root = sys.argv[2]
+cesm_mode = sys.argv[3].lower() == 'cesm'
+smallest_grid = T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), target_v)
+prefix_map = {'sootsn': 'LImon_', 'wetbc': 'AERmon_', 'loadbc': 'Eday_'}
+prefix = prefix_map[target_v]
+system = platform.system() #differentiate local and derecho env by sys platform
+partners = {}
+files = os.listdir(root)
+bads = set([])
+to_eval = 'cd ' + root + ' && '
+
 def get_years(filename):
-    years = filename[filename.rfind('_') + 1:len(filename) - 3].split('-')
+    dist = 4 if target_v == 'loadbc' else 2
+    years = filename[filename.rfind('_') + 1:len(filename) - dist].split('-')
     years = [int(year[0:4]) for year in years]
+    print('reasonable years?: ' + ' '.join(years))
     return years
 
 def contains(years, target_year):
@@ -18,7 +36,7 @@ def contains(years, target_year):
     return False
 
 def get_model_name(filename):
-    return filename[T.find_nth(filename, '_', 2) + 1:filename.find('_historical')]
+    return filename[filename.index(prefix) + len(prefix): filename.index('_historical')]
 
 def base_model(model):
         if dir != 'loadbc':
@@ -31,26 +49,6 @@ def base_model(model):
         else:
             base_model = model
         return base_model
-    
-
-#DRY MUST COME FIRST IF USING WET DRY PAIRS
-main_dict = {}
-if len(sys.argv) < 2:
-    raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <name of .nc file with lowest resolution grid>')
-common_var = sys.argv[1]
-root = sys.argv[2]
-smallest_grid = sys.argv[3] if len(sys.argv) >= 4 else T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), common_var)
-#python3 nco-pi-pd.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all
-#old smallest grid: drybc_AERmon_CanESM5-1_historical_r11i1p2f1_gn_185001-201412.nc
-system = platform.system() #differentiate local and derecho env by sys platform
-partners = {}
-if system == "Darwin":
-    import pyperclip
-    files = pyperclip.paste().split('\n')
-else:
-    files = os.listdir(root)
-bads = set([])
-to_eval = 'cd ' + root + ' && '
 
 def evaluate(s):
     l = len(s)
@@ -61,13 +59,14 @@ def evaluate(s):
 
 #find start and end files
 for filename in files:
-    if common_var in filename:
-        partner_name = filename.replace('wetbc', 'drybc') if 'wetbc' in filename else filename.replace('drybc', 'wetbc')
+    if target_v in filename:
+        if (target_v == 'drybc'):
+            partner_name = filename.replace('wetbc', 'drybc') if 'wetbc' in filename else filename.replace('drybc', 'wetbc')
         if os.path.isfile(os.path.join(root, partner_name)):
             for f_name in [filename, partner_name]:
                 model_name = get_model_name(f_name)
-                model_name += '_b' if f_name == partner_name else '_a'
                 years = get_years(f_name)
+                model_name += '_b' if target_v == 'drybc' and f_name == partner_name else '_a'
                 if contains(years, 1850):
                     if model_name not in main_dict:
                         main_dict[model_name] = {'s_file': f_name, 'e_file': None, 's_year': years[0]}
@@ -162,7 +161,7 @@ to_eval += 'echo "regriding..." && '
 for i in range(len(filenames)):
     file_name = filenames[i]
     f = Dataset(root + '/' + file_name)
-    to_eval += "ncap2 -O -s '" + common_var + "=double(" + common_var + ");' " + file_name + ' ' + file_name + ' && '
+    to_eval += "ncap2 -O -s '" + target_v + "=double(" + target_v + ");' " + file_name + ' ' + file_name + ' && '
     if f.variables['lat'].shape[0] > 64 or f.variables['lon'].shape[0] > 128:
         to_eval += 'ncremap -d ' + smallest_grid + ' ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
         filenames[i] = file_name.replace('.nc', '_re.nc')
@@ -187,12 +186,12 @@ for base, files in bins.items():
     to_eval += 'ncra ' + ' '.join(files) + ' ' + base + '.nc -O && '
     bases.append(base + '.nc')
 
+to_eval += 'echo "nco workflow done!"'
 to_eval = evaluate(to_eval)
 
 #comand to average files
-to_eval += 'echo "averaging..." && '
-to_eval += 'ncra ' + ' '.join(bases) + ' output.nc -O && '
-to_eval += 'echo "nco workflow done!"'
+#to_eval += 'echo "averaging..." && '
+#to_eval += 'ncra ' + ' '.join(bases) + ' output.nc -O && '
 evaluate(to_eval)
 
 
@@ -203,21 +202,27 @@ import pandas as pd #this has to be here otherwise var "pd" is overwritten
 index_path = 'data/standardized-ice-cores/index.csv'
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
 ice_coords = T.get_ice_coords(index_path, dupe_path)
-f = Dataset(os.path.join(root, 'output.nc'))
-lats = f['lat'][:]
-lons = f['lon'][:]
-times = f['time']
-v = f['drybc'][:]
-df = pd.DataFrame(columns=ice_coords.keys())
-df.loc[len(df)] = pd.Series()
+df = pd.DataFrame(columns=['model'] + ice_coords.keys())
 
-for core_name in ice_coords.keys():
-    y, x = ice_coords[core_name]
-    lat = T.nearest_search(lats, y)
-    lon = T.nearest_search(lons, x + 180)
-    df.loc[len(df), core_name] = v[0,lat,lon]
+for file in bases:
+    df.loc[len(df)] = pd.Series()
+    df.loc[len(df), 'model'] = file.replace('.nc', '')
+    f = Dataset(os.path.join(root, file))
+    lats = f['lat'][:]
+    lons = f['lon'][:]
+    times = f['time']
+    v = f['drybc'][:]
+    for core_name in ice_coords.keys():
+        y, x = ice_coords[core_name]
+        lat = T.nearest_search(lats, y)
+        lon = T.nearest_search(lons, x + 180)
+        df.loc[len(df), core_name] = v[0,lat,lon]
+    f.close()
 
-subfolder = 'wetdry'
+var2subfolder = {'drybc': 'cmip6', 'loadbc': 'loadbc', 'sootsn': 'cesm-sootsn'}
+subfolder = var2subfolder[target_v]
+if subfolder == 'cmip' and cesm_mode:
+    subfolder = 'cesm-wetdry'
 df.to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'nco.csv'))
 
 print('everthing is finished!')
