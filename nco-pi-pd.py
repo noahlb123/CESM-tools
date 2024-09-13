@@ -7,6 +7,7 @@ import numpy as np
 T = ToolBox()
 
 #DRY MUST COME FIRST IF USING WET DRY PAIRS
+bad_boy_mode = True #should the output be written in the cwd
 main_dict = {}
 if len(sys.argv) < 2:
     raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <name of .nc file with lowest resolution grid>')
@@ -225,7 +226,8 @@ var2subfolder = {'drybc': 'cmip6', 'loadbc': 'loadbc', 'sootsn': 'cesm-sootsn'}
 subfolder = var2subfolder[target_v]
 if subfolder == 'cmip' and cesm_mode:
     subfolder = 'cesm-wetdry'
-df.to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'nco.csv'))
+output_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'nco.csv') if bad_boy_mode else os.getcwd()
+df.to_csv(output_path)
 
 print('everthing is finished!')
 
