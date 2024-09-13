@@ -29,7 +29,7 @@ def get_years(filename):
     years = filename[filename.rfind('_') + 1:filename.rfind(".")].split('-')
     years = [int(year[0:4]) for year in years]
     print(years)
-    print('reasonable years?: ' + ' '.join(years))
+    print('reasonable years?:', years[0], years[1])
     return years
 
 def contains(years, target_year):
