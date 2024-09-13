@@ -227,7 +227,7 @@ if subfolder == 'cmip' and cesm_mode:
 output_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'nco.csv') if bad_boy_mode else os.getcwd()
 df.to_csv(output_path)
 
-print('everthing is finished!')
+print('nco.csv saved to ' + output_path + '!')
 
 #todo:
 #remove nan and infinity from all files, I can do this using my notes
