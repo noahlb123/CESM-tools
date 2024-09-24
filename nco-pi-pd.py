@@ -190,12 +190,12 @@ for base, files in bins.items():
     to_eval += 'ncra ' + ' '.join(files) + ' ' + base + '.nc -O && '
     bases.append(base + '.nc')
 
-to_eval += 'echo "nco workflow done!"'
 to_eval = evaluate(to_eval)
 
 #comand to average files
-#to_eval += 'echo "averaging..." && '
-#to_eval += 'ncra ' + ' '.join(bases) + ' output.nc -O && '
+to_eval += 'echo "averaging..." && '
+to_eval += 'ncra ' + ' '.join(bases) + ' output.nc -O && '
+to_eval += 'echo "nco workflow done!"'
 evaluate(to_eval)
 
 
@@ -228,7 +228,7 @@ var2subfolder = {'drybc': 'cmip6', 'loadbc': 'loadbc', 'sootsn': 'cesm-sootsn'}
 subfolder = var2subfolder[target_v]
 if subfolder == 'cmip' and cesm_mode:
     subfolder = 'cesm-wetdry'
-output_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'nco.csv') if not bad_boy_mode else os.path.join(os.getcwd(), 'nco.csv')
+output_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'nco.csv') if not bad_boy_mode else os.path.join(os.getcwd(), target_v + '.csv')
 df.to_csv(output_path)
 
 print('nco.csv saved to ' + output_path + '!')
