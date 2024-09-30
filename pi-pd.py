@@ -14,13 +14,10 @@ import matplotlib.patheffects as pe
 from matplotlib import colormaps
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
-#from scipy.integrate import quad
-#from scipy.stats import lognorm
+from scipy.stats import gaussian_kde
 from scipy.stats import norm
 from scipy.stats import iqr
-#import statsmodels.api as sm
 #import plotly.express as px
-#from netCDF4 import Dataset
 import numpy as np
 import platform
 #import cartopy
@@ -231,39 +228,57 @@ elif (inp == 'd'): #pd hists
     plt.savefig('figures/ice-cores/pd-recent.png', dpi=200)
     plt.close()
 elif (inp == 'n'): #table of ice core numbers and filenames
-    #todo: make everything pdfs and make two figures, one that changes only pi and one that changes only pd
+    def plot_pdf(data, plt, color):
+        kde = gaussian_kde(data)
+        dist_space = np.linspace(0, 2, 100)
+        plt.plot(dist_space, kde(dist_space), color=color)
     diff_mode = False
     #setup data
     filenames = [x['filename'] for x in main_dict.values()]
     ratios = [x['ratio'] for x in main_dict.values()]
     index = [i + 1 for i in range(len(filenames))]
-    df_n = pd.DataFrame({'core index': pd.Series(index, index=filenames), 'filename': pd.Series(filenames, index=filenames), '1980/1850': pd.Series(ratios, index=filenames)}, index=filenames)
-    df_n = df_n.drop(['filename'], axis=1)
-    colors = {}
-    i = 1
-    fix, ax = plt.subplots(figsize=(4, 2), dpi=300)
-    bins = [2/5 * x for x in range(6)]
-    ax.hist(ratios, bins=bins, histtype='step', color=list(patches.values())[0][4])
-    plt.xticks(ticks=bins)
-    legend_elements = [Patch(facecolor=list(patches.values())[0][4], label='1980/1850')]
-    for key in main_dict[filenames[0]].keys():
-        if '/' in key and key != '1980/1850':
-            colors[key] = list(patches.values())[i % len(patches)][4]
-            ratio = pd.Series([x[key] for x in main_dict.values()], index=filenames)
-            if diff_mode:
-                diff = ratio.sub(df_n['1980/1850']).div(ratio)
-                df_n.insert(len(df_n.columns), key, diff)
-            else:
-                df_n.insert(len(df_n.columns), key, ratio)
-            ax.hist(ratio, bins=bins, histtype='step', color=colors[key])
-            legend_elements.append(Patch(facecolor=colors[key], label=key))
-            i += 1
-    ax.legend(handles=legend_elements, loc='center left', bbox_to_anchor=(1, 0.5))
+    df_n = pd.DataFrame({'core index': pd.Series(index, index=filenames), '1980/1850': pd.Series(ratios, index=filenames)}, index=filenames)
+    for era in ['pi', 'pd']:
+        sorted_keys = list(main_dict[filenames[0]].keys())
+        sorted_keys.sort()
+        '''if era == 'pd':
+            sorted_keys = list(reversed(sorted_keys))'''
+        cmap = colormaps['Greys']
+        color_list = list(reversed([cmap(i) for i in range(cmap.N)][51::64]))
+        fix, ax = plt.subplots(figsize=(4, 2), dpi=300)
+        bins = [2/5 * x for x in range(6)]
+        plt.xticks(ticks=bins)
+        if era == 'pi':
+            i = 0
+            plot_pdf(ratios, plt, color_list[2])
+            legend_elements = pd.Series(data=[Patch(facecolor=color_list[2], label='1980/1850')], index=[1850 if era == 'pd' else 1980])
+        else:
+            i = 0
+            plot_pdf(ratios, plt, color_list[2])
+            legend_elements = pd.Series(data=[Patch(facecolor=color_list[2], label='1980/1850')], index=[1850 if era == 'pd' else 1980])
+        for key in sorted_keys:
+            if '/' in key and key != '1980/1850' and key != '1980/1950':
+                key_pd, key_pi = key.split('/')
+                if (era == 'pi' and key_pi == '1850') or (era == 'pd' and key_pd == '1980'):
+                    ratio = pd.Series([x[key] for x in main_dict.values()], index=filenames)
+                    if diff_mode:
+                        diff = ratio.sub(df_n['1980/1850']).div(ratio)
+                        df_n.insert(len(df_n.columns), key, diff)
+                    else:
+                        df_n.insert(len(df_n.columns), key, ratio)
+                    plot_pdf(ratio, plt, color_list[i])
+                    legend_elements.loc[int(key.split('/')[0 if era == 'pi' else 1])] = (Patch(facecolor=color_list[i], label=key))
+                    i += 1
+                    if era == 'pd' and i == 2:
+                        i += 1
+        legend_elements = legend_elements.sort_index()
+        ax.legend(handles=list(legend_elements), loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.savefig('figures/ice-cores/test-' + era + '-pdfs.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
+        plt.close()
     #setup color scale
     cmap = colormaps['BrBG_r']
     c_norm = Normalize(vmin=0, vmax=2) if not diff_mode else Normalize(vmin=-1, vmax=1)
     #plot with color
-    '''
     vals = np.vectorize(lambda a : round(a, 2))(df_n.to_numpy())
     ax.axis('off')
     colors = cmap(c_norm(vals))
@@ -275,7 +290,7 @@ elif (inp == 'n'): #table of ice core numbers and filenames
     cell_dict = table.get_celld()
     for row in range(len(vals) + 1):
         for c in range(len(vals[0])):
-            cell_dict[(row, c)].set_width(0.1)'''
+            cell_dict[(row, c)].set_width(0.1)
     plt.savefig('figures/ice-cores/test-big-table-pd-comparison.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
 elif (inp == 'big-table'): #make table comparing individual models
     #setup cmip6 data
@@ -448,7 +463,7 @@ elif (inp == 'c'): #Cartopy
         s.add(pub[t.find_nth(pub, " ", 2) + 2:t.find_nth(pub, "-", 2)])
     print(len(s), "unique ice core pubs")
     #print(index_name_map)
-elif (inp == 'l'): #Lens data
+elif (inp == 'l'):
     #setup data:
     models = {
         'LENS': {
@@ -482,67 +497,6 @@ elif (inp == 'l'): #Lens data
             'color': model_colors['CMIP6'],
             }
     }
-    '''models = {
-        'LENS-S1': {
-            'dataset': pd.read_csv('data/model-ice-depo/lens/a10lv30.csv'),
-            'data': {'ratios': None, 'means': None, 'stds': None},
-            'color': '#F5B341',#IBM Design library's colorblind pallete
-            },
-        'LENS-S4': {
-            'dataset': pd.read_csv('data/model-ice-depo/lens/a10lv30s4.csv'),
-            'data': {'ratios': None, 'means': None, 'stds': None},
-            'color': '#CC397C',#IBM Design library's colorblind pallete
-            },
-        'LENS-S8': {
-            'dataset': pd.read_csv('data/model-ice-depo/lens/a10lv30s8.csv'),
-            'data': {'ratios': None, 'means': None, 'stds': None},
-            'color': '#638FF6',#IBM Design library's colorblind pallete
-            },
-        'Ice Core': {
-            'dataset': main_dict,
-            'data': {'ratios': None, 'means': None, 'stds': None},
-            'color': '#6C62E7',
-            }
-    }'''
-    '''models = {
-        'LENS-LV30': {
-            'dataset': pd.read_csv('data/model-ice-depo/lens/a10lv30.csv'),
-            'data': {'ratios': None, 'means': None, 'stds': None},
-            'color': '#F5B341',#IBM Design library's colorblind pallete
-            },
-        'LENS-LV29': {
-            'dataset': pd.read_csv('data/model-ice-depo/lens/a10lv29.csv'),
-            'data': {'ratios': None, 'means': None, 'stds': None},
-            'color': '#CC397C',#IBM Design library's colorblind pallete
-            },
-        'LENS-LV28': {
-            'dataset': pd.read_csv('data/model-ice-depo/lens/a10lv28.csv'),
-            'data': {'ratios': None, 'means': None, 'stds': None},
-            'color': '#638FF6',#IBM Design library's colorblind pallete
-            },
-        'Ice Core': {
-            'dataset': main_dict,
-            'data': {'ratios': None, 'means': None, 'stds': None},
-            'color': '#6C62E7',
-            }
-    }'''
-    '''models = {
-        'CMIP6 PD': {
-            'dataset': pd.read_csv('data/model-ice-depo/cmip6/pd.csv'),
-            'data': {'ratios': None, 'means': None, 'stds': None},
-            'color': '#EE692C',
-            },
-        'CMIP6 PI': {
-            'dataset': pd.read_csv('data/model-ice-depo/cmip6/pi.csv'),
-            'data': {'ratios': None, 'means': None, 'stds': None},
-            'color': '#CC397C',
-            },
-        'Ice Core': {
-            'dataset': main_dict,
-            'data': {'ratios': None, 'means': None, 'stds': None},
-            'color': '#6C62E7',
-            }
-    }'''
     lens_pi = pd.read_csv('data/model-ice-depo/lens/pi.csv')
     lens_avg = models['LENS']['dataset']
     models_datasets = {key: value['dataset'] for key, value in models.items()}
@@ -558,11 +512,13 @@ elif (inp == 'l'): #Lens data
     filenames = []
     lens_stds = []
     background_colors = []
+    order_of_columns = []
     #get model means
     counter = 0
     for col_name in lens_avg.columns:
         if col_name in dont_use:
             continue
+        order_of_columns.append(col_name)
         counter += 1
         background_colors.append(patches[filename_region[col_name]][-1] + '30')
         for model_key in models.keys():
@@ -740,6 +696,74 @@ elif (inp == 'l'): #Lens data
         table.auto_set_font_size(False)
         table.set_fontsize(12)
         plt.savefig('figures/ice-cores/test-table-color.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
+        plt.close()
+    #plot new main figure
+    elif len(sys.argv) >= 3 and sys.argv[2] == 'ln':
+        filenames = [x['filename'] for x in main_dict.values()]
+        ratios = [x['ratio'] for x in main_dict.values()]
+        index = [i + 1 for i in range(len(filenames))]
+        df = pd.DataFrame({
+            'core index': pd.Series(index, index=filenames),
+            'region': pd.Series([filename_region[i] for i in filenames], index=filenames),
+            'Ice Core': pd.Series(ratios, index=filenames),
+            'loadbc': pd.Series(bar_means['loadbc'], index=order_of_columns),
+            'CESM': pd.Series(bar_means['CESM'], index=order_of_columns),
+            'CESM-SOOTSN': pd.Series(bar_means['CESM-SOOTSN'], index=order_of_columns),
+            'CMIP6': pd.Series(bar_means['CMIP6'], index=order_of_columns),
+            'LENS': pd.Series(bar_means['LENS'], index=order_of_columns)
+            }, index=filenames)
+        #remove unneeded columns
+        df = df.drop(['loadbc', 'CESM-SOOTSN'], axis=1)
+        #reformat data
+        region_filename = t.invert_dict_list(filename_region)
+        sorted_regions = list(region_filename.keys())
+        sorted_regions.sort()
+        region_filename = {i: region_filename[i] for i in sorted_regions}
+        data = {model: [] for model in df.columns}
+        del data['core index'], data['region']
+        for model in data.keys():
+            for region in region_filename.keys():
+                data[model].append(df[df['region'] == region][model])
+        #plot
+        fig, ax = plt.subplots(layout='constrained')
+        x = np.arange(len(region_filename.keys()))
+        multiplier = 0
+        width = 0.2
+        bar_labels = list(region_filename.keys())
+        bar_colors = [patches[s][-1] + '30' for s in bar_labels]
+        bar_width = 1
+        box_heights = []
+        for model in df.keys():
+            if model in ['core index', 'region']:
+                continue
+            c = model_colors[model]
+            ca = c + '90'
+            offset = (width) * multiplier
+            bplot = ax.boxplot(data[model], widths=width, positions=x+offset, patch_artist=True, boxprops=dict(facecolor=ca, color=c), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False)
+            for i in range(len(data[model])):
+                #print(i)
+                #print(len(x[i] *), len(data[model][i]))
+                #print((len(data[model][i]) * x[i]), len(data[model][i]))
+                plt.scatter(len(data[model][i]) * [x[i] + offset], data[model][i], c=c, s=8)
+            box_heights += [item.get_ydata()[1] for item in bplot['whiskers']]
+            multiplier += 1
+        bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors)
+        bar_labels[bar_labels.index('South ZAmerica')] = 'South America'
+        plt.xticks(rotation=45)
+        ax.set_yscale('log')
+        ax.set_xticks(x + width * 1.5, bar_labels)
+        ax.set_xlim([x[0] + width * 1.5 - bar_width / 2, x[-1] + width * 1.5 + bar_width / 2])
+        ax.set_ylim([0.2, np.max(box_heights) + 0.1])
+        ax.set_yticks([0.3, 0.5, 1, 2, 4])
+        ax.set_ylabel("1980/1850 Ratio")
+        ax.set_xlabel("Region")
+        ax.get_yaxis().set_major_formatter(ScalarFormatter())
+        #manually setup legend
+        legend_handels = []
+        for model in data.keys():
+            legend_handels.append(Patch(label=model, facecolor=model_colors[model]))
+        ax.legend(handles=legend_handels)
+        plt.savefig('figures/ice-cores/test-new-main.png', bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close()
     #plot variable figure
     if len(sys.argv) >= 3 and sys.argv[2] == 'var':

@@ -225,8 +225,18 @@ class ToolBox:
     #for dicts with structure {'k': ['a', 'b', 'c']}
     def invert_dict_list(self, input_dict):
         output = {}
-        [output.update(d) for d in [{value: key for value in l} for key, l in input_dict.items()]]
+        #if many values for each key
+        if type(list(input_dict.values())[0]) == type([]):
+            [output.update(d) for d in [{value: key for value in l} for key, l in input_dict.items()]]
+        #if one value for each key
+        else:
+            for key, value in input_dict.items():
+                if value in output:
+                    output[value].append(key)
+                else:
+                    output[value] = [key]
         return output
+
     
     def smallest_grid(self, dir, qual_f=lambda s, p: '.nc' in s, f_param=None):
         smallest_name = ''
