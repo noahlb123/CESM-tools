@@ -255,3 +255,10 @@ class ToolBox:
                     small_lat = this_lat
                     small_lon = this_lon
         return smallest_name
+    
+    def any_substrings_in_string(self, substrings, s):
+        lowercase = map(lambda sub: sub.lower(), substrings)
+        for sub in lowercase:
+            if sub in s.lower():
+                return True
+        return False

@@ -10,7 +10,7 @@ T = ToolBox()
 bad_boy_mode = True #should the output be written in the cwd
 main_dict = {}
 if len(sys.argv) < 2:
-    raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <OPTINOAL: name of .nc file with lowest resolution grid>')
+    raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <OPTINOAL: cesm mode (cesm or *)>')
 target_v = sys.argv[1]
 root = sys.argv[2]
 if len(sys.argv) < 3:
@@ -60,7 +60,7 @@ def evaluate(s):
 
 #find start and end files
 for filename in files:
-    if target_v in filename:
+    if target_v in filename and (not cesm_mode or T.any_substrings_in_string(['CanESM', 'CESM'], filename)):
         if (target_v == 'drybc'):
             partner_name = filename.replace('wetbc', 'drybc') if 'wetbc' in filename else filename.replace('drybc', 'wetbc')
         if target_v != 'drybc' or os.path.isfile(os.path.join(root, partner_name)):
