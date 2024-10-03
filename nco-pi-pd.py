@@ -38,6 +38,17 @@ def contains(years, target_year):
 def get_model_name(filename):
     return filename[filename.index(prefix) + len(prefix): filename.index('_historical')]
 
+#check lat lons are all in same format
+def fix_format(lats, lons):
+    changes = [0, 0]
+    coords = (lats, lons)
+    for i in range(2):
+        max_diff = coord_min_maxes[0 + i * 2] - np.max(coords[i])
+        min_diff = coord_min_maxes[1 + i * 2] - np.min(coords[i])
+        if np.abs(max_diff) > 5 or np.abs(min_diff) > 5:
+            changes[i] = np.mean((max_diff, min_diff))
+    return changes
+
 def base_model(model):
         if dir != 'loadbc':
             if 'MIROC6' in model:
@@ -216,6 +227,9 @@ for file in bases:
     f = Dataset(os.path.join(root, file))
     lats = f['lat'][:]
     lons = f['lon'][:]
+    changes = fix_format(lats, lons)
+    lats = lats + changes[0]
+    lons = lons + changes[1]
     times = f['time']
     v = f[target_v][:]
     for core_name in ice_coords.keys():
