@@ -472,7 +472,7 @@ elif (inp == 'l'):
             'color': model_colors['LENS'],#IBM Design library's colorblind pallete
             },
         'CESM': {
-            'dataset': pd.read_csv('data/model-ice-depo/cesm-wetdry/cesm.csv').drop(['model'], axis=1).mean(axis=0),
+            'dataset': pd.read_csv('data/model-ice-depo/cesm-wetdry/drybc.csv').drop(['model'], axis=1).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CESM'],
             },
@@ -486,8 +486,8 @@ elif (inp == 'l'):
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['Ice Core'],
             },
-        'CESM-SOOTSN': {
-            'dataset': pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv').drop(['model'], axis=1).mean(axis=0), #pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv').drop(['model'], axis=1).mean(axis=0),
+        'CESM-SOOTSN': { #changed to intentionally wrong input file
+            'dataset': pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv').drop(['model'], axis=1).replace(to_replace='--', value=np.nan).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CESM-SOOTSN'],
             },
@@ -536,10 +536,7 @@ elif (inp == 'l'):
                 #model_std = np.std(model_ratios.dropna())#scipy.stats.gstd(model_ratios.dropna())
                 model_std = np.std(model_ratios)
                 bar_stds[model_key].append(0)#(model_std)
-                if model_mean <= 5:
-                    bar_means[model_key].append(model_mean)
-                else:
-                    bar_means[model_key].append(4)
+                bar_means[model_key].append(model_mean)
         filenames.append(col_name)
     #resort everything by region
     print('ice core mean', np.mean(bar_means['Ice Core']))
@@ -550,7 +547,7 @@ elif (inp == 'l'):
     #bar_labels, bar_means['CMIP6 PD'], bar_stds['CMIP6 PD'], bar_means['CMIP6 PI'], bar_stds['CMIP6 PI'], background_colors = zip(*sorted(list(zip(bar_labels, bar_means['CMIP6 PD'], bar_stds['CMIP6 PD'], bar_means['CMIP6 PI'], bar_stds['CMIP6 PI'], background_colors))))
     #Remove Duplicate Region Labels
     region_lables = list(map(lambda x: x.split('-')[0], bar_labels))
-    if len(sys.argv) == 2 or sys.argv[2] == 'var':
+    if len(sys.argv) == 2: #or sys.argv[2] == 'var':
         transition_indexes = []
         csv_dict = []
         models_in_csv = set(['Ice Core'])
@@ -739,22 +736,29 @@ elif (inp == 'l'):
             c = model_colors[model]
             ca = c + '90'
             offset = (width) * multiplier
-            bplot = ax.boxplot(data[model], widths=width, positions=x+offset, patch_artist=True, boxprops=dict(facecolor=ca, color=c), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False)
             for i in range(len(data[model])):
-                #print(i)
-                #print(len(x[i] *), len(data[model][i]))
-                #print((len(data[model][i]) * x[i]), len(data[model][i]))
-                plt.scatter(len(data[model][i]) * [x[i] + offset], data[model][i], c=c, s=8)
-            box_heights += [item.get_ydata()[1] for item in bplot['whiskers']]
+                pos = x[i] + offset
+                if len(data[model][i]) != 2:
+                    bplot = ax.boxplot(data[model][i], widths=width, positions=[pos], patch_artist=True, boxprops=dict(facecolor=ca, color=c), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False, showcaps=False, showmeans=False, showbox=True)
+                    box_heights += [item.get_ydata()[1] for item in bplot['whiskers']]
+                else:
+                    plt.plot(2 * [pos], data[model][i], c=c, linewidth=1)
+            for i in range(len(data[model])):
+                if len(data[model][i]) > 1:
+                    plt.scatter(len(data[model][i]) * [x[i] + offset], data[model][i], c=c, s=8)
+                    x_color = 'black'
+                else:
+                    x_color = c
+                plt.scatter(x[i] + offset, np.mean(data[model][i]), c=x_color, s=30, marker='x', zorder=2.5)
             multiplier += 1
-        bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors)
+        bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors, zorder=0)
         bar_labels[bar_labels.index('South ZAmerica')] = 'South America'
         plt.xticks(rotation=45)
         ax.set_yscale('log')
         ax.set_xticks(x + width * 1.5, bar_labels)
         ax.set_xlim([x[0] + width * 1.5 - bar_width / 2, x[-1] + width * 1.5 + bar_width / 2])
         ax.set_ylim([0.2, np.max(box_heights) + 0.1])
-        ax.set_yticks([0.3, 0.5, 1, 2, 4])
+        ax.set_yticks([0.3, 0.5, 1, 2, 4, 7, 10, 20])
         ax.set_ylabel("1980/1850 Ratio")
         ax.set_xlabel("Region")
         ax.get_yaxis().set_major_formatter(ScalarFormatter())
@@ -766,9 +770,9 @@ elif (inp == 'l'):
         #axis labels colors
         for a in plt.gcf().get_axes():
             for i in range(len(bar_labels)):
-                print(bar_labels)
-                #color = patches[filename][-1]
-                #a.get_xticklabels()[i].set_color(color)
+                label = bar_labels[i].replace('South America', 'South ZAmerica')
+                color = patches[label][-1]
+                a.get_xticklabels()[i].set_color(color)
         plt.savefig('figures/ice-cores/test-new-main.png', bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close()
     #plot variable figure
@@ -796,7 +800,7 @@ elif (inp == 'l'):
         data = {key: [] for key in sub.keys()}
         for model in data.keys():
             for region in new_regions.keys():
-                data[model].append(rdf[rdf['region'] == region][model])
+                data[model].append(rdf[rdf['region'] == region][model].dropna())
         #plot
         fig, ax = plt.subplots(layout='constrained')
         x = np.arange(len(list(new_regions.keys())))
@@ -809,11 +813,17 @@ elif (inp == 'l'):
         box_heights = []
         for model in data.keys():
             c = model_colors[model]
+            ca = c + '90'
             offset = width * multiplier
-            bplot = ax.boxplot(data[model], widths=width, positions=x+offset, patch_artist=True, boxprops=dict(facecolor=c, color=c), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c))
+            bplot = ax.boxplot(data[model], widths=width, positions=x + offset, patch_artist=True, boxprops=dict(facecolor=ca, color=c), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False, showcaps=False, showmeans=False, showbox=True)
+            for i in range(len(data[model])):
+                plt.scatter(len(data[model][i]) * [x[i] + offset], data[model][i], c=c, s=8)
+                x_color = 'black'
+                plt.scatter(x[i] + offset, np.mean(data[model][i]), c=x_color, s=30, marker='x', zorder=2.5)
+            #bplot = ax.boxplot(data[model], widths=width, positions=x+offset, patch_artist=True, boxprops=dict(facecolor=c, color=c), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c))
             box_heights += [item.get_ydata()[1] for item in bplot['whiskers']]
             multiplier += 1
-        bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors)
+        bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors, zorder=0)
         ax.set_yscale('log')
         ax.set_xticks(x + width * 1.5, bar_labels)
         ax.set_xlim([x[0] + width * 1.5 - bar_width / 2, x[-1] + width * 1.5 + bar_width / 2])
@@ -1071,6 +1081,6 @@ elif (inp == 't'):
     plt.savefig('figures/ice-cores/test-timesries.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
     plt.close()
 elif (inp == 'z'):#testing
-    pass
+    print()
 
 print("n=" + str(len(main_dict)))

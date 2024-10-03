@@ -82,7 +82,7 @@ for filename in files:
                         main_dict[model_name]['e_file'] = f_name
                         main_dict[model_name]['e_year'] = years[0]
 
-#commands to extract file timeslices
+#commands to extract file timeslices and decadally average
 to_eval += 'echo "extracting timeslices..." && '
 for model_name, d in main_dict.items():
     if d['s_file'] != None and d['e_file'] != None:
@@ -100,10 +100,13 @@ for model_name, d in main_dict.items():
             time_var = f.variables['time']
             times = f['time'][:]
             assert 'days since' in time_var.units
-            time_index = T.nearest_search(times, year)
+            i_start_decade = T.nearest_search(times, year - 5)
+            #time_index = T.nearest_search(times, year)
+            i_end_decade = T.nearest_search(times, year + 5)
             f.close()
             new_filename = model_name + file_suffix + '.nc'
-            to_eval += 'ncks -d time,' + str(time_index) + ' ' + filename + ' ' + new_filename + ' -O && '
+            to_eval += 'ncwa -b -a time -d time,' + str(i_start_decade) + ',' + str(i_end_decade) + ' ' + filename + ' ' + new_filename + ' -O && '
+            #to_eval += 'ncks -d time,' + str(time_index) + ' ' + filename + ' ' + new_filename + ' -O && '
     else:
         #print('doesnt have start and end:', model_name)
         bads.add(model_name)
