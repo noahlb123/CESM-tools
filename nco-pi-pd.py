@@ -13,7 +13,7 @@ if len(sys.argv) < 2:
     raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <OPTINOAL: cesm mode (cesm or *)>')
 target_v = sys.argv[1]
 root = sys.argv[2]
-if len(sys.argv) < 3:
+if len(sys.argv) >= 3:
     cesm_mode = sys.argv[3].lower() == 'cesm'
 smallest_grid = T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), target_v)
 prefix_map = {'sootsn': 'LImon_', 'drybc': 'AERmon_', 'loadbc': 'Eday_'}
