@@ -222,6 +222,7 @@ for file in bases:
         y, x = ice_coords[core_name]
         lat = T.nearest_search(lats, y)
         lon = T.nearest_search(lons, x + 180)
+        print(file, core_name, lat, lon)
         row.at[core_name] = v[0,lat,lon]
     f.close()
     df.loc[len(df)] = row

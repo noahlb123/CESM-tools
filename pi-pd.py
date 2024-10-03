@@ -17,10 +17,11 @@ from matplotlib import rcParams
 from scipy.stats import gaussian_kde
 from scipy.stats import norm
 from scipy.stats import iqr
+from netCDF4 import Dataset
 #import plotly.express as px
 import numpy as np
 import platform
-#import cartopy
+import cartopy
 import scipy
 import tools
 import math
@@ -298,6 +299,7 @@ elif (inp == 'big-table'): #make table comparing individual models
     ratios = [x['ratio'] for x in main_dict.values()]
     index = [i + 1 for i in range(len(filenames))]
     df = pd.DataFrame({'Index': pd.Series(index, index=filenames), 'filename': pd.Series(filenames, index=filenames), 'Ice Core': pd.Series(ratios, index=filenames)}, index=filenames)
+    print(df)
     df = df.drop(['filename'], axis=1)
     cmip_binned = divide_pd_pi(pd.read_csv('data/model-ice-depo/cmip6/binned-pd.csv'), pd.read_csv('data/model-ice-depo/cmip6/binned-pi.csv')).T
     cmip_binned.columns = cmip_binned.loc['model']
@@ -343,28 +345,6 @@ elif (inp == 'big-table'): #make table comparing individual models
     table.auto_set_font_size(False)
     table.set_fontsize(5)
     plt.savefig('figures/ice-cores/test-big-table-cmip-models.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
-elif (inp == 'b'): #box plot
-    for target_w in [5]:
-        data = np.matrix(full_data[target_w])
-        #my_pi = [math.log(x, 10) for x in format_column(data[:,3])]
-        #my_pd = [math.log(x, 10) for x in format_column(data[:,4])]
-        my_pi = format_column(data[:,3])
-        my_pd = format_column(data[:,4])
-        # rectangular box plot
-        fig, ax = plt.subplots()
-        bplot1 = ax.boxplot([my_pi, my_pd], vert=True, labels=[1850, 1980])
-        #ax.set_title('Northern Hemisphere')
-        ax.yaxis.grid(True)
-        ax.set_xlabel('Year')
-        #ax.set_ylabel('PD/PI BC Conc.')
-        #ax.set_yscale('log')
-        #ax.set_yticks([0, 1, 2, 3, 4, 10, 20, 30, 40, 50, 60])
-        #ax.get_xaxis().set_major_formatter(ScalarFormatter())
-        plt.yscale("log")
-        ax.set_ylabel('PD/PI BC Conc.')
-        #plt.ylim(0, 25)
-        #plt.savefig('figures/ice-cores/southern-box.png', dpi=300)
-        plt.show()
 elif (inp == 'p'): #Plotly
     fig = px.scatter_geo(final_pd, lat='lat', lon='lon', hover_name='filename', title='PD/PI Ratios')
     fig.show()
@@ -472,7 +452,7 @@ elif (inp == 'l'):
             'color': model_colors['LENS'],#IBM Design library's colorblind pallete
             },
         'CESM': {
-            'dataset': pd.read_csv('data/model-ice-depo/cesm-wetdry/drybc.csv').drop(['model'], axis=1).mean(axis=0),
+            'dataset': pd.read_csv('data/model-ice-depo/cesm-wetdry/cesm.csv').drop(['model'], axis=1).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CESM'],
             },
@@ -827,7 +807,7 @@ elif (inp == 'l'):
         ax.set_yscale('log')
         ax.set_xticks(x + width * 1.5, bar_labels)
         ax.set_xlim([x[0] + width * 1.5 - bar_width / 2, x[-1] + width * 1.5 + bar_width / 2])
-        ax.set_ylim([0, np.max(box_heights) + 0.1])
+        ax.set_ylim([0, np.partition(box_heights, -2)[-2] + 0.1])
         ax.set_yticks([0.3, 0.5, 1, 2, 4])
         ax.set_ylabel("1980/1850 Ratio")
         ax.set_xlabel("Region")
