@@ -763,6 +763,12 @@ elif (inp == 'l'):
         for model in data.keys():
             legend_handels.append(Patch(label=model, facecolor=model_colors[model]))
         ax.legend(handles=legend_handels)
+        #axis labels colors
+        for a in plt.gcf().get_axes():
+            for i in range(len(bar_labels)):
+                print(bar_labels)
+                #color = patches[filename][-1]
+                #a.get_xticklabels()[i].set_color(color)
         plt.savefig('figures/ice-cores/test-new-main.png', bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close()
     #plot variable figure

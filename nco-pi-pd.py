@@ -10,7 +10,7 @@ T = ToolBox()
 bad_boy_mode = True #should the output be written in the cwd
 main_dict = {}
 if len(sys.argv) < 2:
-    raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <name of .nc file with lowest resolution grid>')
+    raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <OPTINOAL: name of .nc file with lowest resolution grid>')
 target_v = sys.argv[1]
 root = sys.argv[2]
 if len(sys.argv) < 3:
