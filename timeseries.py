@@ -83,9 +83,9 @@ for day in range(len(main)):
 with open("/Users/noahliguori-bills/Downloads/CESM-tools/data/canadian-NEEM-timeseries.csv", 'w') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=['date', 'bc'])
     writer.writeheader()
-    writer.writerows(data)'''
+    writer.writerows(data)
 
-'''plt.scatter(mx, my)
+plt.scatter(mx, my)
 plt.show()'''
 #date is from 10/25/22 to 10/25/23
 #output: 63.05360592510554 ng/g BC
