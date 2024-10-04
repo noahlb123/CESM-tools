@@ -99,8 +99,8 @@ for model_name, d in main_dict.items():
             bads.add(model_name)
             continue
         time_var = f.variables['time']
-        f.close()
         assert 'days since' in time_var.units
+        f.close()
     else:
         #print('doesnt have start and end:', model_name)
         bads.add(model_name)
