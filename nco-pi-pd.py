@@ -237,7 +237,7 @@ for file in bases:
         y, x = ice_coords[core_name]
         lat = T.nearest_search(lats, y)
         lon = T.nearest_search(lons, x + 180)
-        if file == 'chellman-2017-1.csv':
+        if core_name == 'chellman-2017-1.csv':
             print(file, core_name, lats[lat], lons[lon])
             print('target', y, x + 180)
         row.at[core_name] = v[0,lat,lon]
