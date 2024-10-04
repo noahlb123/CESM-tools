@@ -179,3 +179,4 @@ if subfolder == 'cmip' and cesm_mode:
     subfolder = 'cesm-wetdry'
 output_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'nco.png') if not bad_boy_mode else os.path.join(os.getcwd(), target_v + '.png')
 plt.savefig(output_path)
+print('saved to', output_path)
