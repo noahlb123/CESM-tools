@@ -178,4 +178,4 @@ subfolder = var2subfolder[target_v]
 if subfolder == 'cmip' and cesm_mode:
     subfolder = 'cesm-wetdry'
 output_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'nco.csv') if not bad_boy_mode else os.path.join(os.getcwd(), target_v + '.csv')
-plt.save(output_path)
+plt.savefig(output_path)
