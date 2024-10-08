@@ -433,8 +433,8 @@ elif (inp == 'c'): #Cartopy
             #plt.colorbar(mappable=mesh.colorbar, label="Elevation (m)", orientation="horizontal")
         
         #patches
-        '''for patch in patches.values():
-            ax.add_patch(Rectangle(xy=[patch[0], patch[1]], width=patch[2], height=patch[3], facecolor=patch[4] + '50', edgecolor=patch[4],transform=cartopy.crs.PlateCarree()))'''
+        for patch in patches.values():
+            ax.add_patch(Rectangle(xy=[patch[0], patch[1]], width=patch[2], height=patch[3], facecolor=patch[4] + '50', edgecolor=patch[4],transform=cartopy.crs.PlateCarree()))
 
         plt.savefig('figures/ice-cores/testmap-' + projection + '.png', bbox_inches='tight', pad_inches=0.0)
         #plt.show()
