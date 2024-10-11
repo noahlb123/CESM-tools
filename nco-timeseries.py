@@ -105,7 +105,7 @@ for model_name, d in main_dict.items():
         time_var = f.variables['time']
         assert 'days since' in time_var.units
         f.close()
-        to_eval += 'cp filename model_name && '
+        to_eval += 'cp ' + filename + ' ' + model_name + ' && '
     else:
         #print('doesnt have start and end:', model_name)
         bads.add(model_name)
@@ -113,8 +113,6 @@ for model_name, d in main_dict.items():
 valid_er_models = list(set(main_dict.keys()).difference(bads))
 filenames = [model_name + '.nc' for model_name in valid_er_models]
 to_eval = evaluate(to_eval)
-print(filenames)
-exit()
 
 #commands to remove time_bnds variable
 to_eval += 'echo "removing time_bnds variable..." && '
