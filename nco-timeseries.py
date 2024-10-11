@@ -160,7 +160,7 @@ import matplotlib.pyplot as plt
 index_path = 'data/standardized-ice-cores/index.csv'
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
 ice_coords = T.get_ice_coords(index_path, dupe_path)
-s_lat, s_lon = list(ice_coords.values())[0]
+s_lat, s_lon = ice_coords['mcconnell-2007-1.csv']
 x = [i + 0.5 for i in range(1850, 1981)]
 f = Dataset(os.path.join(root, 'output.nc'))
 years = f['time'][:]

@@ -18,7 +18,7 @@ from scipy.stats import gaussian_kde
 from scipy.stats import norm
 from scipy.stats import iqr
 from netCDF4 import Dataset
-#import plotly.express as px
+import plotly.express as px
 import numpy as np
 import platform
 import cartopy

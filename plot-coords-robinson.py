@@ -16,7 +16,7 @@ print('number of coords:', len(df))
 ax = plt.axes(projection=cartopy.crs.Robinson())
 ax.set_extent([-180, 180, -90, 90], crs=cartopy.crs.PlateCarree())
 ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
-plt.scatter(df[lon_name], df[lat_name], c='#E93223', edgecolors='black', linewidth=0.5, marker='.', transform=cartopy.crs.PlateCarree(), zorder=2.5)
+plt.scatter(df[lon_name], df[lat_name], c='#E93223', edgecolors='black', linewidth=1, marker='.', s=120, transform=cartopy.crs.PlateCarree(), zorder=2.5)
 save_path = data_path[0:data_path.rfind('/') + 1] + 'robinson-lat-lons.png'
 plt.savefig(save_path, bbox_inches='tight', pad_inches=0.01, dpi=300)
 
