@@ -141,14 +141,16 @@ for file in filenames:
 to_eval += 'echo "binning..." && '
 bases = []
 for base, files in bins.items():
-    to_eval += 'cdo ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
+    to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
+    print(' '.join(files))
     bases.append(base + '.nc')
 
 to_eval = evaluate(to_eval)
 
 #comand to average files
 to_eval += 'echo "averaging..." && '
-to_eval += 'cdo ensmean ' + ' '.join(bases) + ' output.nc && '
+to_eval += 'cdo -O ensmean ' + ' '.join(bases) + ' output.nc && '
+print(' '.join(bases))
 to_eval += 'echo "nco workflow done!"'
 evaluate(to_eval)
 
