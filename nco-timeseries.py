@@ -148,7 +148,7 @@ to_eval = evaluate(to_eval)
 
 #comand to average files
 to_eval += 'echo "averaging..." && '
-to_eval += 'cdo ensmean ' + ' '.join(bases) + ' output.nc -O && '
+to_eval += 'cdo ensmean ' + ' '.join(bases) + ' output.nc && '
 to_eval += 'echo "nco workflow done!"'
 evaluate(to_eval)
 
