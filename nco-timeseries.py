@@ -141,7 +141,7 @@ for file in filenames:
 to_eval += 'echo "binning..." && '
 bases = []
 for base, files in bins.items():
-    to_eval += 'cdo ensmean ' + ' '.join(files) + ' ' + base + '.nc -O && '
+    to_eval += 'cdo ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
     bases.append(base + '.nc')
 
 to_eval = evaluate(to_eval)
