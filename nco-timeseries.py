@@ -74,10 +74,8 @@ def evaluate(s):
     return 'cd ' + root + ' && '
 
 #find start and end files
-print('filenames:')
 for filename in files:
     if target_v in filename and (not cesm_mode or T.any_substrings_in_string(['CanESM', 'CESM'], filename)):
-        print(filename)
         if (target_v == 'drybc'):
             partner_name = filename.replace('wetbc', 'drybc') if 'wetbc' in filename else filename.replace('drybc', 'wetbc')
         if target_v != 'drybc' or os.path.isfile(os.path.join(root, partner_name)):
@@ -116,7 +114,6 @@ valid_er_models = list(set(main_dict.keys()).difference(bads))
 filenames = [model_name + '.nc' for model_name in valid_er_models]
 to_eval = evaluate(to_eval)
 
-print('cringes:', filenames)
 #commands to remove time_bnds variable
 to_eval += 'echo "removing time_bnds variable..." && '
 for file_name in filenames:
@@ -131,7 +128,6 @@ to_eval += 'echo "regriding..." && '
 for i in range(len(filenames)):
     file_name = filenames[i]
     f = Dataset(root + '/' + file_name)
-    print(file_name)
     to_eval += "ncap2 -O -s '" + target_v + "=double(" + target_v + ");' " + file_name + ' ' + file_name + ' && '
     if f.variables['lat'].shape[0] > smallest_lat_lon_shape[0] or f.variables['lon'].shape[0] > smallest_lat_lon_shape[1]:
         to_eval += 'ncremap -d ' + smallest_grid + ' ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
@@ -153,8 +149,8 @@ for file in filenames:
 to_eval += 'echo "binning..." && '
 bases = []
 for base, files in bins.items():
+    print('cringes:' + ' '.join(files))
     to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
-    print(' '.join(files))
     bases.append(base + '.nc')
 
 to_eval = evaluate(to_eval)
@@ -162,7 +158,6 @@ to_eval = evaluate(to_eval)
 #comand to average files
 to_eval += 'echo "averaging..." && '
 to_eval += 'cdo -O ensmean ' + ' '.join(bases) + ' output.nc && '
-print(' '.join(bases))
 to_eval += 'echo "nco workflow done!"'
 evaluate(to_eval)
 
