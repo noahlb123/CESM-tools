@@ -105,8 +105,7 @@ for model_name, d in main_dict.items():
         time_var = f.variables['time']
         assert 'days since' in time_var.units
         f.close()
-        to_eval += 'cp ' + filename + ' ' + model_name + ' && '
-        print(to_eval)
+        to_eval += 'cp -f' + filename + ' ' + model_name + ' && '
     else:
         #print('doesnt have start and end:', model_name)
         bads.add(model_name)
