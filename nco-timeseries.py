@@ -112,10 +112,7 @@ for model_name, d in main_dict.items():
 
 valid_er_models = list(set(main_dict.keys()).difference(bads))
 filenames = [model_name + '.nc' for model_name in valid_er_models]
-print(to_eval)
 to_eval = evaluate(to_eval)
-print(filenames)
-exit()
 
 #commands to remove time_bnds variable
 to_eval += 'echo "removing time_bnds variable..." && '
