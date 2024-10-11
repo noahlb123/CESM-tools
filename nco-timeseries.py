@@ -51,6 +51,7 @@ def fix_format(lats, lons):
     return changes
 
 def base_model(model):
+        model = model.replace('.nc', '')
         if dir != 'loadbc':
             if 'MIROC6' in model:
                 base_model = 'MIROC'
@@ -107,6 +108,7 @@ for model_name, d in main_dict.items():
 valid_er_models = list(set(main_dict.keys()).difference(bads))
 filenames = [model_name + '.nc' for model_name in valid_er_models]
 
+print('cringes:',filenames )
 #commands to remove time_bnds variable
 to_eval += 'echo "removing time_bnds variable..." && '
 for file_name in filenames:
@@ -120,6 +122,7 @@ to_eval += 'echo "regriding..." && '
 for i in range(len(filenames)):
     file_name = filenames[i]
     f = Dataset(root + '/' + file_name)
+    print(file_name)
     to_eval += "ncap2 -O -s '" + target_v + "=double(" + target_v + ");' " + file_name + ' ' + file_name + ' && '
     if f.variables['lat'].shape[0] > 64 or f.variables['lon'].shape[0] > 128:
         to_eval += 'ncremap -d ' + smallest_grid + ' ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '

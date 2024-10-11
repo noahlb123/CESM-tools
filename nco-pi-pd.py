@@ -51,6 +51,7 @@ def fix_format(lats, lons):
     return changes
 
 def base_model(model):
+        model = model.replace('.nc', '')
         if dir != 'loadbc':
             if 'MIROC6' in model:
                 base_model = 'MIROC'
