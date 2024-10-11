@@ -71,8 +71,10 @@ def evaluate(s):
     return 'cd ' + root + ' && '
 
 #find start and end files
+print('filenames:')
 for filename in files:
     if target_v in filename and (not cesm_mode or T.any_substrings_in_string(['CanESM', 'CESM'], filename)):
+        print(filename)
         if (target_v == 'drybc'):
             partner_name = filename.replace('wetbc', 'drybc') if 'wetbc' in filename else filename.replace('drybc', 'wetbc')
         if target_v != 'drybc' or os.path.isfile(os.path.join(root, partner_name)):
@@ -108,7 +110,7 @@ for model_name, d in main_dict.items():
 valid_er_models = list(set(main_dict.keys()).difference(bads))
 filenames = [model_name + '.nc' for model_name in valid_er_models]
 
-print('cringes:',filenames )
+print('cringes:', filenames)
 #commands to remove time_bnds variable
 to_eval += 'echo "removing time_bnds variable..." && '
 for file_name in filenames:
