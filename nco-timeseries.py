@@ -60,6 +60,8 @@ def base_model(model):
                 base_model = 'MIROC'
             if '-' in model:
                 base_model = model[0:model.index('-')]
+            elif '_' in model:
+                base_model = model[0:model.index('_')]
             else:
                 base_model = model
         else:
