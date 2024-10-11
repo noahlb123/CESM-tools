@@ -15,6 +15,9 @@ target_v = sys.argv[1]
 root = sys.argv[2]
 cesm_mode = sys.argv[3].lower() == 'cesm' if len(sys.argv) >= 4 else False
 smallest_grid = T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), target_v)
+smallest = Dataset(root + '/' + smallest_grid)
+smallest_lat_lon_shape = [smallest.variables['lat'].shape[0], smallest.variables['lon'].shape[1]]
+smallest.close()
 prefix_map = {'sootsn': 'LImon_', 'drybc': 'AERmon_', 'loadbc': 'Eday_'}
 prefix = prefix_map[target_v]
 system = platform.system() #differentiate local and derecho env by sys platform
@@ -117,6 +120,7 @@ print('cringes:', filenames)
 #commands to remove time_bnds variable
 to_eval += 'echo "removing time_bnds variable..." && '
 for file_name in filenames:
+    #testing if this line breaks everything, if these comments are here it does
     #to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
     pass
 
@@ -129,7 +133,7 @@ for i in range(len(filenames)):
     f = Dataset(root + '/' + file_name)
     print(file_name)
     to_eval += "ncap2 -O -s '" + target_v + "=double(" + target_v + ");' " + file_name + ' ' + file_name + ' && '
-    if f.variables['lat'].shape[0] > 64 or f.variables['lon'].shape[0] > 128:
+    if f.variables['lat'].shape[0] > smallest_lat_lon_shape[0] or f.variables['lon'].shape[0] > smallest_lat_lon_shape[1]:
         to_eval += 'ncremap -d ' + smallest_grid + ' ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
         filenames[i] = file_name.replace('.nc', '_re.nc')
     f.close()
