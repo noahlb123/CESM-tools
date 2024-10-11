@@ -112,8 +112,8 @@ for model_name, d in main_dict.items():
 
 valid_er_models = list(set(main_dict.keys()).difference(bads))
 filenames = [model_name + '.nc' for model_name in valid_er_models]
-to_eval = evaluate(to_eval)
 print(to_eval)
+to_eval = evaluate(to_eval)
 print(filenames)
 exit()
 
