@@ -64,6 +64,7 @@ def base_model(model):
                 base_model = model
         else:
             base_model = model
+        print(model, base_model)
         return base_model
 
 def evaluate(s):
