@@ -181,7 +181,7 @@ years = f['time'][:]
 lats = f['lat'][:]
 lons = f['lon'][:]
 changes = fix_format(lats, lons)
-print('min max lons:', np.max(lons), np.min(lons))
+print('lons:', lons)
 print('changes:', changes)
 lats += changes[0]
 lons += changes[1]
