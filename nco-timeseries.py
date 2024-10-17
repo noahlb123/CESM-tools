@@ -180,7 +180,11 @@ years = f['time'][:]
 lat = T.nearest_search(f['lat'], s_lat)
 lon = T.nearest_search(f['lon'], s_lon)
 variable = f[target_v][:,lat,lon]
+print(x)
+print(years)
+print(variable)
 timeseries = np.interp(x, years, variable)
+print(timeseries)
 
 #plot
 plt.plot(x, timeseries)
@@ -193,3 +197,4 @@ if subfolder == 'cmip' and cesm_mode:
 output_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'nco.png') if not bad_boy_mode else os.path.join(os.getcwd(), target_v + '.png')
 plt.savefig(output_path)
 print('saved to', output_path)
+print('t_series max - min:', np.max(timeseries) - np.min(timeseries))
