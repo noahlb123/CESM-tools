@@ -180,8 +180,9 @@ f = Dataset(os.path.join(root, 'output.nc'))
 years = f['time'][:]
 lat = T.nearest_search(f['lat'], s_lat)
 lon = T.nearest_search(f['lon'], s_lon)
+print(lat, lon)
 variable = f[target_v][:,lat,lon]
-print(f[target_v][:])
+print(np.max(variable), np.min(variable))
 timeseries = np.interp(x, years, variable)
 #print(timeseries)
 
