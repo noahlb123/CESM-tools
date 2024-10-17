@@ -44,7 +44,7 @@ def get_model_name(filename):
 
 #check lat lons are all in same format
 def fix_format(lats, lons):
-    coord_min_maxes = (90.0, -90.0, 358.75, 0.0)
+    coord_min_maxes = (90.0, -90.0, 180, -180)
     changes = [0, 0]
     coords = (lats, lons)
     for i in range(2):
