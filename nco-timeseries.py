@@ -10,10 +10,11 @@ T = ToolBox()
 bad_boy_mode = True #should the output be written in the cwd
 main_dict = {}
 if len(sys.argv) < 2:
-    raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <OPTINOAL: cesm mode (cesm or *)>')
+    raise Exception('2 command line arguments required: <varaible name common in all desired files> <root directory> <OPTINOAL: cesm mode (cesm or *)> <OPTINOAL: do nco (True, False)>')
 target_v = sys.argv[1]
 root = sys.argv[2]
 cesm_mode = sys.argv[3].lower() == 'cesm' if len(sys.argv) >= 4 else False
+do_nco = sys.argv[4].lower() == 'true' if len(sys.argv) >= 5 else True
 smallest_grid = T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), target_v)
 smallest = Dataset(root + '/' + smallest_grid)
 smallest_lat_lon_shape = [smallest.variables['lat'].shape[0], smallest.variables['lon'].shape[0]]
@@ -76,93 +77,94 @@ def evaluate(s):
     os.system(s)
     return 'cd ' + root + ' && '
 
-#find start and end files
-for filename in files:
-    if target_v in filename and (not cesm_mode or T.any_substrings_in_string(['CanESM', 'CESM'], filename)):
-        if (target_v == 'drybc'):
-            partner_name = filename.replace('wetbc', 'drybc') if 'wetbc' in filename else filename.replace('drybc', 'wetbc')
-        if target_v != 'drybc' or os.path.isfile(os.path.join(root, partner_name)):
-            partners = [filename, partner_name] if target_v == 'drybc' else [filename]
-            for f_name in partners:
-                model_name = get_model_name(f_name)
-                years = get_years(f_name)
-                if (target_v == 'drybc'):
-                    model_name += '_b' if target_v == 'drybc' and f_name == partner_name else '_a'
-                if contains(years, 1850) and contains(years, 1980):
-                    if model_name not in main_dict:
-                        main_dict[model_name] = {'file': f_name}
-                    else:
-                        main_dict[model_name]['file'] = f_name
+if do_nco:
+    #find start and end files
+    for filename in files:
+        if target_v in filename and (not cesm_mode or T.any_substrings_in_string(['CanESM', 'CESM'], filename)):
+            if (target_v == 'drybc'):
+                partner_name = filename.replace('wetbc', 'drybc') if 'wetbc' in filename else filename.replace('drybc', 'wetbc')
+            if target_v != 'drybc' or os.path.isfile(os.path.join(root, partner_name)):
+                partners = [filename, partner_name] if target_v == 'drybc' else [filename]
+                for f_name in partners:
+                    model_name = get_model_name(f_name)
+                    years = get_years(f_name)
+                    if (target_v == 'drybc'):
+                        model_name += '_b' if target_v == 'drybc' and f_name == partner_name else '_a'
+                    if contains(years, 1850) and contains(years, 1980):
+                        if model_name not in main_dict:
+                            main_dict[model_name] = {'file': f_name}
+                        else:
+                            main_dict[model_name]['file'] = f_name
 
-#filter out bad models
-to_eval += 'echo "extracting timeslices..." && '
-for model_name, d in main_dict.items():
-    if d['file'] != None:
-        filename = d['file']
-        try:
-            f = Dataset(root + '/' + filename)
-        except OSError:
-            #print('wrong format:', model_name)
+    #filter out bad models
+    to_eval += 'echo "extracting timeslices..." && '
+    for model_name, d in main_dict.items():
+        if d['file'] != None:
+            filename = d['file']
+            try:
+                f = Dataset(root + '/' + filename)
+            except OSError:
+                #print('wrong format:', model_name)
+                bads.add(model_name)
+                continue
+            time_var = f.variables['time']
+            assert 'days since' in time_var.units
+            f.close()
+            to_eval += 'cp -f ' + filename + ' ' + model_name + '.nc && '
+        else:
+            #print('doesnt have start and end:', model_name)
             bads.add(model_name)
-            continue
-        time_var = f.variables['time']
-        assert 'days since' in time_var.units
+
+    valid_er_models = list(set(main_dict.keys()).difference(bads))
+    filenames = [model_name + '.nc' for model_name in valid_er_models]
+    to_eval = evaluate(to_eval)
+
+    #commands to remove time_bnds variable
+    to_eval += 'echo "removing time_bnds variable..." && '
+    for file_name in filenames:
+        #testing if this line breaks everything, if these comments are here it does
+        #to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
+        pass
+
+    to_eval = evaluate(to_eval)
+
+    #commands to regrid all models
+    to_eval += 'echo "regriding..." && '
+    for i in range(len(filenames)):
+        file_name = filenames[i]
+        f = Dataset(root + '/' + file_name)
+        to_eval += "ncap2 -O -s '" + target_v + "=double(" + target_v + ");' " + file_name + ' ' + file_name + ' && '
+        if f.variables['lat'].shape[0] > smallest_lat_lon_shape[0] or f.variables['lon'].shape[0] > smallest_lat_lon_shape[1]:
+            to_eval += 'ncremap -d ' + smallest_grid + ' ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
+            filenames[i] = file_name.replace('.nc', '_re.nc')
         f.close()
-        to_eval += 'cp -f ' + filename + ' ' + model_name + '.nc && '
-    else:
-        #print('doesnt have start and end:', model_name)
-        bads.add(model_name)
 
-valid_er_models = list(set(main_dict.keys()).difference(bads))
-filenames = [model_name + '.nc' for model_name in valid_er_models]
-to_eval = evaluate(to_eval)
+    to_eval = evaluate(to_eval)
 
-#commands to remove time_bnds variable
-to_eval += 'echo "removing time_bnds variable..." && '
-for file_name in filenames:
-    #testing if this line breaks everything, if these comments are here it does
-    #to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
-    pass
+    #bin models
+    bins = {}
+    for file in filenames:
+        base = base_model(file)
+        if base in bins:
+            bins[base].append(file)
+        else:
+            bins[base] = [file]
 
-to_eval = evaluate(to_eval)
+    #average bases
+    to_eval += 'echo "binning..." && '
+    bases = []
+    for base, files in bins.items():
+        print('cringes:' + ' '.join(files))
+        to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
+        bases.append(base + '.nc')
 
-#commands to regrid all models
-to_eval += 'echo "regriding..." && '
-for i in range(len(filenames)):
-    file_name = filenames[i]
-    f = Dataset(root + '/' + file_name)
-    to_eval += "ncap2 -O -s '" + target_v + "=double(" + target_v + ");' " + file_name + ' ' + file_name + ' && '
-    if f.variables['lat'].shape[0] > smallest_lat_lon_shape[0] or f.variables['lon'].shape[0] > smallest_lat_lon_shape[1]:
-        to_eval += 'ncremap -d ' + smallest_grid + ' ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
-        filenames[i] = file_name.replace('.nc', '_re.nc')
-    f.close()
+    to_eval = evaluate(to_eval)
 
-to_eval = evaluate(to_eval)
-
-#bin models
-bins = {}
-for file in filenames:
-    base = base_model(file)
-    if base in bins:
-        bins[base].append(file)
-    else:
-        bins[base] = [file]
-
-#average bases
-to_eval += 'echo "binning..." && '
-bases = []
-for base, files in bins.items():
-    print('cringes:' + ' '.join(files))
-    to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
-    bases.append(base + '.nc')
-
-to_eval = evaluate(to_eval)
-
-#comand to average files
-to_eval += 'echo "averaging..." && '
-to_eval += 'cdo -O ensmean ' + ' '.join(bases) + ' output.nc && '
-to_eval += 'echo "nco workflow done!"'
-evaluate(to_eval)
+    #comand to average files
+    to_eval += 'echo "averaging..." && '
+    to_eval += 'cdo -O ensmean ' + ' '.join(bases) + ' output.nc && '
+    to_eval += 'echo "nco workflow done!"'
+    evaluate(to_eval)
 
 #python
 print('begin python workflow...')
