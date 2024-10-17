@@ -262,3 +262,15 @@ class ToolBox:
             if sub in s.lower():
                 return True
         return False
+    
+    def adjust_lat_lon_format(self, lats, lons, lat_min_max=(90, -90), lon_min_max=(180, -180)):
+        coord_min_maxes = lat_min_max + lon_min_max
+        changes = [0, 0]
+        coords = (lats, lons)
+        coord_to_index = {'lat': 0, 'lon': 1}
+        for i in coord_to_index.values():
+            max_diff = coord_min_maxes[0 + i * 2] - np.max(coords[i])
+            min_diff = coord_min_maxes[1 + i * 2] - np.min(coords[i])
+            if np.abs(max_diff) > 5 or np.abs(min_diff) > 5:
+                changes[i] = np.mean((max_diff, min_diff))
+        return (lats + changes[0], lons + changes[1])

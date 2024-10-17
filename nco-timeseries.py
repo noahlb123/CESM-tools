@@ -42,18 +42,6 @@ def contains(years, target_year):
 def get_model_name(filename):
     return filename[filename.index(prefix) + len(prefix): filename.index('_historical')]
 
-#check lat lons are all in same format
-def fix_format(lats, lons):
-    coord_min_maxes = (90.0, -90.0, 180, -180)
-    changes = [0, 0]
-    coords = (lats, lons)
-    for i in range(2):
-        max_diff = coord_min_maxes[0 + i * 2] - np.max(coords[i])
-        min_diff = coord_min_maxes[1 + i * 2] - np.min(coords[i])
-        if np.abs(max_diff) > 5 or np.abs(min_diff) > 5:
-            changes[i] = np.mean((max_diff, min_diff))
-    return changes
-
 def base_model(model):
         model = model.replace('.nc', '')
         if dir != 'loadbc':
@@ -67,7 +55,6 @@ def base_model(model):
                 base_model = model
         else:
             base_model = model
-        print(model, base_model)
         return base_model
 
 def evaluate(s):
@@ -154,7 +141,6 @@ if do_nco:
     to_eval += 'echo "binning..." && '
     bases = []
     for base, files in bins.items():
-        print('cringes:' + ' '.join(files))
         to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
         bases.append(base + '.nc')
 
@@ -174,25 +160,15 @@ index_path = 'data/standardized-ice-cores/index.csv'
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
 ice_coords = T.get_ice_coords(index_path, dupe_path)
 s_lat, s_lon = ice_coords['mcconnell-2007-1.csv']
-print('target lat lon:', s_lat, s_lon)
 x = [365 * (i + 0.5) for i in range(1850, 1981)]
 f = Dataset(os.path.join(root, 'output.nc'))
 years = f['time'][:]
-lats = f['lat'][:]
-lons = f['lon'][:]
-changes = fix_format(lats, lons)
-print('lons:', lons)
-print('changes:', changes)
-lats += changes[0]
-lons += changes[1]
-print('changes lons:', lons)
+lats, lons = T.adjust_lat_lon_format(f['lat'][:], f['lon'][:])
 lat = T.nearest_search(lats, s_lat)
 lon = T.nearest_search(lons, s_lon)
-print('actual lat, lon:', lats[lat], lons[lon])
+assert T.within(lats[lat], s_lat, 5) and T.within(lons[lon], s_lon, 5)
 variable = f[target_v][:,lat,lon]
-print('var max - min:', np.max(variable), np.min(variable))
 timeseries = np.interp(x, years, variable)
-#print(timeseries)
 
 #plot
 plt.plot(x, timeseries)
@@ -205,4 +181,3 @@ if subfolder == 'cmip' and cesm_mode:
 output_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'nco.png') if not bad_boy_mode else os.path.join(os.getcwd(), target_v + '.png')
 plt.savefig(output_path)
 print('saved to', output_path)
-print('t_series max - min:', np.max(timeseries) - np.min(timeseries))
