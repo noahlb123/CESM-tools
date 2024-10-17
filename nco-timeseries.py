@@ -181,8 +181,10 @@ years = f['time'][:]
 lats = f['lat'][:]
 lons = f['lon'][:]
 changes = fix_format(lats, lons)
-lats = lats + changes[0]
-lons = lons + changes[1]
+print(np.max(lons), np.min(lons))
+print(changes)
+lats += changes[0]
+lons += changes[1]
 lat = T.nearest_search(lats, s_lat)
 lon = T.nearest_search(lons, s_lon)
 print(lat, lon)
