@@ -97,9 +97,9 @@ if do_nco:
             f = Dataset(root + '/' + partner)
             wet_arr = f['wetbc'][:]
             f.close()
-            if np.min(wet_arr) >= 0 and not np.max(wet_arr) <= 0:
+            if 'drybc' in f.variables:
                 operation = 'add'
-            elif np.max(wet_arr) <= 0 and not np.min(wet_arr) >= 0:
+            elif 'wetbc' in f.variables:
                 operation = 'sub'
             if np.max(wet_arr) > 10 ** -28 and np.min(wet_arr) < -10 ** -28:
                 raise Exception('this wetbc file contains both negative (' + str(np.min(wet_arr)) + ') and positive values (' + str(np.max(wet_arr)) + '): ' + partner)
