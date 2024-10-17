@@ -91,7 +91,7 @@ if do_nco:
         for model_name in valid_models:
             if '_b' in model_name:
                 continue
-            partner = model_name.replace('_a', '_b')
+            partner = model_name.replace('_a', '_b') + '.nc'
             new_name = model_name.replace('_a', '').replace('.nc', '')
             #get sign of wetbc
             f = Dataset(root + '/' + partner)
