@@ -38,18 +38,6 @@ def contains(years, target_year):
 def get_model_name(filename):
     return filename[filename.index(prefix) + len(prefix): filename.index('_historical')]
 
-#check lat lons are all in same format
-def fix_format(lats, lons):
-    coord_min_maxes = (90.0, -90.0, 358.75, 0.0)
-    changes = [0, 0]
-    coords = (lats, lons)
-    for i in range(2):
-        max_diff = coord_min_maxes[0 + i * 2] - np.max(coords[i])
-        min_diff = coord_min_maxes[1 + i * 2] - np.min(coords[i])
-        if np.abs(max_diff) > 5 or np.abs(min_diff) > 5:
-            changes[i] = np.mean((max_diff, min_diff))
-    return changes
-
 def base_model(model):
         model = model.replace('.nc', '')
         if dir != 'loadbc':
@@ -227,20 +215,17 @@ for file in bases:
     row = pd.Series()
     row.at['model'] = file.replace('.nc', '')
     f = Dataset(os.path.join(root, file))
-    lats = f['lat'][:]
-    lons = f['lon'][:]
-    changes = fix_format(lats, lons)
-    lats = lats + changes[0]
-    lons = lons + changes[1]
+    lats, lons = T.adjust_lat_lon_format(f['lat'][:], f['lon'][:])
     times = f['time']
     v = f[target_v][:]
     for core_name in ice_coords.keys():
         y, x = ice_coords[core_name]
         lat = T.nearest_search(lats, y)
-        lon = T.nearest_search(lons, x + 180)
+        lon = T.nearest_search(lons, x)
+        assert T.within(lats[lat], y, 5) and T.within(lons[lon], x, 5)
         if core_name == 'chellman-2017-1.csv':
             print(file, core_name, lats[lat], lons[lon])
-            print('target', y, x + 180)
+            print('target', y, x)
         row.at[core_name] = v[0,lat,lon]
     f.close()
     df.loc[len(df)] = row

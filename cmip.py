@@ -52,17 +52,6 @@ def filename2modelname(filename):
     end_year = filename[filename.rfind("-") + 1:filename.rfind(".") - dist]
     return model_name, int(start_year), int(end_year)
 
-#check lat lons are all in same format
-def fix_format(lats, lons):
-    changes = [0, 0]
-    coords = (lats, lons)
-    for i in range(2):
-        max_diff = coord_min_maxes[0 + i * 2] - np.max(coords[i])
-        min_diff = coord_min_maxes[1 + i * 2] - np.min(coords[i])
-        if np.abs(max_diff) > 5 or np.abs(min_diff) > 5:
-            changes[i] = np.mean((max_diff, min_diff))
-    return changes
-
 def is_within(s_year, e_year, y):
     return s_year - 10 <= y <= e_year + 10
 
@@ -131,12 +120,8 @@ for era, year in sheets.items():
             #load netcdf file
             f_wet = Dataset(model_path)
             #format arrays
-            lats = f_wet["lat"][:]
-            lons = f_wet["lon"][:]
+            lats, lons = T.adjust_lat_lon_format(f_wet['lat'][:], f_wet['lon'][:])
             wetbc = f_wet[target_v][:]
-            changes = fix_format(lats, lons)
-            lats = lats + changes[0]
-            lons = lons + changes[1]
             times = f_wet["time"]
             total_v = 0
             unit_year = int(times.units[11:15])
@@ -156,6 +141,7 @@ for era, year in sheets.items():
                 y, x = ice_coords[core_name]
                 lat = T.nearest_search(lats, y)
                 lon = T.nearest_search(lons, x + 180)
+                assert T.within(lats[lat], y, 5) and T.within(lons[lon], x + 180, 5)
                 wet_a, wet_y_out = T.get_avgs(times[:], wetbc[:,lat,lon], (year - year_modifier) * 365, [window])
                 if target_v == 'wetbc':
                     dry_a, dry_y_out = T.get_avgs(times[:], drybc[:,lat,lon], (year - year_modifier) * 365, [window])
