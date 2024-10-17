@@ -101,7 +101,7 @@ if do_nco:
                 operation = 'add'
             elif np.max(wet_arr) <= 0 and not np.min(wet_arr) >= 0:
                 operation = 'sub'
-            if np.max(wet_arr) > 10 ** -29 and np.min(wet_arr) < -10 ** -29:
+            if np.max(wet_arr) > 10 ** -28 and np.min(wet_arr) < -10 ** -28:
                 raise Exception('this wetbc file contains both negative (' + str(np.min(wet_arr)) + ') and positive values (' + str(np.max(wet_arr)) + '): ' + partner)
             to_eval += 'ncrename -h -O -v wetbc,drybc ' + partner + ' && '
             to_eval += 'ncbo --op_typ=' + operation + ' ' + model_name + ' ' + partner + ' ' + new_name + '.nc -O && '
