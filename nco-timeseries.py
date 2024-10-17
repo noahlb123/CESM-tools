@@ -138,7 +138,7 @@ if do_nco:
     to_eval += 'echo "removing time_bnds variable..." && '
     for file_name in filenames:
         #testing if this line breaks everything, if these comments are here it does
-        #to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
+        to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
         pass
 
     to_eval = evaluate(to_eval)
@@ -173,7 +173,7 @@ if do_nco:
         for file in files:
             f = Dataset(os.path.join(root, file))
             temp = list(f.variables.keys())
-            print(len(temp), file, temp)
+            #print(len(temp), file, temp)
             f.close()
     for base, files in bins.items():
         to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
@@ -186,7 +186,7 @@ if do_nco:
     for file in bases:
         f = Dataset(os.path.join(root, file))
         temp = list(f.variables.keys())
-        print(len(temp), file, temp)
+        #print(len(temp), file, temp)
         f.close()
     to_eval += 'echo "averaging..." && '
     to_eval += 'cdo -O ensmean ' + ' '.join(bases) + ' output.nc && '
