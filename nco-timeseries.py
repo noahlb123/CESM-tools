@@ -175,7 +175,7 @@ if do_nco:
         for file in files:
             f = Dataset(os.path.join(root, file))
             temp = list(f.variables.keys())
-            print(len(temp), file, temp)
+            print(len(temp), f.variables['lat'].shape[0], f.variables['lon'].shape[0], file, temp)
             f.close()
     for base, files in bins.items():
         to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
@@ -188,7 +188,7 @@ if do_nco:
     for file in bases:
         f = Dataset(os.path.join(root, file))
         temp = list(f.variables.keys())
-        print(len(temp), file, temp)
+        print(len(temp), f.variables['lat'].shape[0], f.variables['lon'].shape[0], file, temp)
         f.close()
     to_eval += 'echo "averaging..." && '
     to_eval += 'cdo -O ensmean ' + ' '.join(bases) + ' output.nc && '
