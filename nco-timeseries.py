@@ -168,6 +168,10 @@ if do_nco:
     #average bases
     to_eval += 'echo "binning..." && '
     bases = []
+    print(list(bins.values()))
+    for file in bins.values():
+        f = Dataset(os.path.join(root, file))
+        f.close()
     for base, files in bins.items():
         to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
         bases.append(base + '.nc')
@@ -175,6 +179,7 @@ if do_nco:
     to_eval = evaluate(to_eval)
 
     #comand to average files
+    print(bases)
     to_eval += 'echo "averaging..." && '
     to_eval += 'cdo -O ensmean ' + ' '.join(bases) + ' output.nc && '
     to_eval += 'echo "nco workflow done!"'
@@ -197,6 +202,7 @@ lon = T.nearest_search(lons, s_lon)
 assert T.within(lats[lat], s_lat, 5) and T.within(lons[lon], s_lon, 5)
 variable = f[target_v][:,lat,lon]
 timeseries = np.interp(x, years, variable)
+f.close()
 
 #plot
 plt.plot(x, timeseries)
