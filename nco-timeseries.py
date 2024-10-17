@@ -82,7 +82,28 @@ if do_nco:
                             main_dict[model_name] = {'file': f_name}
                         else:
                             main_dict[model_name]['file'] = f_name
+
+    #filter out bad models
+    to_eval += 'echo "extracting timeslices..." && '
+    for model_name, d in main_dict.items():
+        if d['file'] != None:
+            filename = d['file']
+            try:
+                f = Dataset(root + '/' + filename)
+            except OSError:
+                #print('wrong format:', model_name)
+                bads.add(model_name)
+                continue
+            time_var = f.variables['time']
+            assert 'days since' in time_var.units
+            f.close()
+            to_eval += 'cp -f ' + filename + ' ' + model_name + '.nc && '
+        else:
+            #print('doesnt have start and end:', model_name)
+            bads.add(model_name)
     
+    to_eval = evaluate(to_eval)
+
     #comands to wetbc files with drybc (subtraction)
     if target_v == 'drybc':
         to_eval += 'echo "combining files with partners..." && '
@@ -109,27 +130,7 @@ if do_nco:
         to_eval = evaluate(to_eval)
     else:
         valid_er_models = list(set(main_dict.keys()).difference(bads))
-
-    #filter out bad models
-    to_eval += 'echo "extracting timeslices..." && '
-    for model_name, d in main_dict.items():
-        if d['file'] != None:
-            filename = d['file']
-            try:
-                f = Dataset(root + '/' + filename)
-            except OSError:
-                #print('wrong format:', model_name)
-                bads.add(model_name)
-                continue
-            time_var = f.variables['time']
-            assert 'days since' in time_var.units
-            f.close()
-            to_eval += 'cp -f ' + filename + ' ' + model_name + '.nc && '
-        else:
-            #print('doesnt have start and end:', model_name)
-            bads.add(model_name)
-
-    valid_er_models = list(set(main_dict.keys()).difference(bads))
+    
     filenames = [model_name + '.nc' for model_name in valid_er_models]
     to_eval = evaluate(to_eval)
 
