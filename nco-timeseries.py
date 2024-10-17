@@ -178,8 +178,8 @@ print(s_lat, s_lon)
 x = [365 * (i + 0.5) for i in range(1850, 1981)]
 f = Dataset(os.path.join(root, 'output.nc'))
 years = f['time'][:]
-lats = f['lat']
-lons = f['lon']
+lats = f['lat'][:]
+lons = f['lon'][:]
 changes = fix_format(lats, lons)
 lats = lats + changes[0]
 lons = lons + changes[1]
