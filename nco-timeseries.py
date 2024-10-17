@@ -174,22 +174,22 @@ index_path = 'data/standardized-ice-cores/index.csv'
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
 ice_coords = T.get_ice_coords(index_path, dupe_path)
 s_lat, s_lon = ice_coords['mcconnell-2007-1.csv']
-print(s_lat, s_lon)
+print('target lat lon:', s_lat, s_lon)
 x = [365 * (i + 0.5) for i in range(1850, 1981)]
 f = Dataset(os.path.join(root, 'output.nc'))
 years = f['time'][:]
 lats = f['lat'][:]
 lons = f['lon'][:]
 changes = fix_format(lats, lons)
-print(np.max(lons), np.min(lons))
-print(changes)
+print('min max lons:', np.max(lons), np.min(lons))
+print('changes:', changes)
 lats += changes[0]
 lons += changes[1]
 lat = T.nearest_search(lats, s_lat)
 lon = T.nearest_search(lons, s_lon)
-print(lat, lon)
+print('actual lat, lon:', lat, lon)
 variable = f[target_v][:,lat,lon]
-print(np.max(variable), np.min(variable))
+print('var max - min:', np.max(variable), np.min(variable))
 timeseries = np.interp(x, years, variable)
 #print(timeseries)
 
