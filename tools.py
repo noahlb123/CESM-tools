@@ -167,7 +167,7 @@ class ToolBox:
             n -= 1
         return start
     
-    def within(a, b, range):
+    def within(self, a, b, range):
         return np.abs(a - b) <= range
     
     #lat:float (-90, 90), lon:float (-180, 180), res: width in degrees of gridbox
