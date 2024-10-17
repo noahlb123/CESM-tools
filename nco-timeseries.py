@@ -185,6 +185,7 @@ print('lons:', lons)
 print('changes:', changes)
 lats += changes[0]
 lons += changes[1]
+print('changes lons:', lons)
 lat = T.nearest_search(lats, s_lat)
 lon = T.nearest_search(lons, s_lon)
 print('actual lat, lon:', lat, lon)
