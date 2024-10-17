@@ -180,11 +180,9 @@ years = f['time'][:]
 lat = T.nearest_search(f['lat'], s_lat)
 lon = T.nearest_search(f['lon'], s_lon)
 variable = f[target_v][:,lat,lon]
-print(x)
-print(years)
-print(variable)
+print(f[target_v])
 timeseries = np.interp(x, years, variable)
-print(timeseries)
+#print(timeseries)
 
 #plot
 plt.plot(x, timeseries)
