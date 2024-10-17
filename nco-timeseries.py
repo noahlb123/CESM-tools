@@ -147,6 +147,7 @@ if do_nco:
 
     #commands to regrid all models
     to_eval += 'echo "regriding..." && '
+    print(filenames)
     for i in range(len(filenames)):
         file_name = filenames[i]
         f = Dataset(root + '/' + file_name)
@@ -162,6 +163,7 @@ if do_nco:
     bins = {}
     for file in filenames:
         base = base_model(file)
+        print(base, file)
         if base in bins:
             bins[base].append(file)
         else:
@@ -171,12 +173,6 @@ if do_nco:
     to_eval += 'echo "binning..." && '
     bases = []
     print(list(bins.values()))
-    for files in bins.values():
-        for file in files:
-            f = Dataset(os.path.join(root, file))
-            temp = list(f.variables.keys())
-            print(len(temp), f.variables['lat'].shape[0], f.variables['lon'].shape[0], file, temp)
-            f.close()
     for base, files in bins.items():
         to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
         bases.append(base + '.nc')
@@ -185,11 +181,6 @@ if do_nco:
 
     #comand to average files
     print(bases)
-    for file in bases:
-        f = Dataset(os.path.join(root, file))
-        temp = list(f.variables.keys())
-        print(len(temp), f.variables['lat'].shape[0], f.variables['lon'].shape[0], file, temp)
-        f.close()
     to_eval += 'echo "averaging..." && '
     to_eval += 'cdo -O ensmean ' + ' '.join(bases) + ' output.nc && '
     to_eval += 'echo "nco workflow done!"'
