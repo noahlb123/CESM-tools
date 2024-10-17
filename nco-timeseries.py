@@ -188,7 +188,7 @@ lons += changes[1]
 print('changes lons:', lons)
 lat = T.nearest_search(lats, s_lat)
 lon = T.nearest_search(lons, s_lon)
-print('actual lat, lon:', lat, lon)
+print('actual lat, lon:', lats[lat], lons[lon])
 variable = f[target_v][:,lat,lon]
 print('var max - min:', np.max(variable), np.min(variable))
 timeseries = np.interp(x, years, variable)
