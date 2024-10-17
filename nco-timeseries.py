@@ -169,9 +169,11 @@ if do_nco:
     to_eval += 'echo "binning..." && '
     bases = []
     print(list(bins.values()))
-    for file in bins.values():
-        f = Dataset(os.path.join(root, file))
-        f.close()
+    for files in bins.values():
+        for file in files:
+            f = Dataset(os.path.join(root, file))
+            print(file, list(f.variables.keys()))
+            f.close()
     for base, files in bins.items():
         to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
         bases.append(base + '.nc')
@@ -180,6 +182,10 @@ if do_nco:
 
     #comand to average files
     print(bases)
+    for file in bases:
+        f = Dataset(os.path.join(root, file))
+        print(file, list(f.variables.keys()))
+        f.close()
     to_eval += 'echo "averaging..." && '
     to_eval += 'cdo -O ensmean ' + ' '.join(bases) + ' output.nc && '
     to_eval += 'echo "nco workflow done!"'
