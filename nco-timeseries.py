@@ -19,6 +19,7 @@ smallest_grid = T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), ta
 smallest = Dataset(root + '/' + smallest_grid)
 smallest_lat_lon_shape = [smallest.variables['lat'].shape[0], smallest.variables['lon'].shape[0]]
 smallest.close()
+print('smallest grid:', smallest_grid, smallest_lat_lon_shape)
 prefix_map = {'sootsn': 'LImon_', 'drybc': 'AERmon_', 'loadbc': 'Eday_'}
 prefix = prefix_map[target_v]
 system = platform.system() #differentiate local and derecho env by sys platform
