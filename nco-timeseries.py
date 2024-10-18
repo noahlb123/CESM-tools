@@ -27,6 +27,12 @@ files = os.listdir(root)
 bads = set([])
 to_eval = 'cd ' + root + ' && '
 
+def print_nc_info(f_list):
+    for file in f_list:
+        f = Dataset(os.path.join(root, file))
+        print(len(f.variables.keys()), file, f.variables['lat'].shape[0], f.variables['lon'].shape[0], list(f.variables.keys()))
+        f.close()
+
 def get_years(filename):
     dist = 4 if target_v == 'loadbc' else 2
     years = filename[filename.rfind('_') + 1:filename.rfind(".")].split('-')
@@ -106,7 +112,7 @@ if do_nco:
 
     #comands to wetbc files with drybc (subtraction)
     if target_v == 'drybc':
-        to_eval += 'echo "combining files with partners..." && '
+        to_eval += 'echo "combining wetbc files with drybc..." && '
         valid_models = list(set(main_dict.keys()).difference(bads))
         valid_er_models = set()
         for model_name in valid_models:
@@ -137,17 +143,17 @@ if do_nco:
     #commands to remove time_bnds variable
     to_eval += 'echo "removing time_bnds variable..." && '
     for file_name in filenames:
-        #testing if this line breaks everything, if these comments are here it does
-        to_eval += 'ncks -C -O -x -v time_bnds ' + file_name + ' ' + file_name + ' -O && '
-        to_eval += 'ncks -C -O -x -v area ' + file_name + ' ' + file_name + ' -O && '
-        to_eval += 'ncks -C -O -x -v gw ' + file_name + ' ' + file_name + ' -O && '
+        to_eval += 'ncks -C -O -x -v time_bnds,area,gw ' + file_name + ' ' + file_name + ' -O && '
+        #to_eval += 'ncks -C -O -x -v area ' + file_name + ' ' + file_name + ' -O && '
+        #to_eval += 'ncks -C -O -x -v gw ' + file_name + ' ' + file_name + ' -O && '
         pass
 
     to_eval = evaluate(to_eval)
 
     #commands to regrid all models
     to_eval += 'echo "regriding..." && '
-    print(filenames)
+    print('pre regrid')
+    print_nc_info(filenames)
     for i in range(len(filenames)):
         file_name = filenames[i]
         f = Dataset(root + '/' + file_name)
@@ -163,7 +169,6 @@ if do_nco:
     bins = {}
     for file in filenames:
         base = base_model(file)
-        print(base, file)
         if base in bins:
             bins[base].append(file)
         else:
@@ -172,15 +177,18 @@ if do_nco:
     #average bases
     to_eval += 'echo "binning..." && '
     bases = []
-    print(list(bins.values()))
+    print('post regrid')
+    print_nc_info([[k] + [bins[k].get(x) for x in bins] for k in bins])
     for base, files in bins.items():
+        to_eval += 'echo "averaging bins..." && '
         to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
         bases.append(base + '.nc')
 
     to_eval = evaluate(to_eval)
 
     #comand to average files
-    print(bases)
+    print('final')
+    print_nc_info(bases)
     to_eval += 'echo "averaging..." && '
     to_eval += 'cdo -O ensmean ' + ' '.join(bases) + ' output.nc && '
     to_eval += 'echo "nco workflow done!"'
