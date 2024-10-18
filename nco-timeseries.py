@@ -140,8 +140,8 @@ if do_nco:
     filenames = [model_name + '.nc' for model_name in valid_er_models]
     to_eval = evaluate(to_eval)
 
-    #commands to remove time_bnds variable
-    to_eval += 'echo "removing time_bnds variable..." && '
+    #commands to remove unneeded variables
+    to_eval += 'echo "removing unneeded variables..." && '
     for file_name in filenames:
         to_eval += 'ncks -C -O -x -v time_bnds,area,gw ' + file_name + ' ' + file_name + ' -O && '
         #to_eval += 'ncks -C -O -x -v area ' + file_name + ' ' + file_name + ' -O && '
@@ -178,7 +178,7 @@ if do_nco:
     to_eval += 'echo "binning..." && '
     bases = []
     print('post regrid')
-    print_nc_info([[k] + [bins[k].get(x) for x in bins] for k in bins])
+    print_nc_info([x for v in bins.values() for x in v])
     for base, files in bins.items():
         to_eval += 'echo "averaging bins..." && '
         to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
