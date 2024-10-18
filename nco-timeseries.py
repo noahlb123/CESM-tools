@@ -19,7 +19,6 @@ smallest_grid = T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), ta
 smallest = Dataset(root + '/' + smallest_grid)
 smallest_lat_lon_shape = [smallest.variables['lat'].shape[0], smallest.variables['lon'].shape[0]]
 smallest.close()
-print('smallest grid:', smallest_grid, smallest_lat_lon_shape)
 prefix_map = {'sootsn': 'LImon_', 'drybc': 'AERmon_', 'loadbc': 'Eday_'}
 prefix = prefix_map[target_v]
 system = platform.system() #differentiate local and derecho env by sys platform
@@ -153,20 +152,17 @@ if do_nco:
 
     #commands to regrid all models
     to_eval += 'echo "regriding..." && '
-    print('pre regrid')
-    print(filenames)
-    print_nc_info(filenames)
     for i in range(len(filenames)):
         file_name = filenames[i]
         f = Dataset(root + '/' + file_name)
         to_eval += "ncap2 -O -s '" + target_v + "=double(" + target_v + ");' " + file_name + ' ' + file_name + ' && '
         if f.variables['lat'].shape[0] > smallest_lat_lon_shape[0] or f.variables['lon'].shape[0] > smallest_lat_lon_shape[1]:
+            to_eval += 'rm ' + file_name.replace('.nc', '_re.nc') + ' && '
             to_eval += 'ncremap -d ' + smallest_grid + ' ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
             to_eval += 'ncks -C -O -x -v time_bnds,area,gw ' + file_name.replace('.nc', '_re.nc') + ' ' + file_name.replace('.nc', '_re.nc') + ' -O && '
             filenames[i] = file_name.replace('.nc', '_re.nc')
         f.close()
 
-    print(to_eval)
     to_eval = evaluate(to_eval)
 
     #bin models
@@ -181,9 +177,6 @@ if do_nco:
     #average bases
     to_eval += 'echo "binning..." && '
     bases = []
-    print('post regrid')
-    print([x for v in bins.values() for x in v])
-    print_nc_info([x for v in bins.values() for x in v])
     for base, files in bins.items():
         to_eval += 'echo "averaging bins..." && '
         to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
@@ -192,9 +185,6 @@ if do_nco:
     to_eval = evaluate(to_eval)
 
     #comand to average files
-    print('final')
-    print(bases)
-    print_nc_info(bases)
     to_eval += 'echo "averaging..." && '
     to_eval += 'cdo -O ensmean ' + ' '.join(bases) + ' output.nc && '
     to_eval += 'echo "nco workflow done!"'
@@ -218,6 +208,7 @@ try:
     assert T.within(lats[lat], s_lat, 5) and T.within(lons[lon], s_lon, 5)
 except AssertionError:
     print('[actual, target] lat, lon:', lats[lat], s_lat, lons[lon], s_lon)
+    exit()
 variable = f[target_v][:,lat,lon]
 timeseries = np.interp(x, years, variable)
 pd.DataFrame(index=x, columns=[target_v], data=timeseries).to_csv(target_v + '.csv')

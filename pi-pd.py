@@ -1021,6 +1021,11 @@ elif (inp == 's'): #smoothing
                     plt.plot(x, y)
                 plt.legend(fracs)
                 plt.show()
+#new timeseries
+elif (inp == 'nt'):
+    timeseries = ['loadbc', 'drybc', 'sootsn']
+    for series in timeseries:
+        df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', series + '.csv'))
 #timeseries
 elif (inp == 't'):
     df_time = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'binned-timeseries.csv'))
