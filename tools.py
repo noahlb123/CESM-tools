@@ -226,7 +226,7 @@ class ToolBox:
     def invert_dict_list(self, input_dict):
         output = {}
         #if many values for each key
-        if type(list(input_dict.values())[0]) == type([]):
+        if type(list(input_dict.values())[0]) in [type([]), type(pd.Series([0]))]:
             [output.update(d) for d in [{value: key for value in l} for key, l in input_dict.items()]]
         #if one value for each key
         else:
