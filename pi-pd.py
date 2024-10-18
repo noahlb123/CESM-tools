@@ -1023,9 +1023,24 @@ elif (inp == 's'): #smoothing
                 plt.show()
 #new timeseries
 elif (inp == 'nt'):
-    timeseries = ['loadbc', 'drybc', 'sootsn']
+    timeseries = ['ice core', 'sootsn']#['loadbc', 'drybc', 'sootsn']
+    colors = {'loadbc': 'red', 'drybc': 'balck', 'sootsn': 'pink', 'ice core': 'blue'}
+    fig, ax = plt.subplots()
     for series in timeseries:
-        df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', series + '.csv'))
+        if series == 'ice core':
+            df = pd.read_csv('data/model-ice-depo/timeseries/timeseries-.csv').mean(axis=1)
+            window = 10
+            data = np.divide(np.cumsum(df), 1)#np.max(np.cumsum(df)))
+            ax.plot([(i + 0.5) for i in range(1850, 1981)], data, c=colors[series], label=series)
+        else:
+            df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', series + '.csv'))
+            window = 10
+            data = np.divide(np.cumsum(df[series]), 1)#np.max(np.cumsum(df[series])))
+            ax.plot([(i + 0.5) for i in range(1850, 1981)], data, c=colors[series], label=series)
+    plt.xlabel("Year (CE)")
+    plt.ylabel("data/max(data)")
+    plt.legend()
+    plt.savefig('figures/ice-cores/timeseries.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
 #timeseries
 elif (inp == 't'):
     df_time = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'binned-timeseries.csv'))
