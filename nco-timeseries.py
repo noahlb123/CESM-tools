@@ -165,6 +165,7 @@ if do_nco:
             filenames[i] = file_name.replace('.nc', '_re.nc')
         f.close()
 
+    print(to_eval)
     to_eval = evaluate(to_eval)
 
     #bin models
