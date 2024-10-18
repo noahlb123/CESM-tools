@@ -160,9 +160,8 @@ if do_nco:
         f = Dataset(root + '/' + file_name)
         to_eval += "ncap2 -O -s '" + target_v + "=double(" + target_v + ");' " + file_name + ' ' + file_name + ' && '
         if f.variables['lat'].shape[0] > smallest_lat_lon_shape[0] or f.variables['lon'].shape[0] > smallest_lat_lon_shape[1]:
-            #to_eval += 'ncremap -O -d ' + smallest_grid + ' ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
-            to_eval += 'ncremap -O -d ' + smallest_grid + ' ' + file_name + ' ' + file_name + ' && '
-            #filenames[i] = file_name.replace('.nc', '_re.nc')
+            to_eval += 'ncremap -d ' + smallest_grid + ' ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
+            filenames[i] = file_name.replace('.nc', '_re.nc')
         f.close()
 
     to_eval = evaluate(to_eval)
