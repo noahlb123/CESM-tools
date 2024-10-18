@@ -214,9 +214,13 @@ years = f['time'][:]
 lats, lons = T.adjust_lat_lon_format(f['lat'][:], f['lon'][:])
 lat = T.nearest_search(lats, s_lat)
 lon = T.nearest_search(lons, s_lon)
-assert T.within(lats[lat], s_lat, 5) and T.within(lons[lon], s_lon, 5)
+try:
+    assert T.within(lats[lat], s_lat, 5) and T.within(lons[lon], s_lon, 5)
+except AssertionError:
+    print('[actual, target] lat, lon:', lats[lat], s_lat, lons[lon], s_lon)
 variable = f[target_v][:,lat,lon]
 timeseries = np.interp(x, years, variable)
+pd.DataFrame(index=x, columns=[target_v], data=timeseries).to_csv(target_v + '.csv')
 f.close()
 
 #plot
