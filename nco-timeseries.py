@@ -198,8 +198,7 @@ if do_nco:
         to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
         bases.append(base + '.nc')
 
-    print(to_eval)
-    to_eval = evaluate(to_eval)
+    #to_eval = evaluate(to_eval)
 
     #comand to average files
     print('final')
@@ -208,7 +207,9 @@ if do_nco:
     to_eval += 'echo "averaging..." && '
     to_eval += 'cdo -O ensmean ' + ' '.join(bases) + ' output.nc && '
     to_eval += 'echo "nco workflow done!"'
-    evaluate(to_eval)
+    #evaluate(to_eval)
+    print('god is dead and you have to manually copy paste this line for this script to work:')
+    print(to_eval)
 
 #python
 print('begin python workflow...')
