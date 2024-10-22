@@ -72,6 +72,7 @@ def evaluate(s):
 
 if do_nco:
     #remove all unneeded files
+    to_eval += 'echo "deleting all unneeded files..." && '
     to_eval += 'rm '
     for filename in files:
         if not ('wget' in filename or 'wetbc' in filename or 'drybc' in filename or os.path.isdir(os.path.join(root, filename))):
@@ -197,6 +198,7 @@ if do_nco:
         to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
         bases.append(base + '.nc')
 
+    print(to_eval)
     to_eval = evaluate(to_eval)
 
     #comand to average files
