@@ -72,12 +72,12 @@ def evaluate(s):
 
 if do_nco:
     #remove all unneeded files
-    to_eval += 'echo "deleting all unneeded files..." && '
+    '''to_eval += 'echo "deleting all unneeded files..." && '
     to_eval += 'rm '
     for filename in files:
         if not ('wget' in filename or 'wetbc' in filename or 'drybc' in filename or os.path.isdir(os.path.join(root, filename))):
             to_eval += filename + ' '
-    to_eval = evaluate(to_eval)
+    to_eval = evaluate(to_eval)'''
 
     #find start and end files
     files = os.listdir(root)
@@ -197,7 +197,10 @@ if do_nco:
         to_eval += 'echo "averaging bins..." && '
         to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
         bases.append(base + '.nc')
-
+    
+    print('god is dead and you have to manually copy paste these lines for this script to work:')
+    print(to_eval)
+    to_eval = ''
     #to_eval = evaluate(to_eval)
 
     #comand to average files
@@ -208,7 +211,6 @@ if do_nco:
     to_eval += 'cdo -O ensmean ' + ' '.join(bases) + ' ' + target_v + '.nc && '
     to_eval += 'echo "nco workflow done!"'
     #evaluate(to_eval)
-    print('god is dead and you have to manually copy paste this line for this script to work:')
     print(to_eval)
 
 #python
@@ -220,7 +222,7 @@ dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
 ice_coords = T.get_ice_coords(index_path, dupe_path)
 s_lat, s_lon = ice_coords['mcconnell-2007-1.csv']
 x = [365 * (i + 0.5) for i in range(1850, 1981)]
-f = Dataset(os.path.join(root, 'output.nc'))
+f = Dataset(os.path.join(root, target_v + '.nc'))
 years = f['time'][:]
 lats, lons = T.adjust_lat_lon_format(f['lat'][:], f['lon'][:])
 lat = T.nearest_search(lats, s_lat)
