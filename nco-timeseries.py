@@ -16,7 +16,8 @@ root = sys.argv[2]
 cesm_mode = sys.argv[3].lower() == 'cesm' if len(sys.argv) >= 4 else False
 do_nco = sys.argv[4].lower() == 'true' if len(sys.argv) >= 5 else True
 smallest_grid = T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), target_v)
-smallest = Dataset(root + '/' + smallest_grid)
+print(os.path.join(root, smallest_grid))
+smallest = Dataset(os.path.join(root, smallest_grid))
 smallest_lat_lon_shape = [smallest.variables['lat'].shape[0], smallest.variables['lon'].shape[0]]
 smallest.close()
 prefix_map = {'sootsn': 'LImon_', 'drybc': 'AERmon_', 'loadbc': 'Eday_'}
