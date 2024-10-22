@@ -30,5 +30,5 @@ for name in pyperclip.paste().split('\n'):
             print(name, end=" ")'''
 
 for filename in pyperclip.paste().split('\n'):
-    if not valid_range(get_years(filename)):
+    if not ('wget' in filename or 'wetbc' in filename or 'drybc' in filename):
         print(filename, end=' ')
