@@ -205,7 +205,7 @@ if do_nco:
     print(bases)
     print_nc_info(bases)
     to_eval += 'echo "averaging..." && '
-    to_eval += 'cdo -O ensmean ' + ' '.join(bases) + ' output.nc && '
+    to_eval += 'cdo -O ensmean ' + ' '.join(bases) + ' ' + target_v + '.nc && '
     to_eval += 'echo "nco workflow done!"'
     #evaluate(to_eval)
     print('god is dead and you have to manually copy paste this line for this script to work:')
