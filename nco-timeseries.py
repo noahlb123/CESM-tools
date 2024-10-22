@@ -71,7 +71,15 @@ def evaluate(s):
     return 'cd ' + root + ' && '
 
 if do_nco:
+    #remove all unneeded files
+    to_eval += 'rm '
+    for filename in files:
+        if not ('wget' in filename or 'wetbc' in filename or 'drybc' in filename or os.path.isdir(os.path.join(root, filename))):
+            to_eval += filename + ' '
+    to_eval = evaluate(to_eval)
+
     #find start and end files
+    files = os.listdir(root)
     for filename in files:
         if target_v in filename and (not cesm_mode or T.any_substrings_in_string(['CanESM', 'CESM'], filename)):
             if (target_v == 'drybc'):
