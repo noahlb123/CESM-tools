@@ -1030,12 +1030,12 @@ elif (inp == 'nt'):
         if series == 'ice core':
             df = pd.read_csv('data/model-ice-depo/timeseries/timeseries-.csv').mean(axis=1)
             window = 10
-            data = np.divide(np.cumsum(df), 1)#np.max(np.cumsum(df)))
+            data = np.divide(df, np.max(df))#f #np.divide(np.cumsum(df), 1)#np.max(np.cumsum(df)))
             ax.plot([(i + 0.5) for i in range(1850, 1981)], data, c=colors[series], label=series)
         else:
             df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', series + '.csv'))
             window = 10
-            data = np.divide(np.cumsum(df[series]), 1)#np.max(np.cumsum(df[series])))
+            data = np.divide(df[series], np.max(df[series])) #np.divide(np.cumsum(df[series]), 1)#np.max(np.cumsum(df[series])))
             ax.plot([(i + 0.5) for i in range(1850, 1981)], data, c=colors[series], label=series)
     plt.xlabel("Year (CE)")
     plt.ylabel("data/max(data)")

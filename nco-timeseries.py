@@ -151,6 +151,9 @@ if do_nco:
     to_eval = evaluate(to_eval)
 
     #commands to regrid all models
+    print('pre regrid')
+    print(filenames)
+    print_nc_info(filenames)
     to_eval += 'echo "regriding..." && '
     for i in range(len(filenames)):
         file_name = filenames[i]
@@ -177,6 +180,9 @@ if do_nco:
     #average bases
     to_eval += 'echo "binning..." && '
     bases = []
+    print('post regrid')
+    print([x for v in bins.values() for x in v])
+    print_nc_info([x for v in bins.values() for x in v])
     for base, files in bins.items():
         to_eval += 'echo "averaging bins..." && '
         to_eval += 'cdo -O ensmean ' + ' '.join(files) + ' ' + base + '.nc && '
@@ -185,6 +191,9 @@ if do_nco:
     to_eval = evaluate(to_eval)
 
     #comand to average files
+    print('final')
+    print(bases)
+    print_nc_info(bases)
     to_eval += 'echo "averaging..." && '
     to_eval += 'cdo -O ensmean ' + ' '.join(bases) + ' output.nc && '
     to_eval += 'echo "nco workflow done!"'
