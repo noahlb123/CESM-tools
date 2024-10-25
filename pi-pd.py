@@ -69,6 +69,7 @@ patches = { #Okabe and Ito colorblind pallet
     'Greenland': (-55, s_g, 35, 90 - s_g, '#880D1E'),
     'East Antarctica': (-180, -60, 180, -30, '#000000'),
     'West Antarctica': (0, -60, 180, -30, '#6CB3E4'),'''
+#IBM Design Library colorblind pallet https://www.nceas.ucsb.edu/sites/default/files/2022-06/Colorblind%20Safe%20Color%20Schemes.pdf
 model_colors = {'CESM': '#EE692C', 'CMIP6': '#CC397C', 'Ice Core': '#6C62E7', 'CESM-SOOTSN': '#638FF6', 'LENS': '#F5B341', 'loadbc': '#CC397C'}
 
 def within_patch(lat, lon, patch, name):
@@ -433,8 +434,8 @@ elif (inp == 'c'): #Cartopy
             #plt.colorbar(mappable=mesh.colorbar, label="Elevation (m)", orientation="horizontal")
         
         #patches
-        for patch in patches.values():
-            ax.add_patch(Rectangle(xy=[patch[0], patch[1]], width=patch[2], height=patch[3], facecolor=patch[4] + '50', edgecolor=patch[4],transform=cartopy.crs.PlateCarree()))
+        '''for patch in patches.values():
+            ax.add_patch(Rectangle(xy=[patch[0], patch[1]], width=patch[2], height=patch[3], facecolor=patch[4] + '50', edgecolor=patch[4],transform=cartopy.crs.PlateCarree()))'''
 
         plt.savefig('figures/ice-cores/testmap-' + projection + '.png', bbox_inches='tight', pad_inches=0.0)
         #plt.show()
@@ -1023,27 +1024,47 @@ elif (inp == 's'): #smoothing
                 plt.show()
 #new timeseries
 elif (inp == 'nt'):
-    timeseries = ['ice core', 'sootsn']#['loadbc', 'drybc', 'sootsn']
-    colors = {'loadbc': 'red', 'drybc': 'balck', 'sootsn': 'pink', 'ice core': 'blue'}
-    fig, ax = plt.subplots()
-    for series in timeseries:
-        if series == 'ice core':
-            df = pd.read_csv('data/model-ice-depo/timeseries/timeseries-.csv').mean(axis=1)
-            window = 10
-            data = np.divide(df, np.max(df))#f #np.divide(np.cumsum(df), 1)#np.max(np.cumsum(df)))
-            ax.plot([(i + 0.5) for i in range(1850, 1981)], data, c=colors[series], label=series)
-        else:
-            df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', series + '.csv'))
-            window = 10
-            data = np.divide(df[series], np.max(df[series])) #np.divide(np.cumsum(df[series]), 1)#np.max(np.cumsum(df[series])))
-            ax.plot([(i + 0.5) for i in range(1850, 1981)], data, c=colors[series], label=series)
-    plt.xlabel("Year (CE)")
-    plt.ylabel("data/max(data)")
-    plt.legend()
-    plt.savefig('figures/ice-cores/timeseries.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
-#timeseries
-elif (inp == 't'):
-    df_time = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'binned-timeseries.csv'))
+    valid_keys_set = set(main_dict.keys())
+    vars2colorkey = {'loadbc': 'loadbc', 'drybc': 'CESM', 'ice core': 'Ice Core', 'sootsn': 'CESM-SOOTSN'}
+    axis_ticks = [(i + 0.5) for i in range(1850, 1981)]
+    figures = {'North Pole': [a_p, 90], 'South Pole': [-90, -60], 'Rest': [-60, a_p]}
+    for fig_name, min_max_lat in figures.items():
+        for mode in ['all-lines', 'one-line']:
+            df = pd.DataFrame(index = axis_ticks)
+            timeseries = []
+            #get data
+            for filename, coords in t.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv').items():
+                if filename in valid_keys_set and min_max_lat[0] <= coords[0] <= min_max_lat[1]:
+                    temp_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', filename)).sort_values(by=['Yr'])
+                    if mode == 'all-lines':
+                        timeseries.append({'x': temp_df['Yr'], 'y': temp_df['BC'], 'group': 'ice core'})
+                    y = np.interp(axis_ticks, temp_df['Yr'], temp_df['BC'])
+                    df[filename] = np.divide(y, np.max(y))
+            timeseries.append({
+                'x': axis_ticks,
+                'y': pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', 'sootsn' + '.csv'))['sootsn'],
+                'group': 'sootsn'
+                })
+            #plot
+            fig, ax = plt.subplots()
+            one_line = df.mean(axis=1)
+            if mode == 'one-line':
+                one_line = np.divide(one_line, one_line.values.max())
+            ax.plot(df.index, one_line, c=model_colors[vars2colorkey['ice core']])
+            for series in timeseries:
+                alpha = 0.1 if series['group'] == 'ice core' else 1
+                y = np.interp(axis_ticks, series['x'], series['y']) if series['group'] == 'ice core' else series['y']
+                y = np.divide(y, np.max(y))
+                ax.plot(axis_ticks, y, c=model_colors[vars2colorkey[series['group']]], alpha=alpha)
+            ax.legend(handles=[Line2D([0], [0], color=model_colors[v], lw=1.5, label=k) for k, v in vars2colorkey.items()])  
+            plt.xlabel("Year (CE)")
+            plt.ylabel("data/max(data)")
+            plt.title(fig_name + ' ' + mode)
+            plt.savefig('figures/ice-cores/timeseries-' + fig_name + '-' + mode + '.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
+            plt.close()
+        print('n ' + fig_name + '= ' + str(len(df.columns)))
+elif (inp == 't'): #timeseries
+    df_time = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', 'binned-timeseries.csv'))
     big_arr = []
     csv_filenames = []
     dont_use = set(['thompson-2002-1.csv', 'liu-2021-1.csv', 'liu-2021-2.csv', 'liu-2021-3.csv', 'liu-2021-4.csv', 'liu-2021-5.csv', 'mcconnell-2022-1.csv'])
@@ -1057,7 +1078,7 @@ elif (inp == 't'):
             y = np.interp(x, name_yr[name], name_bc[name])
             big_arr.append(y)
             csv_filenames.append(name)
-    path = 'data/model-ice-depo/timeseries-.csv'
+    path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', 'timeseries-.csv')
     np.savetxt(path, np.asarray(big_arr).T, delimiter=",", header=','.join(csv_filenames), comments='')
     df_ice = pd.read_csv(path)
     df_time['Ice Core'] = df_ice.mean(axis=1)
