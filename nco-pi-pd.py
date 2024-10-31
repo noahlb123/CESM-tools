@@ -15,7 +15,7 @@ target_v = sys.argv[1]
 root = sys.argv[2]
 cesm_mode = sys.argv[3].lower() == 'cesm' if len(sys.argv) >= 4 else False
 smallest_grid = T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), target_v)
-prefix_map = {'sootsn': 'LImon_', 'drybc': 'AERmon_', 'loadbc': 'Eday_'}
+prefix_map = {'sootsn': 'LImon_', 'drybc': 'AERmon_', 'loadbc': 'Eday_', 'mmrbc': 'AERmon_'}
 prefix = prefix_map[target_v]
 system = platform.system() #differentiate local and derecho env by sys platform
 partners = {}
@@ -222,9 +222,6 @@ for file in bases:
         lat = T.nearest_search(lats, y)
         lon = T.nearest_search(lons, x)
         assert T.within(lats[lat], y, 5) and T.within(lons[lon], x, 5)
-        if core_name == 'chellman-2017-1.csv':
-            print(file, core_name, lats[lat], lons[lon])
-            print('target', y, x)
         row.at[core_name] = v[0,lat,lon]
     f.close()
     df.loc[len(df)] = row
