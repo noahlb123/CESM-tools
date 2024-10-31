@@ -46,13 +46,13 @@ n = 0
 for filename in os.listdir(root):
     if 'wget' not in filename and has_any_target_var(filename) and filename[len(filename) - 3:len(filename)] == '.nc':
         s_year, e_year, model = filename2modelname(filename)
-        if model in model_counts:
-            model_counts[model] += 1
-        else:
-            model_counts[model] = 1
         if not valid_range(s_year, e_year):
             to_eval += filename + ' '
             n += 1
+            if model in model_counts:
+                model_counts[model] += 1
+            else:
+                model_counts[model] = 1
 
 to_eval += '&& echo "removed ' + str(n) + ' files"'
 print(to_eval)
