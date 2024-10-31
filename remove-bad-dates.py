@@ -17,8 +17,8 @@ def has_any_target_var(filename):
     return False
 
 def filename2modelname(filename):
-    start_year = filename[filename.rfind("_") + 1:filename.rfind("-") - 2]
-    end_year = filename[filename.rfind("-") + 1:filename.rfind(".") - 2]
+    start_year = filename[filename.rfind("_") + 1:filename.rfind("-")][0:4]
+    end_year = filename[filename.rfind("-") + 1:filename.rfind(".")][0:4]
     return int(start_year), int(end_year)
 
 def valid_range(s_year, e_year):
@@ -45,5 +45,5 @@ to_eval += '&& echo "removed ' + str(n) + ' files"'
 print(to_eval)
 print('sample year extraction: ' + list(os.listdir(root))[0], filename2modelname(list(os.listdir(root))[0]))
 
-if input('Run the above command? (y/n): ').lower() == 'y':
+if input('Run the command above? (y/n): ').lower() == 'y':
     os.system(to_eval)
