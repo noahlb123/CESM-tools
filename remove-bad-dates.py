@@ -23,6 +23,7 @@ def filename2modelname(filename):
         if v in filename:
             target_v = v
             break
+    prefix = var_prefix_map[target_v]
     start_year = filename[filename.rfind("_") + 1:filename.rfind("-")][0:4]
     end_year = filename[filename.rfind("-") + 1:filename.rfind(".")][0:4]
     model_name = filename[filename.index(prefix) + len(prefix): filename.index('_historical')]
