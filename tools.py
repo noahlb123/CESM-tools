@@ -244,7 +244,10 @@ class ToolBox:
         small_lon = 10000000
         for file in os.listdir(dir):
             if qual_f(file, f_param):
-                f = Dataset(os.path.join(dir, file))
+                try:
+                    f = Dataset(os.path.join(dir, file))
+                except OSError:
+                    continue
                 has_lat_lon = 'lat' in f.variables and 'lat' in f.variables
                 if not has_lat_lon:
                     continue
