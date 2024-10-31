@@ -275,6 +275,8 @@ elif (inp == 'n'): #table of ice core numbers and filenames
                         i += 1
         legend_elements = legend_elements.sort_index()
         ax.legend(handles=list(legend_elements), loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.xlabel('PD/PI')
+        plt.ylabel("Probability")
         plt.savefig('figures/ice-cores/test-' + era + '-pdfs.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
         plt.close()
     #setup color scale
@@ -424,7 +426,8 @@ elif (inp == 'c'): #Cartopy
                     ax.add_patch(Wedge((-34, -8), 4 * scale, 90, -90, fc=color, ec='black', zorder=999999))
                 rcParams.update({'font.size': 12 * scale})
                 if (projection == 'north-pole' and lat >= 60) or (projection == 'antartica' and lat <= -60) or (projection == 'rotated-pole' and -60 <= lat <= 60):
-                    plt.text(lon + offsets[key][0], lat + offsets[key][1], " " + str(i) + modification, c="white", transform=cartopy.crs.PlateCarree(), path_effects=[pe.withStroke(linewidth=2*scale, foreground=stroke_color)])
+                    #plt.text(lon + offsets[key][0], lat + offsets[key][1], " " + str(i) + modification, c="white", transform=cartopy.crs.PlateCarree(), path_effects=[pe.withStroke(linewidth=2*scale, foreground=stroke_color)])
+                    pass
             #plt.plot(lon, lat, c=cmap(norm(math.log(obj['ratio'], 10))), markeredgecolor='black', marker='.', markersize=6, transform=cartopy.crs.PlateCarree())
             index_name_map[i] = key
             i += 1
@@ -1025,7 +1028,7 @@ elif (inp == 's'): #smoothing
 #new timeseries
 elif (inp == 'nt'):
     valid_keys_set = set(main_dict.keys())
-    vars2colorkey = {'loadbc': 'loadbc', 'drybc': 'CESM', 'ice core': 'Ice Core', 'sootsn': 'CESM-SOOTSN'}
+    vars2colorkey = {'ice core': 'Ice Core', 'sootsn': 'CESM-SOOTSN'}#{'loadbc': 'loadbc', 'drybc': 'CESM', 'ice core': 'Ice Core', 'sootsn': 'CESM-SOOTSN'}
     axis_ticks = [(i + 0.5) for i in range(1850, 1981)]
     figures = {'North Pole': [a_p, 90], 'South Pole': [-90, -60], 'Rest': [-60, a_p]}
     for fig_name, min_max_lat in figures.items():
@@ -1039,30 +1042,36 @@ elif (inp == 'nt'):
                     if mode == 'all-lines':
                         timeseries.append({'x': temp_df['Yr'], 'y': temp_df['BC'], 'group': 'ice core'})
                     y = np.interp(axis_ticks, temp_df['Yr'], temp_df['BC'])
-                    df[filename] = np.divide(y, np.max(y))
+                    df[filename] = y #np.divide(y, np.max(y))
             timeseries.append({
                 'x': axis_ticks,
                 'y': pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', 'sootsn' + '.csv'))['sootsn'],
                 'group': 'sootsn'
                 })
+            soot_ax_max = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', 'sootsn' + '.csv'))['sootsn'].values.max()
+            ice_ax_max = df.mean(axis=1).values.max()
             #plot
-            fig, ax = plt.subplots()
-            one_line = df.mean(axis=1)
-            if mode == 'one-line':
-                one_line = np.divide(one_line, one_line.values.max())
-            ax.plot(df.index, one_line, c=model_colors[vars2colorkey['ice core']])
+            fig, ax1 = plt.subplots()
+            ax2 = ax1.twinx()
+            ax2.plot(df.index, df.mean(axis=1), c=model_colors[vars2colorkey['ice core']])
             for series in timeseries:
                 alpha = 0.1 if series['group'] == 'ice core' else 1
                 y = np.interp(axis_ticks, series['x'], series['y']) if series['group'] == 'ice core' else series['y']
-                y = np.divide(y, np.max(y))
+                #y = np.divide(y, np.max(y))
+                ax = ax2 if series['group'] == 'ice core' else ax1
                 ax.plot(axis_ticks, y, c=model_colors[vars2colorkey[series['group']]], alpha=alpha)
-            ax.legend(handles=[Line2D([0], [0], color=model_colors[v], lw=1.5, label=k) for k, v in vars2colorkey.items()])  
+            ax1.legend([Line2D([0], [0], color=model_colors[v], lw=1.5, label=k) for k, v in vars2colorkey.items()], ['ice core', 'sootsn (CESM2-WACCM & CESM2)'], prop={'size': 6})
+            ax1.set_ylabel('kg/m^2')
+            ax1.set_ylim([0, soot_ax_max])
+            ax1.tick_params(axis='y', labelcolor=model_colors[vars2colorkey['sootsn']])
+            ax2.set_ylabel('ng/g')
+            ax2.set_ylim([0, ice_ax_max])
+            ax2.tick_params(axis='y', labelcolor=model_colors[vars2colorkey['ice core']])
             plt.xlabel("Year (CE)")
-            plt.ylabel("data/max(data)")
             plt.title(fig_name + ' ' + mode)
             plt.savefig('figures/ice-cores/timeseries-' + fig_name + '-' + mode + '.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
             plt.close()
-        print('n ' + fig_name + '= ' + str(len(df.columns)))
+        print(fig_name + ' n=' + str(len(df.columns)))
 elif (inp == 't'): #timeseries
     df_time = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', 'binned-timeseries.csv'))
     big_arr = []
