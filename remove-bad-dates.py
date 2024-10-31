@@ -27,7 +27,7 @@ def filename2modelname(filename):
     start_year = filename[filename.rfind("_") + 1:filename.rfind("-")][0:4]
     end_year = filename[filename.rfind("-") + 1:filename.rfind(".")][0:4]
     model_name = filename[filename.index(prefix) + len(prefix): filename.index('_historical')]
-    return int(start_year), int(end_year)
+    return int(start_year), int(end_year), model_name
 
 def valid_range(s_year, e_year):
     for year in [s_year, e_year]:
@@ -41,16 +41,22 @@ def get_years(filename):
     return years
 
 to_eval = 'cd ' + root + ' && rm '
+model_counts = {}
 n = 0
 for filename in os.listdir(root):
     if 'wget' not in filename and has_any_target_var(filename) and filename[len(filename) - 3:len(filename)] == '.nc':
-        s_year, e_year = filename2modelname(filename)
+        s_year, e_year, model = filename2modelname(filename)
+        if model in model_counts:
+            model_counts[model] += 1
+        else:
+            model_counts[model] = 1
         if not valid_range(s_year, e_year):
             to_eval += filename + ' '
             n += 1
 
 to_eval += '&& echo "removed ' + str(n) + ' files"'
 print(to_eval)
+print(model_counts)
 print('sample year extraction: ' + list(os.listdir(root))[0], filename2modelname(list(os.listdir(root))[0]))
 
 if input('Run the command above? (y/n): ').lower() == 'y':
