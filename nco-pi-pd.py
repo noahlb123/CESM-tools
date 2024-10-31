@@ -222,6 +222,8 @@ for file in bases:
         lat = T.nearest_search(lats, y)
         lon = T.nearest_search(lons, x)
         assert T.within(lats[lat], y, 5) and T.within(lons[lon], x, 5)
+        print(np.shape(v))
+        print(0,lat,lon)
         row.at[core_name] = v[0,lat,lon]
     f.close()
     df.loc[len(df)] = row
