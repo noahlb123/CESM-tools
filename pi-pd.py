@@ -302,9 +302,8 @@ elif (inp == 'big-table'): #make table comparing individual models
     ratios = [x['ratio'] for x in main_dict.values()]
     index = [i + 1 for i in range(len(filenames))]
     df = pd.DataFrame({'Index': pd.Series(index, index=filenames), 'filename': pd.Series(filenames, index=filenames), 'Ice Core': pd.Series(ratios, index=filenames)}, index=filenames)
-    print(df)
     df = df.drop(['filename'], axis=1)
-    cmip_binned = divide_pd_pi(pd.read_csv('data/model-ice-depo/cmip6/binned-pd.csv'), pd.read_csv('data/model-ice-depo/cmip6/binned-pi.csv')).T
+    cmip_binned = pd.read_csv('data/model-ice-depo/cmip6/cmip6.csv').T
     cmip_binned.columns = cmip_binned.loc['model']
     cmip_binned = cmip_binned.drop(['model'])
     cmip_binned = cmip_binned.join(cmip_binned.mean(axis=1).rename('CMIP6'))
@@ -811,7 +810,7 @@ elif (inp == 'l'):
         ax.set_yscale('log')
         ax.set_xticks(x + width * 1.5, bar_labels)
         ax.set_xlim([x[0] + width * 1.5 - bar_width / 2, x[-1] + width * 1.5 + bar_width / 2])
-        ax.set_ylim([0, np.partition(box_heights, -2)[-2] + 0.1])
+        ax.set_ylim([np.min(box_heights), np.max(box_heights) + 0.1]) #np.partition(box_heights, -2)[-2] + 0.1])
         ax.set_yticks([0.3, 0.5, 1, 2, 4])
         ax.set_ylabel("1980/1850 Ratio")
         ax.set_xlabel("Region")
