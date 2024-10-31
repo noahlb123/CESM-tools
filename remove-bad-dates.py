@@ -2,6 +2,7 @@ import os
 import sys
 
 target_vars = ['loadbc', 'sootsn', 'mmrbc', 'drybc', 'wetbc']
+var_prefix_map = {'loadbc': 'Eday_', 'sootsn': 'LImon_', 'mmrbc': 'AERmon_', 'wetbc': 'AERmon_', 'drybc': 'AERmon_'}
 start_year = int(sys.argv[1])
 end_year = int(sys.argv[2])
 root = sys.argv[3]
@@ -17,8 +18,14 @@ def has_any_target_var(filename):
     return False
 
 def filename2modelname(filename):
+    target_v = ''
+    for v in target_vars:
+        if v in filename:
+            target_v = v
+            break
     start_year = filename[filename.rfind("_") + 1:filename.rfind("-")][0:4]
     end_year = filename[filename.rfind("-") + 1:filename.rfind(".")][0:4]
+    model_name = filename[filename.index(prefix) + len(prefix): filename.index('_historical')]
     return int(start_year), int(end_year)
 
 def valid_range(s_year, e_year):
