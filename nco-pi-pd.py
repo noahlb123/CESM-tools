@@ -227,6 +227,7 @@ for file in bases:
     f.close()
     df.loc[len(df)] = row
 
+#save csv data files
 var2subfolder = {'drybc': 'cmip6', 'loadbc': 'loadbc', 'sootsn': 'cesm-sootsn'}
 subfolder = var2subfolder[target_v]
 if subfolder == 'cmip' and cesm_mode:
@@ -234,8 +235,13 @@ if subfolder == 'cmip' and cesm_mode:
 output_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'nco.csv') if not bad_boy_mode else os.path.join(os.getcwd(), target_v + '.csv')
 df.to_csv(output_path)
 
+#save csv list of models
+with open(os.path.join(root, "output_models.txt", "w")) as text_file:
+    text_file.write("Models used in output: " + ' '.join(bases))
+
 print('nco.csv saved to ' + output_path + '!')
 
 #todo:
 #remove nan and infinity from all files, I can do this using my notes
 #add 10 year averaging
+#mmrbc has elevation dimension
