@@ -235,7 +235,7 @@ output_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', subfolder, 'nc
 df.to_csv(output_path)
 
 #save csv list of models
-with open(os.path.join(root, "output_models.txt", "w")) as text_file:
+with open(os.path.join(root, "output_models.txt"), "w") as text_file:
     text_file.write("Models used in output: " + ' '.join(bases))
 
 print('nco.csv saved to ' + output_path + '!')
