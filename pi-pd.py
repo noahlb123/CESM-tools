@@ -817,7 +817,7 @@ elif (inp == 'l'):
         ax.get_yaxis().set_major_formatter(ScalarFormatter())
         #manually setup legend
         legend_handels = []
-        leg_dict = {'Ice Core': 'Ice Core', 'loadbc': 'loadbc', 'CESM': 'drybc - wetbc', 'CESM-SOOTSN': 'sootsn'}
+        leg_dict = {'Ice Core': 'Ice Core', 'loadbc': 'BC in air', 'CESM': 'BC deposition to snow', 'CESM-SOOTSN': 'BC in snow'}
         for label in sub.keys():
             if '+' not in label:
                 legend_handels.append(Patch(label=leg_dict[label]))
