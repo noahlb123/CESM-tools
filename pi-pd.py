@@ -460,7 +460,8 @@ elif (inp == 'l'):
             'color': model_colors['CESM'],
             },
         'CMIP6': {
-            'dataset': pd.read_csv('data/model-ice-depo/cmip6/cmip6.csv').drop(['model'], axis=1).mean(axis=0), #pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cmip6', 'alt-method.csv')),
+            #'dataset': pd.read_csv('data/model-ice-depo/cmip6/drybc.csv').loc[pd.read_csv('data/model-ice-depo/cmip6/drybc.csv')['model'] == 'CESM2'],
+            'dataset': pd.read_csv('data/model-ice-depo/cmip6/drybc.csv').drop(['model'], axis=1).mean(axis=0), #pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cmip6', 'alt-method.csv')),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CMIP6'],
             },
@@ -470,11 +471,13 @@ elif (inp == 'l'):
             'color': model_colors['Ice Core'],
             },
         'CESM-SOOTSN': { #changed to intentionally wrong input file
-            'dataset': pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv').drop(['model'], axis=1).replace(to_replace='--', value=np.nan).mean(axis=0),
+            #'dataset': pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv').loc[pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv')['model'] == 'CESM2'],
+            'dataset': pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv').drop(['model'], axis=1).drop([3], axis=0).replace(to_replace='--', value=np.nan).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CESM-SOOTSN'],
             },
         'loadbc': {
+            'dataset': pd.read_csv('data/model-ice-depo/loadbc/loadbc.csv').loc[pd.read_csv('data/model-ice-depo/loadbc/loadbc.csv')['model'] == 'CESM2'],
             'dataset': pd.read_csv('data/model-ice-depo/loadbc/loadbc.csv').drop(['model'], axis=1).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CMIP6'],
@@ -1031,45 +1034,48 @@ elif (inp == 'nt'):
     axis_ticks = [(i + 0.5) for i in range(1850, 1981)]
     figures = {'North Pole': [a_p, 90], 'South Pole': [-90, -60], 'Rest': [-60, a_p]}
     for fig_name, min_max_lat in figures.items():
-        for mode in ['all-lines', 'one-line']:
-            df = pd.DataFrame(index = axis_ticks)
-            timeseries = []
-            #get data
-            for filename, coords in t.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv').items():
-                if filename in valid_keys_set and min_max_lat[0] <= coords[0] <= min_max_lat[1]:
-                    temp_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', filename)).sort_values(by=['Yr'])
-                    if mode == 'all-lines':
-                        timeseries.append({'x': temp_df['Yr'], 'y': temp_df['BC'], 'group': 'ice core'})
-                    y = np.interp(axis_ticks, temp_df['Yr'], temp_df['BC'])
-                    df[filename] = y #np.divide(y, np.max(y))
-            timeseries.append({
-                'x': axis_ticks,
-                'y': pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', 'sootsn' + '.csv'))['sootsn'],
-                'group': 'sootsn'
-                })
-            soot_ax_max = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', 'sootsn' + '.csv'))['sootsn'].values.max()
-            ice_ax_max = df.mean(axis=1).values.max()
-            #plot
-            fig, ax1 = plt.subplots()
-            ax2 = ax1.twinx()
-            ax2.plot(df.index, df.mean(axis=1), c=model_colors[vars2colorkey['ice core']])
-            for series in timeseries:
-                alpha = 0.1 if series['group'] == 'ice core' else 1
-                y = np.interp(axis_ticks, series['x'], series['y']) if series['group'] == 'ice core' else series['y']
-                #y = np.divide(y, np.max(y))
-                ax = ax2 if series['group'] == 'ice core' else ax1
-                ax.plot(axis_ticks, y, c=model_colors[vars2colorkey[series['group']]], alpha=alpha)
-            ax1.legend([Line2D([0], [0], color=model_colors[v], lw=1.5, label=k) for k, v in vars2colorkey.items()], ['ice core', 'sootsn (CESM2-WACCM & CESM2)'], prop={'size': 6})
-            ax1.set_ylabel('kg/m^2')
-            ax1.set_ylim([0, soot_ax_max])
-            ax1.tick_params(axis='y', labelcolor=model_colors[vars2colorkey['sootsn']])
-            ax2.set_ylabel('ng/g')
-            ax2.set_ylim([0, ice_ax_max])
-            ax2.tick_params(axis='y', labelcolor=model_colors[vars2colorkey['ice core']])
-            plt.xlabel("Year (CE)")
-            plt.title(fig_name + ' ' + mode)
-            plt.savefig('figures/ice-cores/timeseries-' + fig_name + '-' + mode + '.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
-            plt.close()
+        mode = 'one-line'
+        df = pd.DataFrame(index = axis_ticks)
+        df_model = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', 'sootsn' + '.csv'))
+        df_model_adj = pd.DataFrame(index = axis_ticks)
+        timeseries = []
+        #get data
+        for filename, coords in t.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv').items():
+            if filename in valid_keys_set and min_max_lat[0] <= coords[0] <= min_max_lat[1]:
+                temp_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', filename)).sort_values(by=['Yr'])
+                if mode == 'all-lines':
+                    timeseries.append({'x': temp_df['Yr'], 'y': temp_df['BC'], 'group': 'ice core'})
+                y = np.interp(axis_ticks, temp_df['Yr'], temp_df['BC'])
+                df[filename] = np.divide(y, np.max(y))
+                df_model_adj[filename] = np.divide(df_model[filename], np.max(df_model[filename]))
+        timeseries.append({
+            'x': axis_ticks,
+            'y': df_model_adj.mean(axis=1),
+            'group': 'sootsn'
+            })
+        soot_ax_max = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', 'sootsn' + '.csv'))['sootsn'].values.max()
+        ice_ax_max = df.mean(axis=1).values.max()
+        #plot
+        fig, ax1 = plt.subplots()
+        ax2 = ax1.twinx()
+        ax2.plot(df.index, df.mean(axis=1), c=model_colors[vars2colorkey['ice core']])
+        for series in timeseries:
+            alpha = 0.1 if series['group'] == 'ice core' else 1
+            y = np.interp(axis_ticks, series['x'], series['y']) if series['group'] == 'ice core' else series['y']
+            #y = np.divide(y, np.max(y))
+            ax = ax2 if series['group'] == 'ice core' else ax1
+            ax.plot(axis_ticks, y, c=model_colors[vars2colorkey[series['group']]], alpha=alpha)
+        ax1.legend([Line2D([0], [0], color=model_colors[v], lw=1.5, label=k) for k, v in vars2colorkey.items()], ['ice core', 'sootsn (CESM2-WACCM & CESM2)'], prop={'size': 6})
+        ax1.set_ylabel('kg/m^2')
+        ax1.set_ylim([0, soot_ax_max])
+        ax1.tick_params(axis='y', labelcolor=model_colors[vars2colorkey['sootsn']])
+        ax2.set_ylabel('ng/g')
+        ax2.set_ylim([0, ice_ax_max])
+        ax2.tick_params(axis='y', labelcolor=model_colors[vars2colorkey['ice core']])
+        plt.xlabel("Year (CE)")
+        plt.title(fig_name + ' ' + mode)
+        plt.savefig('figures/ice-cores/timeseries-' + fig_name + '-' + mode + '.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
+        plt.close()
         print(fig_name + ' n=' + str(len(df.columns)))
 elif (inp == 't'): #timeseries
     df_time = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', 'binned-timeseries.csv'))

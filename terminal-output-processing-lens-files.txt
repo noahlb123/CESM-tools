@@ -800,3 +800,6 @@ ncap2 -s 'new_var=(drybc-wetbc)' output-wet.nc output.nc
 
 #rename variable
 ncrename -h -O -v wetbc,drybc MRI-ESM2-0_b_pi.nc
+
+#delete all files size zero
+find path -size 0 -print -delete
