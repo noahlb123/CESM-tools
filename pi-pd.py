@@ -1029,6 +1029,11 @@ elif (inp == 's'): #smoothing
                 plt.show()
 #new timeseries
 elif (inp == 'nt'):
+    if len(sys.argv) >= 3:
+        sys.argv[2]
+    else:
+        #python3 pi-pd.py nt <path to sootsn file
+        raise Exception('3 command line arguments required: python3 pi-pd.py nt <sootsn file name>')
     valid_keys_set = set(main_dict.keys())
     vars2colorkey = {'ice core': 'Ice Core', 'sootsn': 'CESM-SOOTSN'}#{'loadbc': 'loadbc', 'drybc': 'CESM', 'ice core': 'Ice Core', 'sootsn': 'CESM-SOOTSN'}
     axis_ticks = [(i + 0.5) for i in range(1850, 1981)]

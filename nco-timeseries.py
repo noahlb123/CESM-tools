@@ -221,21 +221,23 @@ index_path = 'data/standardized-ice-cores/index.csv'
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
 ice_coords = T.get_ice_coords(index_path, dupe_path)
 x = [365 * (i + 0.5) for i in range(1850, 1981)]
-f = Dataset(os.path.join(root, target_v + '.nc'))
-years = f['time'][:]
-lats, lons = T.adjust_lat_lon_format(f['lat'][:], f['lon'][:])
-df = pd.DataFrame(index=x)
-for filename, latlon in T.get_ice_coords(index_path, dupe_path).items():
-    s_lat, s_lon = latlon
-    lat = T.nearest_search(lats, s_lat)
-    lon = T.nearest_search(lons, s_lon)
-    try:
-        assert T.within(lats[lat], s_lat, 5) and T.within(lons[lon], s_lon, 5)
-    except AssertionError:
-        print('[actual, target] lat, lon:', lats[lat], s_lat, lons[lon], s_lon)
-        continue
-    variable = f[target_v][:,lat,lon]
-    timeseries = np.interp(x, years, variable)
-    df[filename] = timeseries
-df.to_csv(target_v + '.csv')
-f.close()
+for nc_name in [target_v] + bases:
+    file = nc_name + '.nc'
+    f = Dataset(os.path.join(root, file))
+    years = f['time'][:]
+    lats, lons = T.adjust_lat_lon_format(f['lat'][:], f['lon'][:])
+    df = pd.DataFrame(index=x)
+    for filename, latlon in T.get_ice_coords(index_path, dupe_path).items():
+        s_lat, s_lon = latlon
+        lat = T.nearest_search(lats, s_lat)
+        lon = T.nearest_search(lons, s_lon)
+        try:
+            assert T.within(lats[lat], s_lat, 5) and T.within(lons[lon], s_lon, 5)
+        except AssertionError:
+            print('[actual, target] lat, lon:', lats[lat], s_lat, lons[lon], s_lon)
+            continue
+        variable = f[target_v][:,lat,lon]
+        timeseries = np.interp(x, years, variable)
+        df[filename] = timeseries
+    df.to_csv(nc_name + '.csv')
+    f.close()
