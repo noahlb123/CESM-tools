@@ -221,8 +221,7 @@ index_path = 'data/standardized-ice-cores/index.csv'
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
 ice_coords = T.get_ice_coords(index_path, dupe_path)
 x = [365 * (i + 0.5) for i in range(1850, 1981)]
-for nc_name in [target_v] + bases:
-    file = nc_name + '.nc'
+for nc_name in [target_v + '.nc'] + bases:
     f = Dataset(os.path.join(root, file))
     years = f['time'][:]
     lats, lons = T.adjust_lat_lon_format(f['lat'][:], f['lon'][:])
@@ -239,5 +238,5 @@ for nc_name in [target_v] + bases:
         variable = f[target_v][:,lat,lon]
         timeseries = np.interp(x, years, variable)
         df[filename] = timeseries
-    df.to_csv(nc_name + '.csv')
+    df.to_csv(nc_name[0:len(nc_name) - 3] + '.csv')
     f.close()
