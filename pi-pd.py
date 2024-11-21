@@ -1037,7 +1037,7 @@ elif (inp == 'nt'):
         mode = 'one-line'
         df = pd.DataFrame(index = axis_ticks)
         df_model = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', 'sootsn' + '.csv'))
-        df_model_adj = pd.DataFrame(index = axis_ticks)
+        df_model_adj = pd.DataFrame(index = df_model.index)
         timeseries = []
         #get data
         for filename, coords in t.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv').items():
@@ -1046,18 +1046,21 @@ elif (inp == 'nt'):
                 if mode == 'all-lines':
                     timeseries.append({'x': temp_df['Yr'], 'y': temp_df['BC'], 'group': 'ice core'})
                 y = np.interp(axis_ticks, temp_df['Yr'], temp_df['BC'])
-                df[filename] = np.divide(y, np.max(y))
-                df_model_adj[filename] = np.divide(df_model[filename], np.max(df_model[filename]))
+                df[filename] = y #np.divide(y, np.max(y))
+                if df_model[filename].loc[0] != 0:
+                    df_model_adj[filename] = df_model[filename]
         timeseries.append({
             'x': axis_ticks,
-            'y': df_model_adj.mean(axis=1),
+            'y': df_model_adj.mean(axis=1), #np.divide(df_model_adj.mean(axis=1), np.max(df_model_adj.mean(axis=1))),
             'group': 'sootsn'
             })
-        soot_ax_max = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', 'sootsn' + '.csv'))['sootsn'].values.max()
-        ice_ax_max = df.mean(axis=1).values.max()
+        soot_ax_min_max = [df_model_adj.mean(axis=1).values.min(), df_model_adj.mean(axis=1).values.max()]
+        ice_ax_min_max = [df.mean(axis=1).values.min(), df.mean(axis=1).values.max()]
         #plot
         fig, ax1 = plt.subplots()
         ax2 = ax1.twinx()
+        ax1.set_zorder(ax2.get_zorder()+1)
+        ax1.patch.set_visible(False)
         ax2.plot(df.index, df.mean(axis=1), c=model_colors[vars2colorkey['ice core']])
         for series in timeseries:
             alpha = 0.1 if series['group'] == 'ice core' else 1
@@ -1065,16 +1068,18 @@ elif (inp == 'nt'):
             #y = np.divide(y, np.max(y))
             ax = ax2 if series['group'] == 'ice core' else ax1
             ax.plot(axis_ticks, y, c=model_colors[vars2colorkey[series['group']]], alpha=alpha)
-        ax1.legend([Line2D([0], [0], color=model_colors[v], lw=1.5, label=k) for k, v in vars2colorkey.items()], ['ice core', 'sootsn (CESM2-WACCM & CESM2)'], prop={'size': 6})
+        ax1.legend([Line2D([0], [0], color=model_colors[v], lw=1.5, label=k) for k, v in vars2colorkey.items()], ['ice core', 'sootsn'], prop={'size': 6})
         ax1.set_ylabel('kg/m^2')
-        ax1.set_ylim([0, soot_ax_max])
+        ax1.set_ylim(soot_ax_min_max)
         ax1.tick_params(axis='y', labelcolor=model_colors[vars2colorkey['sootsn']])
         ax2.set_ylabel('ng/g')
-        ax2.set_ylim([0, ice_ax_max])
+        ax2.set_ylim(ice_ax_min_max)
         ax2.tick_params(axis='y', labelcolor=model_colors[vars2colorkey['ice core']])
         plt.xlabel("Year (CE)")
         plt.title(fig_name + ' ' + mode)
-        plt.savefig('figures/ice-cores/timeseries-' + fig_name + '-' + mode + '.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
+        save_path = 'figures/ice-cores/timeseries-' + fig_name + '-' + mode + '.png'
+        plt.savefig(save_path, bbox_inches='tight', pad_inches=0.0, dpi=300)
+        print('saved to ' + save_path)
         plt.close()
         print(fig_name + ' n=' + str(len(df.columns)))
 elif (inp == 't'): #timeseries

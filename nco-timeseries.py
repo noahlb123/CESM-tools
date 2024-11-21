@@ -16,7 +16,6 @@ root = sys.argv[2]
 cesm_mode = sys.argv[3].lower() == 'cesm' if len(sys.argv) >= 4 else False
 do_nco = sys.argv[4].lower() == 'true' if len(sys.argv) >= 5 else True
 smallest_grid = T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), target_v)
-print('small:', smallest_grid)
 smallest = Dataset(os.path.join(root, smallest_grid))
 smallest_lat_lon_shape = [smallest.variables['lat'].shape[0], smallest.variables['lon'].shape[0]]
 smallest.close()
@@ -83,12 +82,13 @@ if do_nco:
     #find start and end files
     files = os.listdir(root)
     for filename in files:
-        if target_v in filename and (not cesm_mode or T.any_substrings_in_string(['CanESM', 'CESM'], filename)):
+        if target_v in filename and (not cesm_mode or T.any_substrings_in_string(['CanESM', 'CESM'], filename)) and filename != target_v + '.nc':
             if (target_v == 'drybc'):
                 partner_name = filename.replace('wetbc', 'drybc') if 'wetbc' in filename else filename.replace('drybc', 'wetbc')
             if target_v != 'drybc' or os.path.isfile(os.path.join(root, partner_name)):
                 partners = [filename, partner_name] if target_v == 'drybc' else [filename]
                 for f_name in partners:
+                    print(f_name)
                     model_name = get_model_name(f_name)
                     years = get_years(f_name)
                     if (target_v == 'drybc'):
