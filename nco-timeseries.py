@@ -88,7 +88,6 @@ if do_nco:
             if target_v != 'drybc' or os.path.isfile(os.path.join(root, partner_name)):
                 partners = [filename, partner_name] if target_v == 'drybc' else [filename]
                 for f_name in partners:
-                    print(f_name)
                     model_name = get_model_name(f_name)
                     years = get_years(f_name)
                     if (target_v == 'drybc'):
@@ -222,7 +221,7 @@ dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
 ice_coords = T.get_ice_coords(index_path, dupe_path)
 x = [365 * (i + 0.5) for i in range(1850, 1981)]
 for nc_name in [target_v + '.nc'] + bases:
-    f = Dataset(os.path.join(root, file))
+    f = Dataset(os.path.join(root, nc_name))
     years = f['time'][:]
     lats, lons = T.adjust_lat_lon_format(f['lat'][:], f['lon'][:])
     df = pd.DataFrame(index=x)

@@ -22,6 +22,7 @@ import plotly.express as px
 import numpy as np
 import platform
 import cartopy
+import random
 import scipy
 import tools
 import math
@@ -1029,36 +1030,39 @@ elif (inp == 's'): #smoothing
                 plt.show()
 #new timeseries
 elif (inp == 'nt'):
-    if len(sys.argv) >= 3:
+    '''if len(sys.argv) >= 3:
         sys.argv[2]
     else:
         #python3 pi-pd.py nt <path to sootsn file
-        raise Exception('3 command line arguments required: python3 pi-pd.py nt <sootsn file name>')
+        raise Exception('3 command line arguments required: python3 pi-pd.py nt <sootsn file name>')'''
     valid_keys_set = set(main_dict.keys())
     vars2colorkey = {'ice core': 'Ice Core', 'sootsn': 'CESM-SOOTSN'}#{'loadbc': 'loadbc', 'drybc': 'CESM', 'ice core': 'Ice Core', 'sootsn': 'CESM-SOOTSN'}
     axis_ticks = [(i + 0.5) for i in range(1850, 1981)]
     figures = {'North Pole': [a_p, 90], 'South Pole': [-90, -60], 'Rest': [-60, a_p]}
+    model_data = {}
     for fig_name, min_max_lat in figures.items():
         mode = 'one-line'
         df = pd.DataFrame(index = axis_ticks)
-        df_model = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', 'sootsn' + '.csv'))
-        df_model_adj = pd.DataFrame(index = df_model.index)
         timeseries = []
-        #get data
-        for filename, coords in t.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv').items():
-            if filename in valid_keys_set and min_max_lat[0] <= coords[0] <= min_max_lat[1]:
-                temp_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', filename)).sort_values(by=['Yr'])
-                if mode == 'all-lines':
-                    timeseries.append({'x': temp_df['Yr'], 'y': temp_df['BC'], 'group': 'ice core'})
-                y = np.interp(axis_ticks, temp_df['Yr'], temp_df['BC'])
-                df[filename] = y #np.divide(y, np.max(y))
-                if df_model[filename].loc[0] != 0:
-                    df_model_adj[filename] = df_model[filename]
-        timeseries.append({
-            'x': axis_ticks,
-            'y': df_model_adj.mean(axis=1), #np.divide(df_model_adj.mean(axis=1), np.max(df_model_adj.mean(axis=1))),
-            'group': 'sootsn'
-            })
+        for csv_file in os.listdir(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries')):
+            if '.csv' == csv_file[len(csv_file) - 4: len(csv_file)]:# and csv_file not in ['CESM2.csv', 'TaiESM1.csv']:
+                df_model = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', csv_file))
+                df_model_adj = pd.DataFrame(index = df_model.index)
+                #get data
+                for filename, coords in t.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv').items():
+                    if filename in valid_keys_set and min_max_lat[0] <= coords[0] <= min_max_lat[1]:
+                        temp_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', filename)).sort_values(by=['Yr'])
+                        if mode == 'all-lines':
+                            timeseries.append({'x': temp_df['Yr'], 'y': temp_df['BC'], 'group': 'ice core'})
+                        y = np.interp(axis_ticks, temp_df['Yr'], temp_df['BC'])
+                        df[filename] = y #np.divide(y, np.max(y))
+                        if not (df_model[filename].loc[0] == 0 or df_model[filename].loc[0] >= np.power(10, 20)):
+                            df_model_adj[filename] = df_model[filename]
+                timeseries.append({
+                    'x': axis_ticks,
+                    'y': df_model_adj.mean(axis=1), #np.divide(df_model_adj.mean(axis=1), np.max(df_model_adj.mean(axis=1))),
+                    'group': csv_file[0: len(csv_file) - 4:]
+                    })
         soot_ax_min_max = [df_model_adj.mean(axis=1).values.min(), df_model_adj.mean(axis=1).values.max()]
         ice_ax_min_max = [df.mean(axis=1).values.min(), df.mean(axis=1).values.max()]
         #plot
@@ -1072,8 +1076,11 @@ elif (inp == 'nt'):
             y = np.interp(axis_ticks, series['x'], series['y']) if series['group'] == 'ice core' else series['y']
             #y = np.divide(y, np.max(y))
             ax = ax2 if series['group'] == 'ice core' else ax1
+            if series['group'] not in vars2colorkey:
+                vars2colorkey[series['group']] = random.choice(list(model_colors.keys()))
+            print(y)
             ax.plot(axis_ticks, y, c=model_colors[vars2colorkey[series['group']]], alpha=alpha)
-        ax1.legend([Line2D([0], [0], color=model_colors[v], lw=1.5, label=k) for k, v in vars2colorkey.items()], ['ice core', 'sootsn'], prop={'size': 6})
+        ax1.legend([Line2D([0], [0], color=model_colors[v], lw=1.5, label=k) for k, v in vars2colorkey.items()], vars2colorkey.keys(), prop={'size': 6})
         ax1.set_ylabel('kg/m^2')
         ax1.set_ylim(soot_ax_min_max)
         ax1.tick_params(axis='y', labelcolor=model_colors[vars2colorkey['sootsn']])
