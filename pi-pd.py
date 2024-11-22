@@ -1035,8 +1035,8 @@ elif (inp == 'nt'):
     else:
         #python3 pi-pd.py nt <path to sootsn file
         raise Exception('3 command line arguments required: python3 pi-pd.py nt <sootsn file name>')'''
+    nco_model_colors = {'ice core': '#6C62E7', 'sootsn': '#638FF6', 'CESM2': '#EE692C', 'TaiESM1': '#CC397C'}
     valid_keys_set = set(main_dict.keys())
-    vars2colorkey = {'ice core': 'Ice Core', 'sootsn': 'CESM-SOOTSN'}#{'loadbc': 'loadbc', 'drybc': 'CESM', 'ice core': 'Ice Core', 'sootsn': 'CESM-SOOTSN'}
     axis_ticks = [(i + 0.5) for i in range(1850, 1981)]
     figures = {'North Pole': [a_p, 90], 'South Pole': [-90, -60], 'Rest': [-60, a_p]}
     model_data = {}
@@ -1045,7 +1045,7 @@ elif (inp == 'nt'):
         df = pd.DataFrame(index = axis_ticks)
         timeseries = []
         for csv_file in os.listdir(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries')):
-            if '.csv' == csv_file[len(csv_file) - 4: len(csv_file)]:# and csv_file not in ['CESM2.csv', 'TaiESM1.csv']:
+            if '.csv' == csv_file[len(csv_file) - 4: len(csv_file)]:# and csv_file not in ['sootsn.csv', 'TaiESM1.csv']:
                 df_model = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', csv_file))
                 df_model_adj = pd.DataFrame(index = df_model.index)
                 #get data
@@ -1066,31 +1066,34 @@ elif (inp == 'nt'):
         soot_ax_min_max = [df_model_adj.mean(axis=1).values.min(), df_model_adj.mean(axis=1).values.max()]
         ice_ax_min_max = [df.mean(axis=1).values.min(), df.mean(axis=1).values.max()]
         #plot
-        fig, ax1 = plt.subplots()
-        ax2 = ax1.twinx()
-        ax1.set_zorder(ax2.get_zorder()+1)
-        ax1.patch.set_visible(False)
-        ax2.plot(df.index, df.mean(axis=1), c=model_colors[vars2colorkey['ice core']])
+        fig, ax1 = plt.subplots(figsize=(8,5), layout='constrained')
+        #ax1.set_zorder(ax2.get_zorder()+1)
+        #ax1.patch.set_visible(False)
+        ax1.plot(df.index, df.mean(axis=1), c=nco_model_colors['ice core'])
+        n_axis = 1
         for series in timeseries:
+            if series['group'] not in nco_model_colors:
+                nco_model_colors[series['group']] = random.choice(list(model_colors.keys()))
             alpha = 0.1 if series['group'] == 'ice core' else 1
             y = np.interp(axis_ticks, series['x'], series['y']) if series['group'] == 'ice core' else series['y']
-            #y = np.divide(y, np.max(y))
-            ax = ax2 if series['group'] == 'ice core' else ax1
-            if series['group'] not in vars2colorkey:
-                vars2colorkey[series['group']] = random.choice(list(model_colors.keys()))
-            print(y)
-            ax.plot(axis_ticks, y, c=model_colors[vars2colorkey[series['group']]], alpha=alpha)
-        ax1.legend([Line2D([0], [0], color=model_colors[v], lw=1.5, label=k) for k, v in vars2colorkey.items()], vars2colorkey.keys(), prop={'size': 6})
-        ax1.set_ylabel('kg/m^2')
-        ax1.set_ylim(soot_ax_min_max)
-        ax1.tick_params(axis='y', labelcolor=model_colors[vars2colorkey['sootsn']])
-        ax2.set_ylabel('ng/g')
-        ax2.set_ylim(ice_ax_min_max)
-        ax2.tick_params(axis='y', labelcolor=model_colors[vars2colorkey['ice core']])
+            y = np.divide(y, np.max(y))
+            color = nco_model_colors[series['group']]
+            ax = ax1 if series['group'] == 'ice core' else ax1.twinx()
+            n_axis += 1
+            ax.plot(axis_ticks, y, c=color, alpha=alpha)
+            if series['group'] != 'ice core':
+                ax.set_ylim([np.min(y), np.max(y)])
+                ax.set_ylabel('kg/m^2')
+                ax.tick_params(axis='y', labelcolor=color)
+                ax.spines['right'].set_position(('outward', 60 * (n_axis - 2)))
+        ax.legend([Line2D([0], [0], color=v, lw=1.5, label=k) for k, v in nco_model_colors.items()], nco_model_colors.keys(), prop={'size': 6})
+        ax1.set_ylabel('ng/g')
+        ax1.set_ylim(ice_ax_min_max)
+        ax1.tick_params(axis='y', labelcolor=nco_model_colors['ice core'])
         plt.xlabel("Year (CE)")
         plt.title(fig_name + ' ' + mode)
         save_path = 'figures/ice-cores/timeseries-' + fig_name + '-' + mode + '.png'
-        plt.savefig(save_path, bbox_inches='tight', pad_inches=0.0, dpi=300)
+        plt.savefig(save_path, dpi=300) #bbox_inches='tight', pad_inches=0.0, dpi=300)
         print('saved to ' + save_path)
         plt.close()
         print(fig_name + ' n=' + str(len(df.columns)))

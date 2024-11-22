@@ -239,3 +239,4 @@ for nc_name in [target_v + '.nc'] + bases:
         df[filename] = timeseries
     df.to_csv(nc_name[0:len(nc_name) - 3] + '.csv')
     f.close()
+print('done!')
