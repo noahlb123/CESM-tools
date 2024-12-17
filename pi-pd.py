@@ -297,6 +297,27 @@ elif (inp == 'n'): #table of ice core numbers and filenames
         for c in range(len(vals[0])):
             cell_dict[(row, c)].set_width(0.1)
     plt.savefig('figures/ice-cores/test-big-table-pd-comparison.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
+    #save table as csv
+    df_n = df_n.drop(['1980/1850', '1900/1850', '1950/1850', '1980/1750', '1980/1800', '1980/1900'], axis=1)
+    #df_n['Site' 'Lat', 'Lon', 'Elevation (m above sea lvl)', 'Publication Abbreviation', 'Data Source'] = [None] * len(df_n.index)
+    for index, row in p.iterrows():
+        for i in range(row['n_cores']):
+            filename = row['First Author'].lower() + '-' + str(row['Year']) + '-' + str(i + 1) + '.csv'
+            if (filename in exclude):
+                continue
+            df_n.loc[filename, 'Publication Abbreviation'] = row['First Author'] + 'et al. (' + str(row['Year']) + ')'
+            df_n.loc[filename, 'Data Source'] = row['Data Link']
+            if math.isnan(row['N']) or math.isnan(row['E']):
+                temp = p_dup.loc[p_dup['Filename'] == filename].squeeze(axis=0)
+                df_n.loc[filename, 'lat'] = temp['Lat']
+                df_n.loc[filename, 'lon'] = temp['Lon']
+                df_n.loc[filename, 'Site/Abbreviation'] = temp['Abbreviation']
+            else:
+                df_n.loc[filename, 'lat'] = row['N']
+                df_n.loc[filename, 'lon'] = row['E']
+                df_n.loc[filename, 'Site/Abbreviation'] = row['Abbreviation']
+            #df_n.loc[filename, 'Elevation (m above sea lvl)'] = row['Elevation (m above sea lvl)']
+    df_n.to_csv('data/manuscript-ice-core-table.csv')
 elif (inp == 'big-table'): #make table comparing individual models
     #setup cmip6 data
     filenames = [x['filename'] for x in main_dict.values()]
@@ -433,7 +454,7 @@ elif (inp == 'c'): #Cartopy
             i += 1
         if not projection in ('antartica', 'north-pole'):
             rcParams.update({'font.size': 10})
-            plt.colorbar(mappable=sm, label="PD/PI BC Conc.", orientation="horizontal")
+            plt.colorbar(mappable=sm, label="1980/1850 BC Conc.", orientation="horizontal")
             #plt.colorbar(mappable=mesh.colorbar, label="Elevation (m)", orientation="horizontal")
         
         #patches
@@ -751,8 +772,9 @@ elif (inp == 'l'):
         ax.get_yaxis().set_major_formatter(ScalarFormatter())
         #manually setup legend
         legend_handels = []
+        legend_names = {'CMIP6': 'CMIP6 (8 models)', 'CESM': 'CESM (1 model)', 'LENS': 'LENS (1 model)', 'Ice Core': 'Ice Core'}
         for model in data.keys():
-            legend_handels.append(Patch(label=model, facecolor=model_colors[model]))
+            legend_handels.append(Patch(label=legend_names[model], facecolor=model_colors[model]))
         ax.legend(handles=legend_handels)
         #axis labels colors
         for a in plt.gcf().get_axes():
@@ -811,11 +833,10 @@ elif (inp == 'l'):
             box_heights += [item.get_ydata()[1] for item in bplot['whiskers']]
             multiplier += 1
         bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors, zorder=0)
-        ax.set_yscale('log')
         ax.set_xticks(x + width * 1.5, bar_labels)
         ax.set_xlim([x[0] + width * 1.5 - bar_width / 2, x[-1] + width * 1.5 + bar_width / 2])
         ax.set_ylim([np.min(box_heights), np.max(box_heights) + 0.1]) #np.partition(box_heights, -2)[-2] + 0.1])
-        ax.set_yticks([0.3, 0.5, 1, 2, 4])
+        ax.set_yticks([x for x in range(1, 11)])
         ax.set_ylabel("1980/1850 Ratio")
         ax.set_xlabel("Region")
         ax.get_yaxis().set_major_formatter(ScalarFormatter())
@@ -1035,7 +1056,7 @@ elif (inp == 'nt'):
     else:
         #python3 pi-pd.py nt <path to sootsn file
         raise Exception('3 command line arguments required: python3 pi-pd.py nt <sootsn file name>')'''
-    nco_model_colors = {'ice core': '#6C62E7', 'sootsn': '#638FF6', 'CESM2': '#EE692C', 'TaiESM1': '#CC397C'}
+    nco_model_colors = {'ice core': '#6C62E7', 'CESM2': '#EE692C'}#, 'TaiESM1': '#CC397C'}# 'sootsn': '#638FF6'}
     valid_keys_set = set(main_dict.keys())
     axis_ticks = [(i + 0.5) for i in range(1850, 1981)]
     figures = {'North Pole': [a_p, 90], 'South Pole': [-90, -60], 'Rest': [-60, a_p]}
@@ -1045,7 +1066,7 @@ elif (inp == 'nt'):
         df = pd.DataFrame(index = axis_ticks)
         timeseries = []
         for csv_file in os.listdir(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries')):
-            if '.csv' == csv_file[len(csv_file) - 4: len(csv_file)]:# and csv_file not in ['sootsn.csv', 'TaiESM1.csv']:
+            if '.csv' == csv_file[len(csv_file) - 4: len(csv_file)] and csv_file not in ['sootsn.csv', 'TaiESM1.csv']:
                 df_model = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'timeseries', csv_file))
                 df_model_adj = pd.DataFrame(index = df_model.index)
                 #get data
@@ -1069,7 +1090,7 @@ elif (inp == 'nt'):
         fig, ax1 = plt.subplots(figsize=(8,5), layout='constrained')
         #ax1.set_zorder(ax2.get_zorder()+1)
         #ax1.patch.set_visible(False)
-        ax1.plot(df.index, df.mean(axis=1), c=nco_model_colors['ice core'])
+        ax1.plot(df.index, np.divide(df.mean(axis=1), np.max(df.mean(axis=1))), c=nco_model_colors['ice core'])
         n_axis = 1
         for series in timeseries:
             if series['group'] not in nco_model_colors:
@@ -1078,21 +1099,19 @@ elif (inp == 'nt'):
             y = np.interp(axis_ticks, series['x'], series['y']) if series['group'] == 'ice core' else series['y']
             y = np.divide(y, np.max(y))
             color = nco_model_colors[series['group']]
-            ax = ax1 if series['group'] == 'ice core' else ax1.twinx()
+            #ax = ax1 if series['group'] == 'ice core' else ax1.twinx()
             n_axis += 1
-            ax.plot(axis_ticks, y, c=color, alpha=alpha)
-            if series['group'] != 'ice core':
-                ax.set_ylim([np.min(y), np.max(y)])
-                ax.set_ylabel('kg/m^2')
-                ax.tick_params(axis='y', labelcolor=color)
-                ax.spines['right'].set_position(('outward', 60 * (n_axis - 2)))
-        ax.legend([Line2D([0], [0], color=v, lw=1.5, label=k) for k, v in nco_model_colors.items()], nco_model_colors.keys(), prop={'size': 6})
-        ax1.set_ylabel('ng/g')
-        ax1.set_ylim(ice_ax_min_max)
+            ax1.plot(axis_ticks, y, c=color, alpha=alpha)
+            #if series['group'] != 'ice core':
+                #ax.spines['right'].set_position(('outward', 60 * (n_axis - 2)))
+        ax1.set_ylim([0, np.max(y)])
+        ax1.set_ylabel('Normalized BC Concentration')
+        ax1.tick_params(axis='y', labelcolor=color)
+        ax1.legend([Line2D([0], [0], color=v, lw=1.5, label=k) for k, v in nco_model_colors.items()], nco_model_colors.keys())#, prop={'size': 6})
         ax1.tick_params(axis='y', labelcolor=nco_model_colors['ice core'])
         plt.xlabel("Year (CE)")
-        plt.title(fig_name + ' ' + mode)
-        save_path = 'figures/ice-cores/timeseries-' + fig_name + '-' + mode + '.png'
+        plt.title(fig_name + ' Ice Core vs Modeled BC Comparison')
+        save_path = 'figures/ice-cores/timeseries-' + fig_name + '.png'
         plt.savefig(save_path, dpi=300) #bbox_inches='tight', pad_inches=0.0, dpi=300)
         print('saved to ' + save_path)
         plt.close()
