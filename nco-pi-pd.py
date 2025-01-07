@@ -227,7 +227,7 @@ for file in bases:
     df.loc[len(df)] = row
 
 #save csv data files
-var2subfolder = {'drybc': 'cmip6', 'loadbc': 'loadbc', 'sootsn': 'cesm-sootsn'}
+var2subfolder = {'drybc': 'cmip6', 'loadbc': 'loadbc', 'sootsn': 'cesm-sootsn', 'mmrbc': 'mmrbc'}
 subfolder = var2subfolder[target_v]
 if subfolder == 'cmip' and cesm_mode:
     subfolder = 'cesm-wetdry'
