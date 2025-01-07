@@ -223,6 +223,7 @@ for file in bases:
         lon = T.nearest_search(lons, x)
         assert T.within(lats[lat], y, 5) and T.within(lons[lon], x, 5)
         print(np.shape(v))
+        print(v[0,:,0,0])
         exit()
         row.at[core_name] = v[0,lat,lon]
     f.close()
