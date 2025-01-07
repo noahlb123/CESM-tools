@@ -1,8 +1,7 @@
 import pyperclip
 import numpy as np
-import tools
-
-T = tools.ToolBox()
+#import tools
+#T = tools.ToolBox()
 
 def filename2modelname(filename):
     prefix = 'AERmon_'
@@ -38,14 +37,4 @@ for name in pyperclip.paste().split('\n'):
     if not ('wget' in filename or 'wetbc' in filename or 'drybc' in filename):
         print(filename, end=' ')'''
 
-wets = set()
-drys = set()
-for filename in pyperclip.paste().split('\n'):
-    if '.nc' in filename and 'AERmon_' in filename and ('wetbc' in filename or 'drybc' in filename):
-        if 'wetbc' in filename:
-            wets.add(filename2modelname(filename)[2])
-        elif 'drybc' in filename:
-            drys.add(filename2modelname(filename)[2])
-print(wets)
-print(drys)
-print(wets.intersection(drys))
+print(', '.join(pyperclip.paste().split()))

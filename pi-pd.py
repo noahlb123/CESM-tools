@@ -17,11 +17,11 @@ from matplotlib import rcParams
 from scipy.stats import gaussian_kde
 from scipy.stats import norm
 from scipy.stats import iqr
-from netCDF4 import Dataset
+#from netCDF4 import Dataset
 import plotly.express as px
 import numpy as np
 import platform
-import cartopy
+#import cartopy
 import random
 import scipy
 import tools
@@ -1152,6 +1152,18 @@ elif (inp == 't'): #timeseries
     legend_elms.append(Patch(facecolor='grey', label='Ice Core Min/Max'))
     ax.legend(handles=legend_elms)
     plt.savefig('figures/ice-cores/test-timesries.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
+    plt.close()
+elif (inp == 'mmrbc'):
+    import matplotlib.pyplot as plt
+
+    l = [0.39889964, 0.54118013, 0.63362288, 0.41201419, 0.37622252, 0.50968623, 0.76643807, 0.92786038, 0.66107136, 0.51291454, 0.48298901, 0.52448446, 0.614811, 0.72133279, 0.8062796, 0.86228544, 0.91575783, 0.98148191, 1.0303092, 1.01354635, 0.84013784, 0.54736644, 0.31034935, 0.16389731, 0.12988052, 0.13001627]
+    x = [i for i in range(len(l))]
+
+    plt.plot(x, l)
+    plt.xlabel('mmrbc level')
+    plt.ylabel('pd/pd mmrbc ratio')
+    plt.title('pd/pi mmrbc at lat,lon=0,0')
+    plt.show()
     plt.close()
 elif (inp == 'z'):#testing
     print()

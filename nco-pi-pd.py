@@ -225,7 +225,7 @@ for file in bases:
         print(np.shape(v))
         print(v[0,:,0,0])
         exit()
-        row.at[core_name] = v[0,lat,lon]
+        row.at[core_name] = v[0, lat, lon] if target_v != 'mmrbc' else v[0, 0, lat, lon]
     f.close()
     df.loc[len(df)] = row
 
