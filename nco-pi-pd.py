@@ -222,6 +222,8 @@ for file in bases:
         lat = T.nearest_search(lats, y)
         lon = T.nearest_search(lons, x)
         assert T.within(lats[lat], y, 5) and T.within(lons[lon], x, 5)
+        print(np.shape(v))
+        exit()
         row.at[core_name] = v[0,lat,lon]
     f.close()
     df.loc[len(df)] = row
@@ -242,5 +244,4 @@ print('nco.csv saved to ' + output_path + '!')
 
 #todo:
 #remove nan and infinity from all files, I can do this using my notes
-#add 10 year averaging
 #mmrbc has elevation dimension
