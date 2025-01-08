@@ -31,6 +31,8 @@ import csv
 import sys
 import os
 
+#note legendHandles should be used for Matplotlib versions before 3.7 and legend_handles should be used afterwards
+
 #read index file
 t = tools.ToolBox()
 p = pd.read_csv('data/standardized-ice-cores/index.csv')
@@ -71,7 +73,7 @@ patches = { #Okabe and Ito colorblind pallet
     'East Antarctica': (-180, -60, 180, -30, '#000000'),
     'West Antarctica': (0, -60, 180, -30, '#6CB3E4'),'''
 #IBM Design Library colorblind pallet https://www.nceas.ucsb.edu/sites/default/files/2022-06/Colorblind%20Safe%20Color%20Schemes.pdf
-model_colors = {'CESM': '#EE692C', 'CMIP6': '#CC397C', 'Ice Core': '#6C62E7', 'CESM-SOOTSN': '#638FF6', 'LENS': '#F5B341', 'loadbc': '#CC397C'}
+model_colors = {'CESM': '#EE692C', 'CMIP6': '#CC397C', 'Ice Core': '#6C62E7', 'CESM-SOOTSN': '#638FF6', 'LENS': '#F5B341', 'loadbc': '#CC397C', 'mmrbc': '#F5B341'}
 
 def within_patch(lat, lon, patch, name):
     lat_min, lat_max, lon_min, lon_max = t.patch_min_max(patch)
@@ -491,15 +493,19 @@ elif (inp == 'l'):
             },
         'CESM-SOOTSN': { #changed to intentionally wrong input file
             #'dataset': pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv').loc[pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv')['model'] == 'CESM2'],
-            'dataset': pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv').drop(['model'], axis=1).drop([3], axis=0).replace(to_replace='--', value=np.nan).mean(axis=0),
+            'dataset': pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv').drop(['model'], axis=1).replace(to_replace='--', value=np.nan).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CESM-SOOTSN'],
             },
         'loadbc': {
             'dataset': pd.read_csv('data/model-ice-depo/loadbc/loadbc.csv').loc[pd.read_csv('data/model-ice-depo/loadbc/loadbc.csv')['model'] == 'CESM2'],
-            'dataset': pd.read_csv('data/model-ice-depo/loadbc/loadbc.csv').drop(['model'], axis=1).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CMIP6'],
+            },
+        'mmrbc': {
+            'dataset': pd.read_csv('data/model-ice-depo/mmrbc/mmrbc.csv').drop(['model'], axis=1).drop([1,4], axis=0).mean(axis=0),
+            'data': {'ratios': None, 'means': None, 'stds': None},
+            'color': model_colors['LENS'],
             }
     }
     lens_pi = pd.read_csv('data/model-ice-depo/lens/pi.csv')
@@ -547,7 +553,7 @@ elif (inp == 'l'):
     print('ice core mean', np.mean(bar_means['Ice Core']))
     print('ice core min', np.min(bar_means['Ice Core']))
     print('ice core max', np.max(bar_means['Ice Core']))
-    print(np.mean(bar_means['CMIP6']), np.mean(bar_means['LENS']), np.mean(bar_means['CESM']))
+    #print(np.mean(bar_means['CMIP6']), np.mean(bar_means['LENS']), np.mean(bar_means['CESM']))
     bar_labels, filenames, bar_means['LENS'], bar_means['Ice Core'], bar_means['CESM'], bar_means['CMIP6'], bar_stds['LENS'], bar_stds['Ice Core'], bar_stds['CESM'], bar_stds['CMIP6'], bar_means['CESM-SOOTSN'], bar_stds['CESM-SOOTSN'], background_colors = zip(*sorted(list(zip(bar_labels, filenames, bar_means['LENS'], bar_means['Ice Core'], bar_means['CESM'], bar_means['CMIP6'], bar_stds['LENS'], bar_stds['Ice Core'], bar_stds['CESM'], bar_stds['CMIP6'], bar_means['CESM-SOOTSN'], bar_stds['CESM-SOOTSN'], background_colors))))
     #bar_labels, bar_means['Ice Core'], bar_stds['Ice Core'], bar_means['LENS-S1'], bar_stds['LENS-S1'], bar_means['LENS-S4'], bar_stds['LENS-S4'], bar_means['LENS-S8'], bar_stds['LENS-S8'], background_colors = zip(*sorted(list(zip(bar_labels, bar_means['Ice Core'], bar_stds['Ice Core'], bar_means['LENS-S1'], bar_stds['LENS-S1'], bar_means['LENS-S4'], bar_stds['LENS-S4'], bar_means['LENS-S8'], bar_stds['LENS-S8'], background_colors))))
     #bar_labels, bar_means['Ice Core'], bar_stds['Ice Core'], bar_means['LENS-LV30'], bar_stds['LENS-LV30'], bar_means['LENS-LV29'], bar_stds['LENS-LV29'], bar_means['LENS-LV28'], bar_stds['LENS-LV28'], background_colors = zip(*sorted(list(zip(bar_labels, bar_means['Ice Core'], bar_stds['Ice Core'], bar_means['LENS-LV30'], bar_stds['LENS-LV30'], bar_means['LENS-LV29'], bar_stds['LENS-LV29'], bar_means['LENS-LV28'], bar_stds['LENS-LV28'], background_colors))))
@@ -666,7 +672,7 @@ elif (inp == 'l'):
                     del new_model_colors[bad_key]
             for i in range(len(list(new_model_colors.items()))):
                 key, color = list(new_model_colors.items())[i]
-                leg.legend_handles[i].set_color(color)
+                leg.legendHandles[i].set_color(color)
             for a in plt.gcf().get_axes():
                 for i in range(len(bar_labels)):
                     filename = bar_labels[i].split('-')[0]
@@ -710,14 +716,13 @@ elif (inp == 'l'):
             'core index': pd.Series(index, index=filenames),
             'region': pd.Series([filename_region[i] for i in filenames], index=filenames),
             'Ice Core': pd.Series(ratios, index=filenames),
-            'loadbc': pd.Series(bar_means['loadbc'], index=order_of_columns),
+            #'loadbc': pd.Series(bar_means['loadbc'], index=order_of_columns),
+            #'mmrbc': pd.Series(bar_means['mmrbc'], index=order_of_columns),
             'CESM': pd.Series(bar_means['CESM'], index=order_of_columns),
-            'CESM-SOOTSN': pd.Series(bar_means['CESM-SOOTSN'], index=order_of_columns),
+            #'CESM-SOOTSN': pd.Series(bar_means['CESM-SOOTSN'], index=order_of_columns),
             'CMIP6': pd.Series(bar_means['CMIP6'], index=order_of_columns),
             'LENS': pd.Series(bar_means['LENS'], index=order_of_columns)
             }, index=filenames)
-        #remove unneeded columns
-        df = df.drop(['loadbc', 'CESM-SOOTSN'], axis=1)
         #reformat data
         region_filename = t.invert_dict_list(filename_region)
         sorted_regions = list(region_filename.keys())
@@ -736,6 +741,7 @@ elif (inp == 'l'):
         bar_labels = list(region_filename.keys())
         bar_colors = [patches[s][-1] + '30' for s in bar_labels]
         bar_width = 1
+        max_box_height = df.drop('core index', axis=1).max(numeric_only=True).max()
         box_heights = []
         for model in df.keys():
             if model in ['core index', 'region']:
@@ -750,6 +756,7 @@ elif (inp == 'l'):
                     box_heights += [item.get_ydata()[1] for item in bplot['whiskers']]
                 else:
                     plt.plot(2 * [pos], data[model][i], c=c, linewidth=1)
+                    box_heights += [data[model][i]]
             for i in range(len(data[model])):
                 if len(data[model][i]) > 1:
                     plt.scatter(len(data[model][i]) * [x[i] + offset], data[model][i], c=c, s=8)
@@ -758,20 +765,23 @@ elif (inp == 'l'):
                     x_color = c
                 plt.scatter(x[i] + offset, np.mean(data[model][i]), c=x_color, s=30, marker='x', zorder=2.5)
             multiplier += 1
-        bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors, zorder=0)
+        #bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors, zorder=0)
+        y_ticks = [0.3, 0.5, 1, 2, 4, 7, 10, 20]
+        max_box_height = np.max([max_box_height + 0.1] + y_ticks)
+        bars = ax.bar(x + width * 1.5, max_box_height, bar_width, color=bar_colors, zorder=0)
         bar_labels[bar_labels.index('South ZAmerica')] = 'South America'
         plt.xticks(rotation=45)
         ax.set_yscale('log')
         ax.set_xticks(x + width * 1.5, bar_labels)
         ax.set_xlim([x[0] + width * 1.5 - bar_width / 2, x[-1] + width * 1.5 + bar_width / 2])
-        ax.set_ylim([0.2, np.max(box_heights) + 0.1])
-        ax.set_yticks([0.3, 0.5, 1, 2, 4, 7, 10, 20])
+        ax.set_ylim([0.2, max_box_height])
+        ax.set_yticks(y_ticks)
         ax.set_ylabel("1980/1850 Ratio")
         ax.set_xlabel("Region")
         ax.get_yaxis().set_major_formatter(ScalarFormatter())
         #manually setup legend
         legend_handels = []
-        legend_names = {'CMIP6': 'CMIP6 (8 models)', 'CESM': 'CESM (1 model)', 'LENS': 'LENS (1 model)', 'Ice Core': 'Ice Core'}
+        legend_names = {'CMIP6': 'CMIP6 (8 models)', 'CESM': 'CESM (1 model)', 'LENS': 'LENS (1 model)', 'Ice Core': 'Ice Core', 'mmrbc': 'mmrbc'}
         for model in data.keys():
             legend_handels.append(Patch(label=legend_names[model], facecolor=model_colors[model]))
         ax.legend(handles=legend_handels)
@@ -791,6 +801,7 @@ elif (inp == 'l'):
             [['Ice Core', bar_means['Ice Core']],
                 ['loadbc', bar_means['loadbc']],
                 ['CESM', bar_means['CESM']],
+                ['mmrbc', bar_means['mmrbc']],
                 ['CESM-SOOTSN', bar_means['CESM-SOOTSN']]]
             )
         #get regional means
@@ -813,21 +824,20 @@ elif (inp == 'l'):
         fig, ax = plt.subplots(layout='constrained')
         x = np.arange(len(list(new_regions.keys())))
         multiplier = 0
-        width = 0.2
+        width = 0.2 * 4 / 5
         bar_labels = list(new_regions.keys())
         bar_colors = [patches[region2region[s]][-1] + '30' for s in bar_labels]
-        #for i in range(3): + (1/3) * i
         bar_width = 1
         box_heights = []
         for model in data.keys():
             c = model_colors[model]
             ca = c + '90'
             offset = width * multiplier
-            bplot = ax.boxplot(data[model], widths=width, positions=x + offset, patch_artist=True, boxprops=dict(facecolor=ca, color=c), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False, showcaps=False, showmeans=False, showbox=True)
+            bplot = ax.boxplot(data[model], widths=width, positions=x + offset - width / 2, patch_artist=True, boxprops=dict(facecolor=ca, color=c), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False, showcaps=False, showmeans=False, showbox=True)
             for i in range(len(data[model])):
-                plt.scatter(len(data[model][i]) * [x[i] + offset], data[model][i], c=c, s=8)
+                plt.scatter(len(data[model][i]) * [x[i] + offset - width / 2], data[model][i], c=c, s=8)
                 x_color = 'black'
-                plt.scatter(x[i] + offset, np.mean(data[model][i]), c=x_color, s=30, marker='x', zorder=2.5)
+                plt.scatter(x[i] + offset - width / 2, np.mean(data[model][i]), c=x_color, s=30, marker='x', zorder=2.5)
             #bplot = ax.boxplot(data[model], widths=width, positions=x+offset, patch_artist=True, boxprops=dict(facecolor=c, color=c), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c))
             box_heights += [item.get_ydata()[1] for item in bplot['whiskers']]
             multiplier += 1
@@ -841,7 +851,7 @@ elif (inp == 'l'):
         ax.get_yaxis().set_major_formatter(ScalarFormatter())
         #manually setup legend
         legend_handels = []
-        leg_dict = {'Ice Core': 'Ice Core', 'loadbc': 'BC in air', 'CESM': 'BC deposition to snow', 'CESM-SOOTSN': 'BC in snow'}
+        leg_dict = {'Ice Core': 'Ice Core', 'loadbc': 'BC in air column', 'CESM': 'BC deposition to snow', 'CESM-SOOTSN': 'BC in snow', 'mmrbc': 'BC in surface air'}
         for label in sub.keys():
             if '+' not in label:
                 legend_handels.append(Patch(label=leg_dict[label]))
@@ -851,7 +861,7 @@ elif (inp == 'l'):
         new_model_colors = {k: models_colors[k] for k in list(sub.keys())}
         for i in range(len(list(new_model_colors.items()))):
             key, color = list(new_model_colors.items())[i]
-            leg.legend_handles[i].set_color(color)
+            leg.legendHandles[i].set_color(color)
         for i in range(len(bar_labels)):
             color = patches[region2region[bar_labels[i]]][-1]
             ax.get_xticklabels()[i].set_color(color)

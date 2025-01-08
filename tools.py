@@ -1,8 +1,10 @@
 import math
-from netCDF4 import Dataset
 import pandas as pd
 import numpy as np
+from sys import platform
 import os
+if platform != "darwin":
+    from netCDF4 import Dataset
 
 class ToolBox:
     def __init__(self):
