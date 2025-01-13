@@ -47,10 +47,14 @@ if platform.system() == 'Linux':
 
     #average northern hemisphere
     lat_30_i = T.nearest_search(lats, 30)
-    nh = p[:,lat_30_i:,:]
-    mean_p_nh = np.mean(nh, axis=(1,2))
-    print(np.shape(x))
+    nh_p = p[:,lat_30_i:,:]
+    nh_x = x[:,lat_30_i:,:]
+    mean_p_nh = np.mean(nh_p, axis=(1,2))
+    mean_x_nh = np.mean(nh_x, axis=(1,2))
+
+    #save
+    df = pd.DataFrame(columns=['pressure', 'var'], data=[mean_p_nh, mean_x_nh])
     print('saved to ' + os.path.join(root, 'lev_p.csv'))
-    np.savetxt(os.path.join(root, 'lev_p.csv'), a, delimiter=",")
+    df.to_csv(os.path.join(root, 'lev_p.csv'))
 elif platform.system() == 'Darwin':
     pass
