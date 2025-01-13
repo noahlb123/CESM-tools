@@ -53,7 +53,7 @@ if platform.system() == 'Linux':
     mean_x_nh = np.mean(nh_x, axis=(1,2))
 
     #save
-    df = pd.DataFrame(columns=['pressure', 'var'], data=np.transpose([mean_p_nh, mean_x_nh]))
+    df = pd.DataFrame(columns=['pressure', 'var'], data=np.transpose([mean_x_nh, mean_p_nh]))
     print('saved to ' + os.path.join(root, 'lev_p.csv'))
     df.to_csv(os.path.join(root, 'lev_p.csv'))
 elif platform.system() == 'Darwin':
