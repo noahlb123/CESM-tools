@@ -35,4 +35,4 @@ f.close()
 
 
 ps = np.stack([ps for i in range(len(lev))], 0)
-print(np.shape(ps))
+print(np.shape(ps), np.shape(b))
