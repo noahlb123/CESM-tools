@@ -13,6 +13,7 @@ def evaluate(s):
     os.system(s)
     return 'cd ' + root + ' && '
 
+#python3 lev_p.py /glade/derecho/scratch/nlbills/all-ice-core-data/mmrbc output.nc mmrbc
 if len(sys.argv) < 4:
     raise Exception('3 command line arguments required: <root path> <file name> <target variable>')
 root = sys.argv[1]
@@ -33,5 +34,5 @@ a = f['a'][:]
 f.close()
 
 
-np.stack([ps for i in range(len(lev))], 0)
+ps = np.stack([ps for i in range(len(lev))], 0)
 print(np.shape(ps))
