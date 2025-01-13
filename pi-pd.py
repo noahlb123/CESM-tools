@@ -1170,7 +1170,7 @@ elif (inp == 'mmrbc'):
     x = [i for i in range(len(l))]
 
     plt.plot(x, l)
-    plt.xlabel('mmrbc level')
+    plt.xlabel('mmrbc level (Pa)')
     plt.ylabel('pd/pd mmrbc ratio')
     plt.title('pd/pi mmrbc at lat,lon=0,0')
     plt.show()
