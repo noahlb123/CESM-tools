@@ -19,6 +19,17 @@ root = sys.argv[1]
 file_name = sys.argv[2]
 target_v = sys.argv[3]
 
-to_eval = 'cd ' + root + ' && '
+'''to_eval = 'cd ' + root + ' && '
 to_eval += "ncap2 -O -s 'p=double(a*p0+b*ps);' " + file_name + ' ' + file_name + ' && '
-evaluate(to_eval)
+evaluate(to_eval)'''
+
+f = Dataset(os.path.join(root, file_name))
+lats, lons = T.adjust_lat_lon_format(f['lat'][:], f['lon'][:])
+lev = f['lev'][:]
+p0 = f['p0'][:]
+b = f['b'][:]
+ps = f['ps'][:]
+a = f['a'][:]
+f.close()
+
+print(np.shape(lev),np.shape(p0),np.shape(b),np.shape(ps),np.shape(a),np.shape(lats),np.shape(lons))
