@@ -191,7 +191,7 @@ bases = []
 for base, files in bins.items():
     for file in files:
         f = Dataset(os.path.join(root, file))
-        print(file, f.variables)
+        print(file, list(f.variables.keys()))
         f.close()
     to_eval += 'ncra ' + ' '.join(files) + ' ' + base + '.nc -O && '
     bases.append(base + '.nc')
