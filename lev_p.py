@@ -24,6 +24,7 @@ target_v = sys.argv[3]
 to_eval += "ncap2 -O -s 'p=double(a*p0+b*ps);' " + file_name + ' ' + file_name + ' && '
 evaluate(to_eval)'''
 
+#read variables
 f = Dataset(os.path.join(root, file_name))
 lats, lons = T.adjust_lat_lon_format(f['lat'][:], f['lon'][:])
 lev = f['lev'][:]
@@ -33,7 +34,12 @@ ps = f['ps'][:][0]
 a = f['a'][:]
 f.close()
 
-
+#extend var dimensions for elementwise multiplication
 ps = np.stack([ps for i in range(len(lev))], 0)
 b = np.stack([np.stack([b for i in range(len(lons))], -1) for j in range(len(lats))], -2)
-print(np.shape(ps), np.shape(b))
+a = np.stack([np.stack([a for i in range(len(lons))], -1) for j in range(len(lats))], -2)
+
+#calculate pressure levels
+p = a * p0 + b * ps
+print(np.shape(p))
+print(p)
