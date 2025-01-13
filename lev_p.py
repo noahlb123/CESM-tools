@@ -34,7 +34,7 @@ if platform.system() == 'Linux':
     b = f['b'][:]
     ps = f['ps'][:][0]
     a = f['a'][:]
-    x = f[target_v][:]
+    x = f[target_v][:][0]
     f.close()
 
     #extend var dimensions for elementwise multiplication
