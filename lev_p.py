@@ -32,4 +32,4 @@ ps = f['ps'][:]
 a = f['a'][:]
 f.close()
 
-print(np.shape(lev),np.shape(p0),np.shape(b),np.shape(ps),np.shape(a),np.shape(lats),np.shape(lons))
+print(p0,b)
