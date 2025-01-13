@@ -41,5 +41,10 @@ a = np.stack([np.stack([a for i in range(len(lons))], -1) for j in range(len(lat
 
 #calculate pressure levels
 p = a * p0 + b * ps
-print(np.shape(p))
-print(p)
+
+#average northern hemisphere
+lat_30_i = T.nearest_search(lats, 30)
+nh = p[:,lat_30_i:,:]
+mean_p_nh = np.mean(nh, axis=(1,2))
+print(np.shape(mean_p_nh))
+print(mean_p_nh)
