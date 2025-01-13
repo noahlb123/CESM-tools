@@ -49,7 +49,7 @@ if platform.system() == 'Linux':
     lat_30_i = T.nearest_search(lats, 30)
     nh_p = p[:,lat_30_i:,:]
     nh_x = x[:,lat_30_i:,:]
-    print(x, nh_x)
+    print(np.shape(x))
     mean_p_nh = np.mean(nh_p, axis=(1,2))
     mean_x_nh = np.mean(nh_x, axis=(1,2))
 
