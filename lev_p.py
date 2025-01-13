@@ -32,4 +32,4 @@ ps = f['ps'][:]
 a = f['a'][:]
 f.close()
 
-print(ps)
+print(ps[0])
