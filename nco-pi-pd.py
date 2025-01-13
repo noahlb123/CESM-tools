@@ -188,6 +188,7 @@ inverse_bins = T.invert_dict_list(bins)
 #average bases
 to_eval += 'echo "binning..." && '
 bases = []
+print(files)
 for base, files in bins.items():
     to_eval += 'ncra ' + ' '.join(files) + ' ' + base + '.nc -O && '
     bases.append(base + '.nc')
