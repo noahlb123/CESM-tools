@@ -49,12 +49,13 @@ if platform.system() == 'Linux':
     lat_30_i = T.nearest_search(lats, 30)
     nh_p = p[:,lat_30_i:,:]
     nh_x = x[:,lat_30_i:,:]
+    print(nh_x)
     mean_p_nh = np.mean(nh_p, axis=(1,2))
     mean_x_nh = np.mean(nh_x, axis=(1,2))
+    print(mean_x_nh)
 
     #save
     print(np.shape(mean_p_nh), np.shape(mean_x_nh))
-    print(mean_x_nh)
     exit()
     df = pd.DataFrame(columns=['pressure', 'var'], data=[mean_p_nh, mean_x_nh])
     print('saved to ' + os.path.join(root, 'lev_p.csv'))
