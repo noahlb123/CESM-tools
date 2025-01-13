@@ -53,6 +53,9 @@ if platform.system() == 'Linux':
     mean_x_nh = np.mean(nh_x, axis=(1,2))
 
     #save
+    print(np.shape(mean_p_nh), np.shape(mean_x_nh))
+    print(mean_x_nh)
+    exit()
     df = pd.DataFrame(columns=['pressure', 'var'], data=[mean_p_nh, mean_x_nh])
     print('saved to ' + os.path.join(root, 'lev_p.csv'))
     df.to_csv(os.path.join(root, 'lev_p.csv'))
