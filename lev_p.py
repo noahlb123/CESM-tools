@@ -35,5 +35,5 @@ f.close()
 
 
 ps = np.stack([ps for i in range(len(lev))], 0)
-b = np.stack([np.stack([b for i in range(len(lats))], -1) for j in range(len(lons))], -2)
+b = np.stack([np.stack([b for i in range(len(lons))], -1) for j in range(len(lats))], -2)
 print(np.shape(ps), np.shape(b))
