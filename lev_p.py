@@ -28,8 +28,10 @@ lats, lons = T.adjust_lat_lon_format(f['lat'][:], f['lon'][:])
 lev = f['lev'][:]
 p0 = f['p0'][:]
 b = f['b'][:]
-ps = f['ps'][:]
+ps = f['ps'][:][0]
 a = f['a'][:]
 f.close()
 
-print(ps[0])
+
+np.stack([ps for i in range(len(lev))], 0)
+print(np.shape(ps))
