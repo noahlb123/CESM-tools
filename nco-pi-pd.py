@@ -189,11 +189,8 @@ inverse_bins = T.invert_dict_list(bins)
 to_eval += 'echo "binning..." && '
 bases = []
 for base, files in bins.items():
-    for file in files:
-        f = Dataset(os.path.join(root, file))
-        vs = list(f.variables.keys())
-        f.close()
-        print('mmrbc' in vs, file, vs)
+    if target_v == 'mmrbc' and 'CESM2-WACCM_re.nc' in files:
+        files.remove('CESM2-WACCM_re.nc')
     to_eval += 'ncra ' + ' '.join(files) + ' ' + base + '.nc -O && '
     bases.append(base + '.nc')
 
