@@ -194,13 +194,12 @@ for base, files in bins.items():
             files.remove('CESM2-WACCM_re.nc')
         elif 'CNRM-ESM2-1_re.nc' in files:
             files.remove('CNRM-ESM2-1_re.nc')
-    print(len(files), ', '.join(files))
     if len(files) > 1:
         to_eval += 'ncra ' + ' '.join(files) + ' ' + base + '.nc -O && '
     if len(files) == 1:
         to_eval += 'mv ' + files[0] + ' ' + base + '.nc && '
     if len(files) < 1:
-        print('all files from ' + ', '.join(bins[base]) + ' removed.')
+        to_eval += '\techo "all files from ' + base + ' removed." && '
         continue
     bases.append(base + '.nc')
 
