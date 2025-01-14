@@ -178,12 +178,12 @@ to_eval = evaluate(to_eval)
 #bin models
 bins = {}
 for file in filenames:
+    print(file)
     base = base_model(file)
     if base in bins:
         bins[base].append(file)
     else:
         bins[base] = [file]
-inverse_bins = T.invert_dict_list(bins)
 
 #average bases
 to_eval += 'echo "binning..." && '
