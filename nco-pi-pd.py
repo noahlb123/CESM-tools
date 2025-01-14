@@ -39,6 +39,7 @@ def get_model_name(filename):
 
 def base_model(model):
         model = model.replace('.nc', '')
+        model = model.replace('_re', '')
         if dir != 'loadbc':
             if 'MIROC6' in model:
                 base_model = 'MIROC'
