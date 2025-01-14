@@ -178,7 +178,6 @@ to_eval = evaluate(to_eval)
 #bin models
 bins = {}
 for file in filenames:
-    print(file)
     base = base_model(file)
     if base in bins:
         bins[base].append(file)
@@ -191,6 +190,7 @@ bases = []
 for base, files in bins.items():
     if target_v == 'mmrbc' and 'CESM2-WACCM_re.nc' in files:
         files.remove('CESM2-WACCM_re.nc')
+    print(', '.join(files))
     to_eval += 'ncra ' + ' '.join(files) + ' ' + base + '.nc -O && '
     bases.append(base + '.nc')
 
