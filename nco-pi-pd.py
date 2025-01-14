@@ -188,8 +188,11 @@ for file in filenames:
 to_eval += 'echo "binning..." && '
 bases = []
 for base, files in bins.items():
-    if target_v == 'mmrbc' and 'CESM2-WACCM_re.nc' in files:
-        files.remove('CESM2-WACCM_re.nc')
+    if target_v == 'mmrbc':
+        if 'CESM2-WACCM_re.nc' in files:
+            files.remove('CESM2-WACCM_re.nc')
+        elif 'CNRM-ESM2-1_re.nc' in files:
+            files.remove('CNRM-ESM2-1_re.nc')
     print(', '.join(files))
     to_eval += 'ncra ' + ' '.join(files) + ' ' + base + '.nc -O && '
     bases.append(base + '.nc')
