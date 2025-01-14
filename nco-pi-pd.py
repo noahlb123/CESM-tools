@@ -195,7 +195,13 @@ for base, files in bins.items():
         elif 'CNRM-ESM2-1_re.nc' in files:
             files.remove('CNRM-ESM2-1_re.nc')
     print(', '.join(files))
-    to_eval += 'ncra ' + ' '.join(files) + ' ' + base + '.nc -O && '
+    if len(files) < 1:
+        to_eval += 'ncra ' + ' '.join(files) + ' ' + base + '.nc -O && '
+    if len(files) == 1:
+        to_eval += 'mv ' + files[0] + ' ' + base + '.nc && '
+    if len(files) < 1:
+        print('all files from ' + files + ' removed.')
+        continue
     bases.append(base + '.nc')
 
 to_eval = evaluate(to_eval)
