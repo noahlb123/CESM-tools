@@ -149,7 +149,7 @@ for model_name in valid_er_models:
     pi = model_name + '_pi.nc'
     pd = model_name + '_pd.nc'
     new_name = model_name + '.nc'
-    to_eval += 'ncbo --op_typ=dvd ' + pd + ' ' + pi + ' ' + new_name + ' -O && '
+    to_eval += 'ncbo -v ' + target_v + ' --op_typ=dvd ' + pd + ' ' + pi + ' ' + new_name + ' -O && '
 
 filenames = [model_name + '.nc' for model_name in valid_er_models]
 to_eval = evaluate(to_eval)
@@ -244,4 +244,3 @@ print('nco.csv saved to ' + output_path + '!')
 
 #todo:
 #remove nan and infinity from all files, I can do this using my notes
-#mmrbc has elevation dimension
