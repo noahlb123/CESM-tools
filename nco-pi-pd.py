@@ -200,7 +200,7 @@ for base, files in bins.items():
     if len(files) == 1:
         to_eval += 'mv ' + files[0] + ' ' + base + '.nc && '
     if len(files) < 1:
-        print('all files from ' + files + ' removed.')
+        print('all files from ' + ', '.join(files) + ' removed.')
         continue
     bases.append(base + '.nc')
 
