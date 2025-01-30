@@ -40,7 +40,7 @@ p = p.reset_index()
 
 #setup vars
 exclude = set([])#set(['mcconnell-2017-1.csv', 'brugger-2021-1.csv'])
-windows = [25]
+windows = [10] #25 is best
 system = platform.system()
 full_data = {}
 for key in windows:
