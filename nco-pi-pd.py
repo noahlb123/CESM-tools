@@ -79,14 +79,15 @@ for filename in files:
                         main_dict[model_name]['s_year'] = years[0]
                 if contains(years, 1980):
                     if model_name not in main_dict:
-                        main_dict[model_name] = {'e_file': f_name, 's_file': None, 'e_year': years[0]}
+                        main_dict[model_name] = {'e_file': f_name, 's_file': None, 'e_year': years[1]}
                     else:
                         main_dict[model_name]['e_file'] = f_name
-                        main_dict[model_name]['e_year'] = years[0]
+                        main_dict[model_name]['e_year'] = years[1]
 for model_name, new_d in main_dict.items():
     print(model_name)
     if 's_year' in new_d.keys() and 'e_year' in new_d.keys():
-        print(new_d['s_year'] == new_d['e_year'])
+        print(new_d['s_year'])
+        print(new_d['e_year'])
     else:
         print('doesnt have them')
 exit()
