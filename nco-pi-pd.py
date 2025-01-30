@@ -107,6 +107,7 @@ for model_name, d in main_dict.items():
             #time_index = T.nearest_search(times, year)
             i_end_decade = T.nearest_search(times, year + avg_window / 2)
             f.close()
+            print(year - avg_window / 2 - (year + avg_window / 2), year - avg_window / 2, (year + avg_window / 2))
             print(times[i_start_decade] - times[i_end_decade], times[i_start_decade], times[i_end_decade])
             new_filename = model_name + file_suffix + '.nc'
             to_eval += 'ncwa -b -a time -d time,' + str(i_start_decade) + ',' + str(i_end_decade) + ' ' + filename + ' ' + new_filename + ' -O && '
