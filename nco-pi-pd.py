@@ -36,6 +36,7 @@ def contains(years, target_year):
     return False
 
 def get_model_name(filename):
+    print(filename)
     return filename[filename.index(prefix) + len(prefix): filename.index('_historical')]
 
 def base_model(model):
