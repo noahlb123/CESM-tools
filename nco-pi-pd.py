@@ -10,11 +10,12 @@ T = ToolBox()
 bad_boy_mode = True #should the output be written in the cwd
 main_dict = {}
 if len(sys.argv) < 2:
-    raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <OPTINOAL: cesm mode (cesm or *)> <OPTINOAL: averaging window>')
+    raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <OPTINOAL: cesm mode (cesm or *)> <OPTINOAL: [1850 avg window],[1980 avg window]>')
 target_v = sys.argv[1]
 root = sys.argv[2]
 cesm_mode = sys.argv[3].lower() == 'cesm' if len(sys.argv) >= 4 else False
-avg_window = int(sys.argv[4]) if len(sys.argv) >= 5 else 10
+avg_window = sys.argv[4] if len(sys.argv) >= 5 else 10
+avg_window = [int(x) for x in avg_window.split(',')] if ',' in avg_window else [int(avg_window), int(avg_window)]
 smallest_grid = T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), target_v)
 prefix_map = {'sootsn': 'LImon_', 'drybc': 'AERmon_', 'loadbc': 'Eday_', 'mmrbc': 'AERmon_'}
 prefix = prefix_map[target_v]
@@ -94,6 +95,7 @@ for model_name, d in main_dict.items():
             year_index = 's_year' if year == 1850 else 'e_year'
             file_suffix = '_pi' if year == 1850 else '_pd'
             filename = d[file_index]
+            window = avg_window[0] if year == 1850 else avg_window[1]
             try:
                 f = Dataset(root + '/' + filename)
             except OSError:
@@ -105,9 +107,9 @@ for model_name, d in main_dict.items():
             if np.max(times) >= 365 * 1850:
                 times = np.divide(times, 365)
             assert 'days since' in time_var.units
-            i_start_decade = T.nearest_search(times, year - avg_window / 2)
+            i_start_decade = T.nearest_search(times, year - window / 2)
             #time_index = T.nearest_search(times, year)
-            i_end_decade = T.nearest_search(times, year + avg_window / 2)
+            i_end_decade = T.nearest_search(times, year + window / 2)
             f.close()
             #print(times[i_start_decade] - times[i_end_decade], times[i_start_decade], times[i_end_decade])
             new_filename = model_name + file_suffix + '.nc'
