@@ -83,7 +83,10 @@ for filename in files:
                     else:
                         main_dict[model_name]['e_file'] = f_name
                         main_dict[model_name]['e_year'] = years[0]
-print(main_dict)
+for model_name, new_d in main_dict.items():
+    print(model_name)
+    print(new_d['s_year'])
+    print(new_d['e_year'])
 exit()
 
 #commands to extract file timeslices and decadally average
