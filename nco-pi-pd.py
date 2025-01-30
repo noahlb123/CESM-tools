@@ -88,8 +88,8 @@ for filename in files:
 to_eval += 'echo "extracting timeslices..." && '
 for model_name, d in main_dict.items():
     if d['s_file'] != None and d['e_file'] != None:
-        print(model_name)
         for year in (1850, 1980):
+            print(model_name, year)
             file_index = 's_file' if year == 1850 else 'e_file'
             year_index = 's_year' if year == 1850 else 'e_year'
             file_suffix = '_pi' if year == 1850 else '_pd'
@@ -107,7 +107,6 @@ for model_name, d in main_dict.items():
             #time_index = T.nearest_search(times, year)
             i_end_decade = T.nearest_search(times, year + avg_window / 2)
             f.close()
-            print(year - avg_window / 2 - (year + avg_window / 2), year - avg_window / 2, (year + avg_window / 2))
             print(times[i_start_decade] - times[i_end_decade], times[i_start_decade], times[i_end_decade])
             new_filename = model_name + file_suffix + '.nc'
             to_eval += 'ncwa -b -a time -d time,' + str(i_start_decade) + ',' + str(i_end_decade) + ' ' + filename + ' ' + new_filename + ' -O && '
