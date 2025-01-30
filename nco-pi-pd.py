@@ -14,8 +14,6 @@ if len(sys.argv) < 2:
 target_v = sys.argv[1]
 root = sys.argv[2]
 cesm_mode = sys.argv[3].lower() == 'cesm' if len(sys.argv) >= 4 else False
-print(sys.argv[4])
-exit()
 avg_window = int(sys.argv[4]) if len(sys.argv) >= 5 else 10
 smallest_grid = T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), target_v)
 prefix_map = {'sootsn': 'LImon_', 'drybc': 'AERmon_', 'loadbc': 'Eday_', 'mmrbc': 'AERmon_'}
