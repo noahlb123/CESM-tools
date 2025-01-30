@@ -89,7 +89,7 @@ to_eval += 'echo "extracting timeslices..." && '
 for model_name, d in main_dict.items():
     if d['s_file'] != None and d['e_file'] != None:
         for year in (1850, 1980):
-            print(model_name, year)
+            print(model_name, year, filename)
             file_index = 's_file' if year == 1850 else 'e_file'
             year_index = 's_year' if year == 1850 else 'e_year'
             file_suffix = '_pi' if year == 1850 else '_pd'
