@@ -83,8 +83,6 @@ for filename in files:
                     else:
                         main_dict[model_name]['e_file'] = f_name
                         main_dict[model_name]['e_year'] = years[1]
-print(main_dict)
-exit()
 
 #commands to extract file timeslices and decadally average
 to_eval += 'echo "extracting timeslices..." && '
