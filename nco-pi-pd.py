@@ -102,6 +102,8 @@ for model_name, d in main_dict.items():
                 continue
             time_var = f.variables['time']
             times = f['time'][:]
+            if np.max(times) >= 365 * 1850:
+                times = np.divide(times, 365)
             assert 'days since' in time_var.units
             i_start_decade = T.nearest_search(times, year - avg_window / 2)
             #time_index = T.nearest_search(times, year)
