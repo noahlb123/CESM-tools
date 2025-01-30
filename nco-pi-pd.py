@@ -83,14 +83,6 @@ for filename in files:
                     else:
                         main_dict[model_name]['e_file'] = f_name
                         main_dict[model_name]['e_year'] = years[1]
-for model_name, new_d in main_dict.items():
-    print(model_name)
-    if 's_year' in new_d.keys() and 'e_year' in new_d.keys():
-        print(new_d['s_year'])
-        print(new_d['e_year'])
-    else:
-        print('doesnt have them')
-exit()
 
 #commands to extract file timeslices and decadally average
 to_eval += 'echo "extracting timeslices..." && '
