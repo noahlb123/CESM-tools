@@ -15,7 +15,11 @@ class ToolBox:
             del l[i]
         return l
     
+    def increasing(self, arr):
+        return np.all(np.diff(np.array(arr)) >= 0)
+
     def nearest_search(self, arr, x):
+        assert self.increasing(arr)
         low = 0
         high = len(arr) - 1
         mid = 0
@@ -84,6 +88,22 @@ class ToolBox:
     def in_bounds(self, index, arr):
         return 0 <= index < len(arr)
     
+    def simplified_avg(self, t_l, x_l, year, windows):
+        output = {}
+        center = self.nearest_search(t_l, year)
+        for window in windows:
+            lower = self.nearest_search(t_l, t_l[center] - window // 2)
+            upper = self.nearest_search(t_l, t_l[center] + window // 2)
+            if not lower < upper:
+                if upper < len(t_l) - 1:
+                    upper += 1
+                if lower > 0:
+                    lower -= 1
+            assert lower < upper
+            df = pd.DataFrame(columns=['t', 'x'], data=np.transpose(np.array([t_l, x_l])))
+            output[window] = np.mean(df.loc[lower:upper]['x'])
+        return [output, t_l[center], t_l[lower], t_l[upper]]
+
     #list of time, list of x, year float, list of windows
     def get_avgs(self, t_l, x_l, year, windows):
         output = {}
@@ -100,7 +120,7 @@ class ToolBox:
         for w_size in windows:
             n = max_yr = 1
             my_sum = float(x_l[focus_index])
-            def search_bounds(i, t_l, x_l, w_size, max_yr, n, my_sum, volacno_threshold, direc):
+            def search_bounds(i, t_l, x_l, w_size, max_yr, n, my_sum, volacno_threshold, direc, upper, lower):
                 max_yr = -99999999
                 while self.in_bounds(i, t_l) and above_y_min(i, max_yr, w_size):
                     n += 1
@@ -113,11 +133,16 @@ class ToolBox:
                     my_sum += x
                     max_yr = t_l[i] if t_l[i] > max_yr else max_yr
                     i += direc
-                return [n, my_sum, max_yr]
-            [n, my_sum, max_yr] = search_bounds(focus_index + 1, t_l, x_l, w_size, max_yr, n, my_sum, volacno_threshold, 1)
-            [n, my_sum, max_yr] = search_bounds(focus_index - 1, t_l, x_l, w_size, max_yr, n, my_sum, volacno_threshold, -1)
+                if direc == 1:
+                    upper = i - direc
+                elif direc == -1:
+                    lower = i - direc
+                return [n, my_sum, max_yr, upper, lower]
+            [n, my_sum, max_yr, upper, lower] = search_bounds(focus_index + 1, t_l, x_l, w_size, max_yr, n, my_sum, volacno_threshold, 1, None, None)
+            [n, my_sum, max_yr, upper, lower] = search_bounds(focus_index - 1, t_l, x_l, w_size, max_yr, n, my_sum, volacno_threshold, -1, upper, lower)
             output[w_size] = my_sum / n
-        return [output, t_l[focus_index]]
+        half_window = windows[0] // 2
+        return [output, focus_year, focus_year - half_window, focus_year + half_window]
     
     #returns mean, median, std, first quartile, last quartile, max, min
     def ncdf_avg(file_path, var_key):

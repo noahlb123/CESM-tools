@@ -40,7 +40,7 @@ p = p.reset_index()
 
 #setup vars
 exclude = set([])#set(['mcconnell-2017-1.csv', 'brugger-2021-1.csv'])
-windows = [11]#[1, 3, 5, 11]
+windows = [25]
 system = platform.system()
 full_data = {}
 for key in windows:
@@ -140,16 +140,13 @@ for index, row in p.iterrows():
         Yr = np.flip(d['Yr'].to_numpy())
         if filename == 'thompson-2002-1.csv':
             BC = np.flip(lowess(BC, Yr, frac=0.2, is_sorted=True, return_sorted=False))
-        a1, y1 = t.get_avgs(Yr, BC, 1850.49, windows)
-        #a1, y1 = t.get_avgs(Yr, BC, 1925.49, windows)
-        #a2, y2 = t.get_avgs(Yr, BC, 9999, windows)
-        a3, y3 = t.get_avgs(Yr, BC, 1980, windows)
-        #a4, y4 = t.get_avgs(Yr, BC, 1750, windows)
+        a1, y1, temp, temp = t.simplified_avg(Yr, BC, 1850.49, windows)
+        a3, y3, temp, temp = t.simplified_avg(Yr, BC, 1980, windows)
         if len(sys.argv) >= 2 and sys.argv[1] == 'n':
             big_table_years = {'1750': None, '1800': None, '1850': None, '1900': None, '1950': None, '1980': None}
             for key in big_table_years.keys():
-                a_temp, y_temp = t.get_avgs(Yr, BC, int(key), windows)
-                big_table_years[key] = a_temp[11]
+                a_temp, y_temp, temp, temp = t.simplified_avg(Yr, BC, int(key), windows)
+                big_table_years[key] = a_temp[windows[0]]
         #add data to datasets
         if (y1 != None and y3 != None and abs(y1 - y3) >= 100):
             for key in windows:
@@ -161,10 +158,10 @@ for index, row in p.iterrows():
                 for region, patch in patches.items():
                     if within_patch(lat, lon, patch, region):
                         filename_region[filename] = region
-            main_dict[filename] = {'lat': lat, 'lon': lon, 'ratio': a3[11] / a1[11], 'abbr': abbr, 'filename': filename}
+            main_dict[filename] = {'lat': lat, 'lon': lon, 'ratio': a3[windows[0]] / a1[windows[0]], 'abbr': abbr, 'filename': filename}
             if len(sys.argv) >= 2 and sys.argv[1] == 'n':
-                big_table_years['1980'] = a3[11]
-                big_table_years['1850'] = a1[11]
+                big_table_years['1980'] = a3[windows[0]]
+                big_table_years['1850'] = a1[windows[0]]
                 for p_i in big_table_years.keys():
                     for p_d in big_table_years.keys():
                         if p_i < p_d:
@@ -300,7 +297,7 @@ elif (inp == 'n'): #table of ice core numbers and filenames
             cell_dict[(row, c)].set_width(0.1)
     plt.savefig('figures/ice-cores/test-big-table-pd-comparison.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
     #save table as csv
-    df_n = df_n.drop(['1980/1850', '1900/1850', '1950/1850', '1980/1750', '1980/1800', '1980/1900'], axis=1)
+    df_n = df_n.drop(['1900/1850', '1950/1850', '1980/1750', '1980/1800', '1980/1900'], axis=1)
     #df_n['Site' 'Lat', 'Lon', 'Elevation (m above sea lvl)', 'Publication Abbreviation', 'Data Source'] = [None] * len(df_n.index)
     for index, row in p.iterrows():
         for i in range(row['n_cores']):
@@ -320,6 +317,7 @@ elif (inp == 'n'): #table of ice core numbers and filenames
                 df_n.loc[filename, 'Site/Abbreviation'] = row['Abbreviation']
             #df_n.loc[filename, 'Elevation (m above sea lvl)'] = row['Elevation (m above sea lvl)']
     df_n.to_csv('data/manuscript-ice-core-table.csv')
+    print(df_n)
 elif (inp == 'big-table'): #make table comparing individual models
     #setup cmip6 data
     filenames = [x['filename'] for x in main_dict.values()]
@@ -551,6 +549,7 @@ elif (inp == 'l'):
         filenames.append(col_name)
     #resort everything by region
     print('ice core mean', np.mean(bar_means['Ice Core']))
+    print('ice core std', np.std(bar_means['Ice Core']))
     print('ice core min', np.min(bar_means['Ice Core']))
     print('ice core max', np.max(bar_means['Ice Core']))
     #print(np.mean(bar_means['CMIP6']), np.mean(bar_means['LENS']), np.mean(bar_means['CESM']))
@@ -910,7 +909,10 @@ elif (inp == 'l'):
                 #ax.bar(x + offset, new_data[i::2], width, color=color)
                 plt.hist(new_data[i::2])
                 multiplier += 1
-            plt.savefig('figures/ice-cores/test5' + key + '.png', bbox_inches='tight', pad_inches=0.0, dpi=200)
+            plt.title('Distribution of Mean Ice Core PD/PI BC Ratio Across Different Antarctic Regional Boundaries')
+            plt.xlabel('Mean Ice Core PD/PI BC Ratio')
+            plt.ylabel('Number of Possible Antarctic Regions')
+            plt.savefig('figures/ice-cores/test5' + key + '.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
             plt.close()
     elif len(sys.argv) >= 3 and sys.argv[2] == 'scatter':
         fig, ax = plt.subplots(layout='constrained')
@@ -1175,6 +1177,60 @@ elif (inp == 'mmrbc'):
     plt.title('pd/pi mmrbc at lat,lon=0,0')
     plt.show()
     plt.close()
+elif (inp == 'ets'):
+    def plot_from_avg(avg_data, color, label):
+        avg, center, lower, upper = avg_data
+        plt.plot([lower, upper], [avg[windows[0]], avg[windows[0]]], c=color, label=label)
+        return (avg[windows[0]], np.mean((lower, upper)))
+    for file in ['zdanowicz-2018-1.csv']:#['zhang-2024-9.csv', 'liu-2021-5.csv', 'mcconnell-2021-5.csv', 'zdanowicz-2018-1.csv']:
+        df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', file))
+        plt.plot(df['Yr'], df['BC'], c='grey', label='Raw Data')
+        BC = np.flip(df['BC'].to_numpy())
+        Yr = np.flip(df['Yr'].to_numpy())
+        t_series_max = np.max(BC[t.nearest_search(Yr, 1850.49):t.nearest_search(Yr, 1980)]) * 1.1
+        t_series_max += 0.3 if file == 'mcconnell-2021-5.csv' else 0
+        #plot
+        #p_i, pi_center = plot_from_avg(t.simplified_avg(Yr, BC, 1850.49, windows), 'black', 'PI')
+        #p_d, pd_center = plot_from_avg(t.simplified_avg(Yr, BC, 1980, windows), 'black', 'PD')
+        #plt.bar(pi_center, t_series_max, width=windows[0], color='#CC397C90')
+        #plt.bar(pd_center, t_series_max, width=windows[0], color='#6C62E790')
+        #plt.plot([1850.49, 1850.49], [0, t_series_max], color='#CC397C')
+        #plt.plot([1980, 1980], [0, t_series_max], color='#6C62E7')
+        #label
+        plt.xlabel('Year (CE)')
+        plt.ylabel('BC Concentration (ng/g)')
+        plt.xlim([1830, 2000])
+        plt.ylim([0, t_series_max])
+        plt.title(file)
+        #print(file, 'pd=', "{:.2f}".format(p_d), 'pi=', "{:.2f}".format(p_i), 'ratio=', "{:.2f}".format(p_d/p_i))
+        plt.savefig('figures/ice-cores/test-explain-tseries.png', dpi=300)
+elif (inp == 'yawc'): #year avergeing window comparisone
+    def bxp_data(label, median, std):
+        std *= 0.5
+        item = {}
+        item["label"] = label
+        item["med"] = median
+        item["q1"] = item["med"]
+        item["q3"] = item["med"]
+        item["whislo"] = median + std
+        item["whishi"] = np.max([median - std, 0])
+        item["fliers"] = []
+        return item
+    stats = [
+        bxp_data('5 Year', 2.30, 2.25),
+        bxp_data('10 Year', 2.07, 2.38),
+        bxp_data('15 Year', 1.88, 1.90),
+        bxp_data('20 Year', 1.76, 1.56),
+        bxp_data('25 Year', 1.69, 1.42),
+        bxp_data('30 Year', 1.75, 1.90)
+    ]
+    fig, ax = plt.subplots(1, 1)
+    ax.bxp(stats, medianprops=dict(color='black'))
+    plt.xlabel('Averaging Technique')
+    plt.ylabel('Mean Ice Core PD/PI BC Ratio (wiskers span std/2)')
+    plt.ylim([0, 4])
+    plt.title('Comparison of Averaging Techniques for PD and PI')
+    plt.savefig('figures/ice-cores/test-yawc.png', dpi=300)
 elif (inp == 'z'):#testing
     print()
 

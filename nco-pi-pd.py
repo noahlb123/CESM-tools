@@ -10,10 +10,11 @@ T = ToolBox()
 bad_boy_mode = True #should the output be written in the cwd
 main_dict = {}
 if len(sys.argv) < 2:
-    raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <OPTINOAL: cesm mode (cesm or *)>')
+    raise Exception('3 command line arguments required: <varaible name common in all desired files> <root directory> <OPTINOAL: cesm mode (cesm or *)> <OPTINOAL: averaging window>')
 target_v = sys.argv[1]
 root = sys.argv[2]
 cesm_mode = sys.argv[3].lower() == 'cesm' if len(sys.argv) >= 4 else False
+avg_window = int(sys.argv[4]) if len(sys.argv) >= 5 else 10
 smallest_grid = T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), target_v)
 prefix_map = {'sootsn': 'LImon_', 'drybc': 'AERmon_', 'loadbc': 'Eday_', 'mmrbc': 'AERmon_'}
 prefix = prefix_map[target_v]
@@ -101,9 +102,9 @@ for model_name, d in main_dict.items():
             time_var = f.variables['time']
             times = f['time'][:]
             assert 'days since' in time_var.units
-            i_start_decade = T.nearest_search(times, year - 5)
+            i_start_decade = T.nearest_search(times, year - avg_window / 2)
             #time_index = T.nearest_search(times, year)
-            i_end_decade = T.nearest_search(times, year + 5)
+            i_end_decade = T.nearest_search(times, year + avg_window / 2)
             f.close()
             new_filename = model_name + file_suffix + '.nc'
             to_eval += 'ncwa -b -a time -d time,' + str(i_start_decade) + ',' + str(i_end_decade) + ' ' + filename + ' ' + new_filename + ' -O && '
@@ -199,7 +200,7 @@ for base, files in bins.items():
     if len(files) == 1:
         to_eval += 'mv ' + files[0] + ' ' + base + '.nc && '
     if len(files) < 1:
-        to_eval += '\techo "all files from ' + base + ' removed." && '
+        to_eval += 'echo "\tall files from ' + base + ' removed." && '
         continue
     bases.append(base + '.nc')
 
