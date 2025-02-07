@@ -40,7 +40,7 @@ p = p.reset_index()
 
 #setup vars
 exclude = set([])#set(['mcconnell-2017-1.csv', 'brugger-2021-1.csv'])
-windows = [10] #25 is best
+windows = [25] #25 is best
 system = platform.system()
 full_data = {}
 for key in windows:
@@ -58,15 +58,15 @@ m_g = 71.5 #midpoint between lowest greenland (60) and highest (83)
 s_g = 60
 patches = { #Okabe and Ito colorblind pallet
     'Arctic': (-15, a_p, 315, 90 - a_p, '#6CB3E4'),
-    'South Greenland': (-55, s_g, 35, m_g - s_g, '#880D1E'),
-    'North Greenland': (-60, m_g, 45, 90 - m_g, '#DDA138'),
+    'South Greenland': (-55, s_g, 35, m_g - s_g, '#6CB3E4'), #'#880D1E'),
+    'North Greenland': (-60, m_g, 45, 90 - m_g, '#6CB3E4'), #'#DDA138'),
     'Antarctica': (-180, -60, 360, -30, '#2C72AD'),
-    'South ZAmerica': (-90, 15, 70, -71, '#EFE362'),
-    'North America': (-170, 15, 115, a_p - 15, '#C17EA5'),
-    'Europe': (-20, 23.5, 80, s_g - 23.5, '#C86526'),
+    'South ZAmerica': (-90, 15, 70, -71, '#000000'), #'#EFE362'),
+    'North America': (-170, 15, 115, a_p - 15, '#000000'), #'#C17EA5'),
+    'Europe': (-20, 23.5, 80, s_g - 23.5, '#000000'), #'#C86526'),
     #'Middle east': (30, 23.5, 30, s_g - 23.5, '#DDA138'),
     'Africa': (-20, 23.5, 80, -58.5, '#000000'),
-    'Asia': (60, 5, 90, a_p - 5, '#459B76')
+    'Asia': (60, 5, 90, a_p - 5, '#000000'), #'#459B76')
 }
 '''
     'Greenland': (-55, s_g, 35, 90 - s_g, '#880D1E'),
@@ -304,7 +304,7 @@ elif (inp == 'n'): #table of ice core numbers and filenames
             filename = row['First Author'].lower() + '-' + str(row['Year']) + '-' + str(i + 1) + '.csv'
             if (filename in exclude):
                 continue
-            df_n.loc[filename, 'Publication Abbreviation'] = row['First Author'] + 'et al. (' + str(row['Year']) + ')'
+            df_n.loc[filename, 'Publication Abbreviation'] = row['First Author'] + ' et al. (' + str(row['Year']) + ')'
             df_n.loc[filename, 'Data Source'] = row['Data Link']
             if math.isnan(row['N']) or math.isnan(row['E']):
                 temp = p_dup.loc[p_dup['Filename'] == filename].squeeze(axis=0)
@@ -317,7 +317,6 @@ elif (inp == 'n'): #table of ice core numbers and filenames
                 df_n.loc[filename, 'Site/Abbreviation'] = row['Abbreviation']
             #df_n.loc[filename, 'Elevation (m above sea lvl)'] = row['Elevation (m above sea lvl)']
     df_n.to_csv('data/manuscript-ice-core-table.csv')
-    print(df_n)
 elif (inp == 'big-table'): #make table comparing individual models
     #setup cmip6 data
     filenames = [x['filename'] for x in main_dict.values()]
@@ -474,13 +473,13 @@ elif (inp == 'l'):
             'color': model_colors['LENS'],#IBM Design library's colorblind pallete
             },
         'CESM': {
-            'dataset': pd.read_csv('data/model-ice-depo/cesm-wetdry/cesm.csv').drop(['model'], axis=1).mean(axis=0),
+            'dataset': pd.read_csv('data/model-ice-depo/cesm-wetdry/cesm-25.csv').drop(['model'], axis=1).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CESM'],
             },
         'CMIP6': {
             #'dataset': pd.read_csv('data/model-ice-depo/cmip6/drybc.csv').loc[pd.read_csv('data/model-ice-depo/cmip6/drybc.csv')['model'] == 'CESM2'],
-            'dataset': pd.read_csv('data/model-ice-depo/cmip6/drybc.csv').drop(['model'], axis=1).mean(axis=0), #pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cmip6', 'alt-method.csv')),
+            'dataset': pd.read_csv('data/model-ice-depo/cmip6/drybc-25.csv').drop(['model'], axis=1).mean(axis=0), #pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'cmip6', 'alt-method.csv')),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CMIP6'],
             },
@@ -491,12 +490,12 @@ elif (inp == 'l'):
             },
         'CESM-SOOTSN': { #changed to intentionally wrong input file
             #'dataset': pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv').loc[pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv')['model'] == 'CESM2'],
-            'dataset': pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv').drop(['model'], axis=1).replace(to_replace='--', value=np.nan).mean(axis=0),
+            'dataset': pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn-25.csv').drop(['model'], axis=1).replace(to_replace='--', value=np.nan).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CESM-SOOTSN'],
             },
         'loadbc': {
-            'dataset': pd.read_csv('data/model-ice-depo/loadbc/loadbc.csv').loc[pd.read_csv('data/model-ice-depo/loadbc/loadbc.csv')['model'] == 'CESM2'],
+            'dataset': pd.read_csv('data/model-ice-depo/loadbc/loadbc-25.csv').loc[pd.read_csv('data/model-ice-depo/loadbc/loadbc.csv')['model'] == 'CESM2'],
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CMIP6'],
             },
@@ -724,8 +723,9 @@ elif (inp == 'l'):
             }, index=filenames)
         #reformat data
         region_filename = t.invert_dict_list(filename_region)
-        sorted_regions = list(region_filename.keys())
-        sorted_regions.sort()
+        #sorted_regions = list(region_filename.keys())
+        #sorted_regions.sort()
+        sorted_regions = ['Arctic', 'North Greenland', 'South Greenland', 'Antarctica', 'Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica']
         region_filename = {i: region_filename[i] for i in sorted_regions}
         data = {model: [] for model in df.columns}
         del data['core index'], data['region']
@@ -737,7 +737,8 @@ elif (inp == 'l'):
         x = np.arange(len(region_filename.keys()))
         multiplier = 0
         width = 0.2
-        bar_labels = list(region_filename.keys())
+        #bar_labels = list(region_filename.keys())
+        bar_labels = ['Arctic', 'North Greenland', 'South Greenland', 'Antarctica', 'Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica']
         bar_colors = [patches[s][-1] + '30' for s in bar_labels]
         bar_width = 1
         max_box_height = df.drop('core index', axis=1).max(numeric_only=True).max()
@@ -751,7 +752,12 @@ elif (inp == 'l'):
             for i in range(len(data[model])):
                 pos = x[i] + offset
                 if len(data[model][i]) != 2:
-                    bplot = ax.boxplot(data[model][i], widths=width, positions=[pos], patch_artist=True, boxprops=dict(facecolor=ca, color=c), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False, showcaps=False, showmeans=False, showbox=True)
+                    bplot = ax.boxplot(data[model][i], widths=width, positions=[pos], patch_artist=True, boxprops=dict(facecolor=ca, color=c, linewidth=0), capprops=dict(color=c), medianprops=dict(color='black', linewidth=0), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False, showcaps=False, showmeans=False, showbox=True)
+                    for median in bplot['medians']:
+                        #median.set(color='k', linewidth=1.5,)
+                        med_x, med_y = median.get_data()
+                        xn = (med_x - (med_x.sum()/2.)) * 0.5 + (med_x.sum()/2.)
+                        plt.plot(med_x, med_y, color="k", linewidth=1, solid_capstyle="butt", zorder=4)
                     box_heights += [item.get_ydata()[1] for item in bplot['whiskers']]
                 else:
                     plt.plot(2 * [pos], data[model][i], c=c, linewidth=1)
@@ -767,9 +773,9 @@ elif (inp == 'l'):
         #bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors, zorder=0)
         y_ticks = [0.3, 0.5, 1, 2, 4, 7, 10, 20]
         max_box_height = np.max([max_box_height + 0.1] + y_ticks)
-        bars = ax.bar(x + width * 1.5, max_box_height, bar_width, color=bar_colors, zorder=0)
+        bars = ax.bar(x + width * 1.5, max_box_height, bar_width - 0.03, color=bar_colors, zorder=0)
         bar_labels[bar_labels.index('South ZAmerica')] = 'South America'
-        plt.xticks(rotation=45)
+        plt.xticks(rotation=90)
         ax.set_yscale('log')
         ax.set_xticks(x + width * 1.5, bar_labels)
         ax.set_xlim([x[0] + width * 1.5 - bar_width / 2, x[-1] + width * 1.5 + bar_width / 2])
@@ -783,7 +789,7 @@ elif (inp == 'l'):
         legend_names = {'CMIP6': 'CMIP6 (8 models)', 'CESM': 'CESM (1 model)', 'LENS': 'LENS (1 model)', 'Ice Core': 'Ice Core', 'mmrbc': 'mmrbc'}
         for model in data.keys():
             legend_handels.append(Patch(label=legend_names[model], facecolor=model_colors[model]))
-        ax.legend(handles=legend_handels)
+        ax.legend(handles=legend_handels, loc=9, bbox_to_anchor=(-0.05, -0.15))
         #axis labels colors
         for a in plt.gcf().get_axes():
             for i in range(len(bar_labels)):
