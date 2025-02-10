@@ -19,7 +19,7 @@ if analysis == '2024 LA Wildfires':
 
     #setup netCDF dataset
     f = Dataset('/glade/derecho/scratch/nlbills/la-pm2.5/la-pm2.5/merged.nc')
-    pm = f['placeholder'][:]
+    pm = f['AEROT_P0_L101_GLL0'][:]
     print(np.shape(pm))
     exit()
     lats = f['lat'][:]
