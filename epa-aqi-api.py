@@ -2,13 +2,6 @@ import json
 import sys
 import requests
 import math
- 
-#Get api credentials
-f = open('secrets.json')
-data = json.load(f)
-email = data['email']
-api_key = data['epa-key']
-f.close()
 
 #set analsis mode
 if len(sys.argv) < 2 or sys.argv[1] not in ["Seasonal PM2.5", "2024 LA Wildfires"]:
@@ -41,6 +34,13 @@ if analysis == '2024 LA Wildfires':
 
 
 elif analysis == 'Seasonal PM2.5':
+    #Get api credentials
+    f = open('secrets.json')
+    data = json.load(f)
+    email = data['email']
+    api_key = data['epa-key']
+    f.close()
+
     #define scope
     east = [
         ["12", "073", "125", "0012", "0001", "Florida, Tallahassee"],
