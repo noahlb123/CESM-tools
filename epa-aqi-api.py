@@ -10,6 +10,10 @@ analysis = sys.argv[1]
 
 
 if analysis == '2024 LA Wildfires':
+    #crop by lat, lon
+    #ncks -O -d lat,31.,37. -d lon,238.,244. copy.nc copy.nc
+    #get data from specific lat,lon
+    #ncks --no_nm_prn -H -C -v AEROT_P0_L101_GLL0 -d lat_0,34.0549 -d lon_0,241.7574 copy.nc
     #import la specific packages
     import numpy as np
     import pandas as pd
