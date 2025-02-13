@@ -17,11 +17,11 @@ from matplotlib import rcParams
 from scipy.stats import gaussian_kde
 from scipy.stats import norm
 from scipy.stats import iqr
-#from netCDF4 import Dataset
+from netCDF4 import Dataset
 import plotly.express as px
 import numpy as np
 import platform
-#import cartopy
+import cartopy
 import random
 import scipy
 import tools
@@ -437,6 +437,7 @@ elif (inp == 'c'): #Cartopy
             if key == 'sigl-2018-1.csv':
                 modification = ",36"
             if key not in ('eichler-2023-1.csv'):
+                #split european cores in half
                 if key != 'sigl-2018-1.csv':
                     plt.plot(lon, lat, c=color, markeredgecolor='black', marker='.', markersize=16*scale, transform=cartopy.crs.PlateCarree())
                 else:
@@ -444,16 +445,22 @@ elif (inp == 'c'): #Cartopy
                     ax.add_patch(Wedge((-34, -8), 4 * scale, 90, -90, fc=color, ec='black', zorder=999999))
                 rcParams.update({'font.size': 12 * scale})
                 if (projection == 'north-pole' and lat >= 60) or (projection == 'antartica' and lat <= -60) or (projection == 'rotated-pole' and -60 <= lat <= 60):
-                    #plt.text(lon + offsets[key][0], lat + offsets[key][1], " " + str(i) + modification, c="white", transform=cartopy.crs.PlateCarree(), path_effects=[pe.withStroke(linewidth=2*scale, foreground=stroke_color)])
                     pass
+                    #plt.text(lon + offsets[key][0], lat + offsets[key][1], " " + str(i) + modification, c="white", transform=cartopy.crs.PlateCarree(), path_effects=[pe.withStroke(linewidth=2*scale, foreground=stroke_color)])
             #plt.plot(lon, lat, c=cmap(norm(math.log(obj['ratio'], 10))), markeredgecolor='black', marker='.', markersize=6, transform=cartopy.crs.PlateCarree())
             index_name_map[i] = key
             i += 1
         if not projection in ('antartica', 'north-pole'):
-            rcParams.update({'font.size': 10})
-            plt.colorbar(mappable=sm, label="1980/1850 BC Conc.", orientation="horizontal")
-            #plt.colorbar(mappable=mesh.colorbar, label="Elevation (m)", orientation="horizontal")
+            pass
+            #rcParams.update({'font.size': 10})
+            #plt.colorbar(mappable=sm, label="1980/1850 BC Conc.", orientation="horizontal")
+            #rcParams.update({'font.size': 7})
+            #plt.colorbar(mappable=mesh.colorbar, label="Elevation (m)", orientation="vertical")
         
+        #remove border from plot
+        ax.patch.set_visible(False)
+        ax.axis('off')
+
         #patches
         '''for patch in patches.values():
             ax.add_patch(Rectangle(xy=[patch[0], patch[1]], width=patch[2], height=patch[3], facecolor=patch[4] + '50', edgecolor=patch[4],transform=cartopy.crs.PlateCarree()))'''

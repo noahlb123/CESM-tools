@@ -11,7 +11,7 @@ analysis = sys.argv[1]
 
 if analysis == '2024 LA Wildfires':
     #crop by lat, lon
-    #ncks -O -d lat,31.,37. -d lon,238.,244. copy.nc copy.nc
+    #ncks -O -d lat_0,31.,37. -d lon_0,238.,244. copy.nc copy.nc
     #get data from specific lat,lon
     #ncks --no_nm_prn -H -C -v AEROT_P0_L101_GLL0 -d lat_0,34.0549 -d lon_0,241.7574 copy.nc
     #import la specific packages
@@ -21,21 +21,43 @@ if analysis == '2024 LA Wildfires':
     from tools import ToolBox
     T = ToolBox()
 
-    #setup netCDF dataset
-    print('what')
-    f = Dataset('/glade/derecho/scratch/nlbills/la-pm2.5/la-pm2.5/merged.nc')
-    pm = f['AEROT_P0_L101_GLL0'][:]
-    print(np.shape(pm))
-    exit()
-    lats = f['lat'][:]
-    lons = f['lons'][:]
-    lat_la = T.nearest_search(lats, -118.2426)
-    lon_la = T.nearest_search(lons, 34.0549)
+    #return BP_lo, BP_hi, I_lo, I_hi
+    def epa_t6_map(pm25):
+        if pm25 > 225.4:
+            return (225.5, 325.4, 301, 500)
+        elif 125.4 < pm25 <= 225.4:
+            return (125.5, 225.4, 201, 300)
+        elif 55.4 < pm25 <= 125.4:
+            return (55.5, 125.4, 151, 200)
+        elif 35.4 < pm25 <= 55.4:
+            return (35.5, 55.4, 101, 150)
+        elif 9 < pm25 <= 35.4:
+            return (9.1, 35.4, 51, 100)
+        else:
+            return (0, 9, 0, 50)
 
-    #save with pandas as csv
-    df = pd.DataFrame(columns=['hourly PM2.5 at lat=' + lats[lat_la] + ' lon=' + lons[lon_la]], data='placeholder')
-    df.index.name = 'hour since beginning of Jan 2025'
-    df.to_csv('data/la-wildfire-summary')
+    #return f, I_lo, BP_lo
+    def epa_t6_factors(pm25):
+        if pm25 > 225.4:
+            return (0.18, 0, 0)
+        elif 125.4 < pm25 <= 225.4:
+            return (0.536734693877551, 51, 9.1)
+        elif 55.4 < pm25 <= 125.4:
+            return (0.4061224489795918, 101, 35.5)
+        elif 35.4 < pm25 <= 55.4:
+            return (1.426530612244898, 151, 55.5)
+        elif 9 < pm25 <= 35.4:
+            return (1.009090909090909, 201, 125.5)
+        else:
+            return (0.5020100502512561, 301, 225.5)
+    
+    #return f, I_lo, BP_lo
+    def calc_f(d):
+        (BP_lo, BP_hi, I_lo, I_hi) = d
+        return ((BP_hi - BP_lo)/(I_hi - I_lo), I_lo, BP_lo)
+    
+    for i in [1, 10, 50, 100, 200, 500]:
+        print(calc_f(epa_t6_map(i)))
 
 
 elif analysis == 'Seasonal PM2.5':
