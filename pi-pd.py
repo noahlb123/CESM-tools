@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from scipy.stats import gaussian_kde
 from scipy.stats import norm
+import statsmodels.api as sm
 from scipy.stats import iqr
 from netCDF4 import Dataset
 import plotly.express as px
@@ -1217,7 +1218,7 @@ elif (inp == 'ets'):
         plt.title(file)
         #print(file, 'pd=', "{:.2f}".format(p_d), 'pi=', "{:.2f}".format(p_i), 'ratio=', "{:.2f}".format(p_d/p_i))
         plt.savefig('figures/ice-cores/test-explain-tseries.png', dpi=300)
-elif (inp == 'yawc'): #year avergeing window comparisone
+elif (inp == 'yawc'): #year avergeing window comparison
     def bxp_data(label, median, std):
         std *= 0.5
         item = {}
@@ -1244,6 +1245,24 @@ elif (inp == 'yawc'): #year avergeing window comparisone
     plt.ylim([0, 4])
     plt.title('Comparison of Averaging Techniques for PD and PI')
     plt.savefig('figures/ice-cores/test-yawc.png', dpi=300)
+elif (inp == 'tdc'):#timeseries decomposition
+    dta = sm.datasets.co2.load_pandas().data
+    for file in main_dict.keys():
+        if file in ['eichler-2023-1.csv']:
+            continue
+        print(file)
+        df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', file))
+        df.interpolate(inplace=True)
+        for i in [3, 10, 25]:
+            res = sm.tsa.seasonal_decompose(df['BC'], period=i)
+            plt.plot(df['Yr'], res.seasonal, label='seasonal')
+            plt.plot(df['Yr'], res.resid, label='residual')
+            plt.plot(df['Yr'], res.trend, label='trend')
+            plt.plot(df['Yr'], df['BC'], label='obs', color='black')
+            plt.legend()
+            plt.title(file + ' period=' + str(i))
+            plt.savefig('figures/ice-cores/decomposition/' + file + '-' + str(i) + '.png', dpi=200)
+            plt.close()
 elif (inp == 'z'):#testing
     print()
 
