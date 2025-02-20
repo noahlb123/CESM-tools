@@ -766,10 +766,10 @@ elif (inp == 'l'):
                         med_x, med_y = median.get_data()
                         xn = (med_x - (med_x.sum()/2.)) * 0.5 + (med_x.sum()/2.)
                         plt.plot(med_x, med_y, color="k", linewidth=1, solid_capstyle="butt", zorder=4)
-                    box_heights += [item.get_ydata()[1] for item in bplot['whiskers']]
+                    #box_heights += [item.get_ydata()[1] for item in bplot['whiskers']]
                 else:
                     plt.plot(2 * [pos], data[model][i], c=c, linewidth=1)
-                    box_heights += [data[model][i]]
+                    #box_heights += [data[model][i]]
             for i in range(len(data[model])):
                 if len(data[model][i]) > 1:
                     plt.scatter(len(data[model][i]) * [x[i] + offset], data[model][i], c=c, s=8)
