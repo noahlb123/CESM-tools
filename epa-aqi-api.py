@@ -82,7 +82,7 @@ if analysis == '2024 LA Wildfires':
 
     #color
     cmap = colormaps['viridis']
-    c_norm = LogNorm(vmin=0, vmax=325)
+    c_norm = LogNorm(vmin=1, vmax=325)
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
     #plot
