@@ -72,7 +72,7 @@ if analysis == '2024 LA Wildfires':
         print(conc(i))
     
     #get data
-    f = Dataset(os.path.join(os.cwd(), file))
+    f = Dataset(os.path.join(os.getcwd(), file))
     lats = f['lat'][:]
     lons = f['lon'][:]
     x = f['aot_869'][:]
@@ -92,7 +92,7 @@ if analysis == '2024 LA Wildfires':
     #plot
     plt.pcolormesh(lons, lats, x, transform=ccrs.PlateCarree())
     plt.colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal")
-    plt.savefig(os.path.join(os.cwd(), 'epa-fig.png'))
+    plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'))
 
 elif analysis == 'Seasonal PM2.5':
     #Get api credentials
