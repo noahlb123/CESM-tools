@@ -88,7 +88,7 @@ if analysis == '2024 LA Wildfires':
 
     #plot
     plt.pcolormesh(lons, lats, x, transform=cartopy.crs.PlateCarree())
-    plt.colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal")
+    ax.colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal")
     plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'))
 
 elif analysis == 'Seasonal PM2.5':
