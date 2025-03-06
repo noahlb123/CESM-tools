@@ -76,11 +76,11 @@ if analysis == '2024 LA Wildfires':
 
     #convert units
     print('convering...')
-    #x = [[[conc(x[i, j, k]) for i in range(len(x))] for j in range(len(x[0]))] for k in range(len(x[0][0]))]
+    x = [[[conc(x[i, j, k]) for i in range(len(x))] for j in range(len(x[0]))] for k in range(len(x[0][0]))]
 
     #save new netcdf
     print('saving...')
-    out = Dataset(file.replace('temp', 'epa-output'), "w")
+    out = Dataset(file.replace('temp', 'epa-final'), "w")
     time_d = out.createDimension("time", 744)
     lat = out.createDimension("lat", 267)
     lon = out.createDimension("lon", 267)
@@ -124,8 +124,8 @@ if analysis == '2024 LA Wildfires':
     c_norm = LogNorm(vmin=1, vmax=325)
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
-    #plot file.replace('temp', 'epa-output'))['pm2.5']
-    plt.pcolormesh(lons, lats, x[0,:,:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+    #plot
+    plt.pcolormesh(lons, lats, Dataset(file.replace('temp', 'epa-final'))['pm2.5'][0,:,:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
     plt.colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal", ax=ax)
     plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'), dpi=200)
 
