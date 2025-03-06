@@ -85,12 +85,12 @@ if analysis == '2024 LA Wildfires':
 
     #color
     cmap = colormaps['BrBG_r']
-    bounds = [round(x, 1) for x in np.linspace(0, 2, 10)]
+    bounds = [round(x, 1) for x in np.linspace(0, 100, 100)]
     c_norm = BoundaryNorm(bounds, cmap.N)
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
     #plot
-    plt.pcolormesh(lons, lats, x, transform=ccrs.PlateCarree())
+    plt.pcolormesh(lons, lats, x, transform=cartopy.crs.PlateCarree())
     plt.colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal")
     plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'))
 
