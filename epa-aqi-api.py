@@ -109,7 +109,7 @@ if analysis == '2024 LA Wildfires':
     longitudes[:] = lons
     time[:] = [i for i in range(744)]
     f.close()
-    main_v[:] = np.muptiply(x, 100)
+    main_v[:] = np.multiply(x, 100)
     #oldemissions.close()
     out.close()
 
