@@ -72,7 +72,7 @@ if analysis == '2024 LA Wildfires':
         print(conc(i))
     
     #get data
-    f = Dataset(os.path.join(os.getcwd(), file))
+    f = Dataset(os.path.join(file))
     lats = f['lat'][:]
     lons = f['lon'][:]
     x = f['aot_869'][:]
