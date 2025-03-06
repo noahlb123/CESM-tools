@@ -70,7 +70,6 @@ if analysis == '2024 LA Wildfires':
     
     #get data
     f = Dataset(os.path.join(file))
-    record = f['record'][:]
     lats = f['lat_0'][:]
     lons = f['lon_0'][:]
     x = f['AEROT_P0_L101_GLL0']
@@ -108,7 +107,7 @@ if analysis == '2024 LA Wildfires':
     #time.cell_methods = "time: mean"
     latitudes[:] = lats
     longitudes[:] = lons
-    time[:] = record
+    time[:] = [i for i in range(744)]
     f.close()
     main_v[:] = np.muptiply(x, 100)
     #oldemissions.close()
