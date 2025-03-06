@@ -73,8 +73,8 @@ if analysis == '2024 LA Wildfires':
     
     #get data
     f = Dataset(os.path.join(file))
-    lats = f['lat'][:]
-    lons = f['lon'][:]
+    lats = f['lat_0'][:]
+    lons = f['lon_0'][:]
     x = f['aot_869'][:]
 
     #setup cartopy
