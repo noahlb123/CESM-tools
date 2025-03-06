@@ -20,7 +20,7 @@ if analysis == '2024 LA Wildfires':
     from matplotlib import colormaps
     import matplotlib.pyplot as plt
     from matplotlib.cm import ScalarMappable
-    from matplotlib.colors import BoundaryNorm
+    from matplotlib.colors import Normalize
     import numpy as np
     import pandas as pd
     from netCDF4 import Dataset
@@ -85,8 +85,7 @@ if analysis == '2024 LA Wildfires':
 
     #color
     cmap = colormaps['BrBG_r']
-    bounds = [round(x, 1) for x in np.linspace(0, 100, 100)]
-    c_norm = BoundaryNorm(bounds, cmap.N)
+    c_norm = Normalize(vmin=0, vmax=325)
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
     #plot
