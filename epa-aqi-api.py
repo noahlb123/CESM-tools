@@ -70,12 +70,17 @@ if analysis == '2024 LA Wildfires':
     
     #get data
     f = Dataset(os.path.join(file))
+    record = f['record'][:]
     lats = f['lat_0'][:]
     lons = f['lon_0'][:]
     x = f['AEROT_P0_L101_GLL0']
-    x = [[[conc(x[i, j, k]) for i in range(len(x))] for j in range(len(x[0]))] for k in range(len(x[0][0]))]
+
+    #convert units
+    print('convering AQI to PM2.5...')
+    #x = [[[conc(x[i, j, k]) for i in range(len(x))] for j in range(len(x[0]))] for k in range(len(x[0][0]))]
 
     #setup cartopy
+    print('ploting...')
     plt.clf()
     fig, ax = plt.subplots(dpi=200, subplot_kw={'projection': cartopy.crs.NearsidePerspective(central_latitude=34, central_longitude=-119)})
     ax.set_extent((238, 244, 31, 37), cartopy.crs.PlateCarree())
@@ -90,6 +95,41 @@ if analysis == '2024 LA Wildfires':
     plt.pcolormesh(lons, lats, x[0,:,:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
     plt.colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal", ax=ax)
     plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'))
+
+    #save new netcdf
+    print('saving...')
+    out = Dataset(file.replace('temp', 'epa-output'), "w")
+    time_d = out.createDimension("time", 744)
+    lat = out.createDimension("lat", 267)
+    lon = out.createDimension("lon", 267)
+    time = out.createVariable("time","f8",("time"))
+    main_v = out.createVariable("pm2.5","f8",("time", "lat", "lon"))
+    latitudes = out.createVariable("lat","f8",("lat"))
+    longitudes = out.createVariable("lon","f8",("lon"))
+    #dates = out.createVariable("date","f8",("time"))
+    #dates.units = "YYYYMMDD"
+    #dates.cell_methods = "time: mean"
+    #dates.long_name = "Date"
+    latitudes.long_name = "Latitude"
+    longitudes.long_name = "Longitude"
+    time.long_name = "Time"
+    main_v.long_name = "PM2.5"
+    main_v.units = "ug/m^3"
+    #BAs.history = "CEDS species: BC*1.0"
+    #BAs.molecular_weight = 12
+    #BAs.cell_methods = "time: mean"
+    latitudes.units = "degrees_north"
+    longitudes.units = "degrees_east"
+    #time.units = "days since 1750-01-01 00:00:00"
+    #time.calendar = "Gregorian"
+    #time.cell_methods = "time: mean"
+    latitudes[:] = lats
+    longitudes[:] = lons
+    time[:] = record
+    f.close()
+    main_v[:] = np.muptiply(x, 100)
+    #oldemissions.close()
+    out.close()
 
 elif analysis == 'Seasonal PM2.5':
     #Get api credentials
