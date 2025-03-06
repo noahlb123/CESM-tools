@@ -108,7 +108,6 @@ if analysis == '2024 LA Wildfires':
     latitudes[:] = lats
     longitudes[:] = lons
     time[:] = [i for i in range(744)]
-    f.close()
     main_v[:] = x
     #oldemissions.close()
     out.close()
@@ -116,9 +115,8 @@ if analysis == '2024 LA Wildfires':
     #setup cartopy
     print('ploting...')
     plt.clf()
-    ax = plt.axes(projection=cartopy.crs.Robinson())
-    #fig, ax = plt.subplots(dpi=200, subplot_kw={'projection': cartopy.crs.NearsidePerspective(central_latitude=34, central_longitude=-119)})
-    #ax.set_extent((238, 244, 31, 37), cartopy.crs.PlateCarree())
+    fig, ax = plt.subplots(dpi=200, subplot_kw={'projection': cartopy.crs.NearsidePerspective(central_latitude=34, central_longitude=-119)})
+    ax.set_extent((238, 244, 31, 37), cartopy.crs.PlateCarree())
     ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
 
     #color
