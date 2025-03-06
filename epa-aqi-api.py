@@ -68,14 +68,12 @@ if analysis == '2024 LA Wildfires':
         BP_lo, BP_hi, I_lo, I_hi = epa_t6_aqi_map(AQI)
         return (AQI - I_lo) * (BP_hi - BP_lo) / (I_hi - I_lo) + BP_lo
     
-    for i in [1, 10, 50, 100, 200, 500]:
-        print(conc(i))
-    
     #get data
     f = Dataset(os.path.join(file))
     lats = f['lat_0'][:]
     lons = f['lon_0'][:]
     x = f['AEROT_P0_L101_GLL0'][:]
+    print(np.shape(x))
 
     #setup cartopy
     plt.clf()
