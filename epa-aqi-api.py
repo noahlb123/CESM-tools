@@ -85,7 +85,7 @@ if analysis == '2024 LA Wildfires':
 
     #color
     cmap = colormaps['BrBG_r']
-    bounds = [round(x, 1) for x in np.linspace(0, 325, 325)]
+    bounds = [round(x, 1) for x in np.linspace(0, 2, 10)]
     c_norm = BoundaryNorm(bounds, cmap.N)
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
