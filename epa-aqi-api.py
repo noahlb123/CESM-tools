@@ -75,7 +75,7 @@ if analysis == '2024 LA Wildfires':
     x = f['AEROT_P0_L101_GLL0'][:]
 
     #convert units
-    print('convering AQI to PM2.5...')
+    print('convering...')
     #x = [[[conc(x[i, j, k]) for i in range(len(x))] for j in range(len(x[0]))] for k in range(len(x[0][0]))]
 
     #save new netcdf
@@ -109,7 +109,7 @@ if analysis == '2024 LA Wildfires':
     longitudes[:] = lons
     time[:] = [i for i in range(744)]
     f.close()
-    main_v = x
+    main_v[:] = x
     #oldemissions.close()
     out.close()
 
