@@ -95,7 +95,7 @@ if analysis == '2024 LA Wildfires':
     latitudes.long_name = "Latitude"
     longitudes.long_name = "Longitude"
     time.long_name = "Time"
-    main_v.long_name = "PM2.5"
+    main_v.long_name = "pm2.5"
     main_v.units = "ug/m^3"
     #BAs.history = "CEDS species: BC*1.0"
     #BAs.molecular_weight = 12
@@ -126,7 +126,7 @@ if analysis == '2024 LA Wildfires':
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
     #plot
-    plt.pcolormesh(lons, lats, Dataset(file.replace('temp', 'epa-output'))['PM2.5'][0,:,:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+    plt.pcolormesh(lons, lats, Dataset(file.replace('temp', 'epa-output'))['pm2.5'][0,:,:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
     plt.colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal", ax=ax)
     plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'))
 
