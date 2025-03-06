@@ -20,7 +20,7 @@ if analysis == '2024 LA Wildfires':
     from matplotlib import colormaps
     import matplotlib.pyplot as plt
     from matplotlib.cm import ScalarMappable
-    from matplotlib.colors import Normalize
+    from matplotlib.colors import LogNorm
     import numpy as np
     import pandas as pd
     from netCDF4 import Dataset
@@ -82,7 +82,7 @@ if analysis == '2024 LA Wildfires':
 
     #color
     cmap = colormaps['viridis']
-    c_norm = Normalize(vmin=0, vmax=325)
+    c_norm = LogNorm(vmin=0, vmax=325)
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
     #plot
