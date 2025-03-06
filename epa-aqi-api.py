@@ -7,6 +7,7 @@ import math
 if len(sys.argv) < 2 or sys.argv[1] not in ["Seasonal PM2.5", "2024 LA Wildfires"]:
     raise Exception('1 command line argument required: <anaylysis type ("Seasonal PM2.5" or "2024 LA Wildfires")> ex. python3 epa-aqi-api.py "2024 LA Wildfires"')
 analysis = sys.argv[1]
+file = sys.argv[2] if analysis == '2024 LA Wildfires' else None
 
 
 if analysis == '2024 LA Wildfires':
@@ -15,10 +16,16 @@ if analysis == '2024 LA Wildfires':
     #get data from specific lat,lon
     #ncks --no_nm_prn -H -C -v AEROT_P0_L101_GLL0 -d lat_0,34.0549 -d lon_0,241.7574 copy.nc
     #import la specific packages
+    import cartopy
+    from matplotlib import colormaps
+    import matplotlib.pyplot as plt
+    from matplotlib.cm import ScalarMappable
+    from matplotlib.colors import BoundaryNorm
     import numpy as np
     import pandas as pd
     from netCDF4 import Dataset
     from tools import ToolBox
+    import os
     T = ToolBox()
 
     #return BP_lo, BP_hi, I_lo, I_hi
@@ -35,30 +42,57 @@ if analysis == '2024 LA Wildfires':
             return (9.1, 35.4, 51, 100)
         else:
             return (0, 9, 0, 50)
-
-    #return f, I_lo, BP_lo
-    def epa_t6_factors(pm25):
-        if pm25 > 225.4:
-            return (0.18, 0, 0)
-        elif 125.4 < pm25 <= 225.4:
-            return (0.536734693877551, 51, 9.1)
-        elif 55.4 < pm25 <= 125.4:
-            return (0.4061224489795918, 101, 35.5)
-        elif 35.4 < pm25 <= 55.4:
-            return (1.426530612244898, 151, 55.5)
-        elif 9 < pm25 <= 35.4:
-            return (1.009090909090909, 201, 125.5)
+    
+    #return BP_lo, BP_hi, I_lo, I_hi
+    def epa_t6_aqi_map(AQI):
+        if AQI > 300:
+            return (225.5, 325.4, 301, 500)
+        elif 200 < AQI <= 300:
+            return (125.5, 225.4, 201, 300)
+        elif 150 < AQI <= 200:
+            return (55.5, 125.4, 151, 200)
+        elif 100 < AQI <= 150:
+            return (35.5, 55.4, 101, 150)
+        elif 50 < AQI <= 100:
+            return (9.1, 35.4, 51, 100)
         else:
-            return (0.5020100502512561, 301, 225.5)
+            return (0, 9, 0, 50)
     
     #return f, I_lo, BP_lo
     def calc_f(d):
         (BP_lo, BP_hi, I_lo, I_hi) = d
         return ((BP_hi - BP_lo)/(I_hi - I_lo), I_lo, BP_lo)
     
+    #return concentration in units ug/m3
+    def conc(AQI):
+        BP_lo, BP_hi, I_lo, I_hi = epa_t6_aqi_map(AQI)
+        return (AQI - I_lo) * (BP_hi - BP_lo) / (I_hi - I_lo) + BP_lo
+    
     for i in [1, 10, 50, 100, 200, 500]:
-        print(calc_f(epa_t6_map(i)))
+        print(conc(i))
+    
+    #get data
+    f = Dataset(os.join(os.cwd(), file))
+    lats = f['lat'][:]
+    lons = f['lon'][:]
+    x = f['aot_869'][:]
 
+    #setup cartopy
+    plt.clf()
+    fig, ax = plt.subplots(dpi=200, subplot_kw={'projection': cartopy.crs.NearsidePerspective(central_latitude=34, central_longitude=-119)})
+    ax.set_extent((238, 244, 31, 37), cartopy.crs.PlateCarree())
+    ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
+
+    #color
+    cmap = colormaps['BrBG_r']
+    bounds = [round(x, 1) for x in np.linspace(0, 325, 325)]
+    c_norm = BoundaryNorm(bounds, cmap.N)
+    sm = ScalarMappable(cmap=cmap, norm=c_norm)
+
+    #plot
+    plt.pcolormesh(lons, lats, x, transform=ccrs.PlateCarree())
+    plt.colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal")
+    plt.savefig(os.join(os.cwd(), 'epa-fig.png'))
 
 elif analysis == 'Seasonal PM2.5':
     #Get api credentials

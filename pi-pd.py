@@ -28,6 +28,7 @@ import scipy
 import tools
 import math
 import json
+import time
 import csv
 import sys
 import os
@@ -49,6 +50,7 @@ for key in windows:
 main_dict = {}
 filename_region = {}
 filename_index = {}
+filename_lat_lon = {}
 pd_recent = []
 pd_1980 = []
 name_bc = {}
@@ -153,6 +155,7 @@ for index, row in p.iterrows():
             for key in windows:
                 if math.isnan(lat) or math.isnan(lon):
                     lat, lon, abbr = dup_index_map[filename]
+                filename_lat_lon[filename] = [lat, lon]
                 #full_data[key].append([filename, lat, lon, a1[key], a3[key], a3[key]/a1[key], y1, y3, a3[key], y3])
                 #pd_recent.append(y2)
                 #pd_1980.append(y3)
@@ -1191,7 +1194,7 @@ elif (inp == 'mmrbc'):
     plt.title('pd/pi mmrbc at lat,lon=0,0')
     plt.show()
     plt.close()
-elif (inp == 'ets'):
+elif (inp == 'ets'): #breakdown of how timeseries become pd/pi
     def plot_from_avg(avg_data, color, label):
         avg, center, lower, upper = avg_data
         plt.plot([lower, upper], [avg[windows[0]], avg[windows[0]]], c=color, label=label)
@@ -1204,8 +1207,9 @@ elif (inp == 'ets'):
         t_series_max = np.max(BC[t.nearest_search(Yr, 1850.49):t.nearest_search(Yr, 1980)]) * 1.1
         t_series_max += 0.3 if file == 'mcconnell-2021-5.csv' else 0
         #plot
-        #p_i, pi_center = plot_from_avg(t.simplified_avg(Yr, BC, 1850.49, windows), 'black', 'PI')
-        #p_d, pd_center = plot_from_avg(t.simplified_avg(Yr, BC, 1980, windows), 'black', 'PD')
+        print(windows)
+        p_i, pi_center = plot_from_avg(t.get_avgs(Yr, BC, 1850.49, windows), 'black', 'PI')
+        p_d, pd_center = plot_from_avg(t.get_avgs(Yr, BC, 1980, windows), 'black', 'PD')
         #plt.bar(pi_center, t_series_max, width=windows[0], color='#CC397C90')
         #plt.bar(pd_center, t_series_max, width=windows[0], color='#6C62E790')
         #plt.plot([1850.49, 1850.49], [0, t_series_max], color='#CC397C')
@@ -1216,8 +1220,127 @@ elif (inp == 'ets'):
         plt.xlim([1830, 2000])
         plt.ylim([0, t_series_max])
         plt.title(file)
-        #print(file, 'pd=', "{:.2f}".format(p_d), 'pi=', "{:.2f}".format(p_i), 'ratio=', "{:.2f}".format(p_d/p_i))
+        plt.legend()
         plt.savefig('figures/ice-cores/test-explain-tseries.png', dpi=300)
+elif (inp == 'cmpwin'): #compare which averaging window is closest to bugged method
+    cmpwin_df = pd.DataFrame(columns=list(main_dict.keys()))
+    c_windows = ['bugged', 'fix', 25, 11]
+    for window in c_windows:
+        for filename in cmpwin_df.columns:
+            df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', filename))
+            BC = np.flip(df['BC'].to_numpy())
+            Yr = np.flip(df['Yr'].to_numpy())
+            if window == 'bugged':
+                pi_window = pd_window = 11
+                pi_avg, center, lower, upper = t.get_avgs(Yr, BC, 1850.49, [pi_window])
+                pd_avg, pd_center, pd_lower, pd_upper = t.get_avgs(Yr, BC, 1980, [pi_window])
+            elif window == 'fix':
+                pi_window = 136
+                pd_window = 170#32
+                pi_avg, center, lower, upper = t.simplified_avg(Yr, BC, 1948, [pi_window])
+                pd_avg, pd_center, pd_lower, pd_upper = t.simplified_avg(Yr, BC, 1974, [pd_window])
+            else:
+                pi_window = pd_window = window
+                pi_avg, center, lower, upper = t.simplified_avg(Yr, BC, 1850.49, [window])
+                pd_avg, pd_center, pd_lower, pd_upper = t.simplified_avg(Yr, BC, 1980, [window])
+            cmpwin_df.loc[str(window) + '-ratio', filename] = pd_avg[pd_window] / pi_avg[pi_window]
+            cmpwin_df.loc[str(window) + '-pd', filename] = pd_avg[pd_window]
+            cmpwin_df.loc[str(window) + '-upper', filename] = upper
+            cmpwin_df.loc[str(window) + '-lower', filename] = lower
+            cmpwin_df.loc[str(window) + '-center', filename] = center
+            cmpwin_df.loc[str(window) + '-pd_center', filename] = pd_center
+            cmpwin_df.loc[str(window) + '-dist', filename] = upper - lower
+            cmpwin_df.loc[str(window) + '-pd_upper', filename] = pd_upper
+            cmpwin_df.loc[str(window) + '-pd_lower', filename] = pd_lower
+            cmpwin_df.loc[str(window) + '-pd_dist', filename] = pd_upper - pd_lower
+    #plot correlations
+    bars = []
+    labels = []
+    x = cmpwin_df.loc['bugged-ratio']
+    x_hashed = list(x)
+    '''#minimizer function
+    bc_yr_map = {}
+    def rsq(p_i, p_d, pi_w, pd_w):
+        def get_ratio(filename):
+            if filename in bc_yr_map.keys():
+                BC, Yr = bc_yr_map[filename]
+            else:
+                temp = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', filename))
+                BC = np.flip(temp['BC'].to_numpy())
+                Yr = np.flip(temp['Yr'].to_numpy())
+                bc_yr_map[filename] = (BC, Yr)
+            return t.simplified_avg(Yr, BC, p_d, [pd_w])[0][pd_w] / t.simplified_avg(Yr, BC, p_i, [pi_w])[0][pi_w]
+        return np.power(scipy.stats.linregress(x_hashed, [get_ratio(i) for i in main_dict.keys()])[2], 2)
+    start = time.time()
+    print(rsq(1948, 1974, 140, 172))
+    print(time.time() - start)
+    #exit()
+    #optimize pi, pd
+    max = 0
+    max_params = ()
+    seed = (1949, 1966, 136, 170)
+    for p_i in [seed[0] + i - 3 for i in range(7)]:
+        print(str(p_i + 1) + '/40, max=' + str(max), max_params)
+        for p_d in [seed[1] + i - 3 for i in range(7)]:
+            for pi_w in [seed[2] + i - 3 for i in range(7)]:
+                for pd_w in [seed[3] + i - 3 for i in range(7)]:
+                    temp = rsq(p_i, p_d, pi_w, pd_w)
+                    if temp > max:
+                        max = temp
+                        max_params = (p_i, p_d, pi_w, pd_w)
+    print('final max=' + str(max), max_params)'''
+    for key in ['25-ratio', 'fix-ratio', '11-pd']:
+        if key == 'fix-ratio':
+            bars.append(0.0041)
+            labels.append('136-pi 170-pd')
+        else:
+            y = cmpwin_df.loc[key]
+            slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(list(cmpwin_df.loc['bugged-ratio']), list(y))
+            bars.append(np.power(r_value, 2))
+            labels.append(key)
+    plt.bar([i for i in range(len(bars))], bars, tick_label=labels)
+    plt.ylabel('R^2 correlation with bugged method')
+    plt.xlabel('Averaging Method')
+    plt.show()
+    plt.close()
+    #plot scatter
+    b = list(x.drop(['thompson-2002-1.csv']))
+    t = list(y.drop(['thompson-2002-1.csv']))
+    plt.scatter(b, t)
+    slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(b, t)
+    x = np.array([0, np.max(b)])
+    y = x * slope + intercept
+    plt.plot(x, y)
+    plt.xlabel('bugged ratio, r^2=' + str(np.power(r_value, 2)))
+    plt.ylabel('fix ratio')
+    plt.show()
+    plt.close()
+    exit()
+    #plot some histograms
+    for method in ['bugged', '25']:
+        for prefix in ['pd', 'pi']:
+            u_pre = prefix + '_' if prefix == 'pd' else ''
+            print(prefix + ':')
+            print('mean, median ' + method + ' dist=' + str(np.mean(cmpwin_df.loc[method + '-' + u_pre + 'dist'])) + ',' + str(np.median(cmpwin_df.loc[method + '-' + u_pre + 'dist'])))
+            print('mean, median ' + method + ' center=' + str(np.mean(cmpwin_df.loc[method + '-' + u_pre + 'center'])) + ',' + str(np.median(cmpwin_df.loc[method + '-' + u_pre + 'center'])))
+            print('mean, median ' + method + ' lower=' + str(np.mean(cmpwin_df.loc[method + '-' + u_pre + 'lower'])) + ',' + str(np.median(cmpwin_df.loc[method + '-' + u_pre + 'lower'])))
+            print('mean, median ' + method + ' upper=' + str(np.mean(cmpwin_df.loc[method + '-' + u_pre + 'upper'])) + ',' + str(np.median(cmpwin_df.loc[method + '-' + u_pre + 'upper'])))
+            plt.hist(cmpwin_df.loc[method + '-' + u_pre + 'dist'])
+            plt.title(method + ' ' + prefix + ' ranges')
+            plt.savefig('figures/ice-cores/test-cmpwin-' + method + '-dist' + prefix + '.png', dpi=200)
+            plt.close()
+            plt.hist(cmpwin_df.loc[method + '-' + u_pre + 'lower'])
+            plt.title(method + ' ' + prefix + ' lower range')
+            plt.savefig('figures/ice-cores/test-cmpwin-' + method + '-lower' + prefix + '.png', dpi=200)
+            plt.close()
+            plt.hist(cmpwin_df.loc[method + '-' + u_pre + 'upper'])
+            plt.title(method + ' ' + prefix + ' upper range')
+            plt.savefig('figures/ice-cores/test-cmpwin-' + method + '-upper' + prefix + '.png', dpi=200)
+            plt.close()
+            plt.hist(cmpwin_df.loc[method + '-' + u_pre + 'center'])
+            plt.title(method + ' ' + prefix + ' center')
+            plt.savefig('figures/ice-cores/test-cmpwin-' + method + '-center' + prefix + '.png', dpi=200)
+            plt.close()
 elif (inp == 'yawc'): #year avergeing window comparison
     def bxp_data(label, median, std):
         std *= 0.5
@@ -1263,6 +1386,23 @@ elif (inp == 'tdc'):#timeseries decomposition
             plt.title(file + ' period=' + str(i))
             plt.savefig('figures/ice-cores/decomposition/' + file + '-' + str(i) + '.png', dpi=200)
             plt.close()
+elif (inp == 'lat-plt'):#lat vs ratio greenland plot
+    lats = []
+    ratios = []
+    for filename, region in filename_region.items():
+        if 'Greenland' in region:
+            data = main_dict[filename]
+            lats.append(data['lat'])
+            ratios.append(data['ratio'])
+    slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(lats, ratios)
+    x = [np.min(lats) + i * (np.max(lats) - np.min(lats)) / 99 for i in range(100)]
+    y = np.array(x) * slope + intercept
+    plt.plot(x, y)
+    plt.scatter(lats, ratios)
+    plt.xlabel('Lattitude (Degrees)')
+    plt.ylabel('BC 1980/1850 Ratio')
+    plt.title('Greenland Ratio vs Lattitude, r^2=' + str(round(np.power(r_value, 2), 3)) + ', m=' + str(round(slope, 3)))
+    plt.savefig('figures/ice-cores/test-greenland-lat-ratio', dpi=300)
 elif (inp == 'z'):#testing
     print()
 

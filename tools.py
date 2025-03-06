@@ -142,7 +142,7 @@ class ToolBox:
             [n, my_sum, max_yr, upper, lower] = search_bounds(focus_index - 1, t_l, x_l, w_size, max_yr, n, my_sum, volacno_threshold, -1, upper, lower)
             output[w_size] = my_sum / n
         half_window = windows[0] // 2
-        return [output, focus_year, focus_year - half_window, focus_year + half_window]
+        return [output, focus_year, t_l[lower], t_l[upper]]
     
     #returns mean, median, std, first quartile, last quartile, max, min
     def ncdf_avg(file_path, var_key):
