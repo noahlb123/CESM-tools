@@ -72,7 +72,7 @@ if analysis == '2024 LA Wildfires':
     f = Dataset(os.path.join(file))
     lats = f['lat_0'][:]
     lons = f['lon_0'][:]
-    x = f['AEROT_P0_L101_GLL0'][0,:,:]
+    x = f['AEROT_P0_L101_GLL0']
     x = [[[conc(x[i, j, k]) for i in range(len(x))] for j in range(len(x[0]))] for k in range(len(x[0][0]))]
 
     #setup cartopy
@@ -87,7 +87,7 @@ if analysis == '2024 LA Wildfires':
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
     #plot
-    plt.pcolormesh(lons, lats, x, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+    plt.pcolormesh(lons, lats, x[0,:,:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
     plt.colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal", ax=ax)
     plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'))
 
