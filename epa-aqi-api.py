@@ -72,8 +72,8 @@ if analysis == '2024 LA Wildfires':
     f = Dataset(os.path.join(file))
     lats = f['lat_0'][:]
     lons = f['lon_0'][:]
-    x = f['AEROT_P0_L101_GLL0'][:]
-    print(np.shape(x[0,:,:]))
+    x = f['AEROT_P0_L101_GLL0'][0,:,:]
+    print(np.shape(x))
 
     #setup cartopy
     plt.clf()
