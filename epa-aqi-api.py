@@ -73,7 +73,7 @@ if analysis == '2024 LA Wildfires':
     lats = f['lat_0'][:]
     lons = f['lon_0'][:]
     x = f['AEROT_P0_L101_GLL0'][0,:,:]
-    x = np.array(list(map(conc, x)))
+    x = [[[conc(x[i, j, k]) for i in range(len(x))] for j in range(len(x[0]))] for k in range(len(x[0][0]))]
 
     #setup cartopy
     plt.clf()
