@@ -79,23 +79,6 @@ if analysis == '2024 LA Wildfires':
     print('convering AQI to PM2.5...')
     #x = [[[conc(x[i, j, k]) for i in range(len(x))] for j in range(len(x[0]))] for k in range(len(x[0][0]))]
 
-    #setup cartopy
-    print('ploting...')
-    plt.clf()
-    fig, ax = plt.subplots(dpi=200, subplot_kw={'projection': cartopy.crs.NearsidePerspective(central_latitude=34, central_longitude=-119)})
-    ax.set_extent((238, 244, 31, 37), cartopy.crs.PlateCarree())
-    ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
-
-    #color
-    cmap = colormaps['viridis']
-    c_norm = LogNorm(vmin=1, vmax=325)
-    sm = ScalarMappable(cmap=cmap, norm=c_norm)
-
-    #plot
-    plt.pcolormesh(lons, lats, x[0,:,:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
-    plt.colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal", ax=ax)
-    plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'))
-
     #save new netcdf
     print('saving...')
     out = Dataset(file.replace('temp', 'epa-output'), "w")
@@ -130,6 +113,23 @@ if analysis == '2024 LA Wildfires':
     main_v[:] = np.muptiply(x, 100)
     #oldemissions.close()
     out.close()
+
+    #setup cartopy
+    print('ploting...')
+    plt.clf()
+    fig, ax = plt.subplots(dpi=200, subplot_kw={'projection': cartopy.crs.NearsidePerspective(central_latitude=34, central_longitude=-119)})
+    ax.set_extent((238, 244, 31, 37), cartopy.crs.PlateCarree())
+    ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
+
+    #color
+    cmap = colormaps['viridis']
+    c_norm = LogNorm(vmin=1, vmax=325)
+    sm = ScalarMappable(cmap=cmap, norm=c_norm)
+
+    #plot
+    plt.pcolormesh(lons, lats, Dataset(file.replace('temp', 'epa-output'))['PM2.5'][0,:,:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+    plt.colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal", ax=ax)
+    plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'))
 
 elif analysis == 'Seasonal PM2.5':
     #Get api credentials
