@@ -72,7 +72,7 @@ if analysis == '2024 LA Wildfires':
     f = Dataset(os.path.join(file))
     lats = f['lat_0'][:]
     lons = f['lon_0'][:]
-    x = f['AEROT_P0_L101_GLL0']
+    x = f['AEROT_P0_L101_GLL0'][:]
 
     #convert units
     print('convering AQI to PM2.5...')
@@ -129,7 +129,7 @@ if analysis == '2024 LA Wildfires':
     #plot
     plt.pcolormesh(lons, lats, Dataset(file.replace('temp', 'epa-output'))['pm2.5'][0,:,:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
     plt.colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal", ax=ax)
-    plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'))
+    plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'), dpi=200)
 
 elif analysis == 'Seasonal PM2.5':
     #Get api credentials
