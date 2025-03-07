@@ -77,7 +77,7 @@ if analysis == '2024 LA Wildfires':
 
     #convert units
     print('convering...')
-    x = np.array(map(conc, x))
+    x = list(map(conc, x))
 
     #save new netcdf
     print('saving...')
