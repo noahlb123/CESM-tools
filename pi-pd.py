@@ -143,15 +143,15 @@ for index, row in p.iterrows():
         Yr = np.flip(d['Yr'].to_numpy())
         if filename == 'thompson-2002-1.csv':
             BC = np.flip(lowess(BC, Yr, frac=0.2, is_sorted=True, return_sorted=False))
-        a1, y1, temp, temp = t.simplified_avg(Yr, BC, 1850.49, windows)
-        a3, y3, temp, temp = t.simplified_avg(Yr, BC, 1980, windows)
+        a1, y1, temp, temp = t.simplified_avg(Yr, BC, 1850.49 + 25 / 2, windows)
+        a3, y3, temp, temp = t.simplified_avg(Yr, BC, 1980 - 25 / 2, windows)
         if len(sys.argv) >= 2 and sys.argv[1] == 'n':
             big_table_years = {'1750': None, '1800': None, '1850': None, '1900': None, '1950': None, '1980': None}
             for key in big_table_years.keys():
                 a_temp, y_temp, temp, temp = t.simplified_avg(Yr, BC, int(key), windows)
                 big_table_years[key] = a_temp[windows[0]]
         #add data to datasets
-        if (y1 != None and y3 != None and abs(y1 - y3) >= 100):
+        if (y1 != None and y3 != None and abs(y1 - y3) >= 90):
             for key in windows:
                 if math.isnan(lat) or math.isnan(lon):
                     lat, lon, abbr = dup_index_map[filename]
@@ -449,8 +449,7 @@ elif (inp == 'c'): #Cartopy
                     ax.add_patch(Wedge((-34, -8), 4 * scale, 90, -90, fc=color, ec='black', zorder=999999))
                 rcParams.update({'font.size': 12 * scale})
                 if (projection == 'north-pole' and lat >= 60) or (projection == 'antartica' and lat <= -60) or (projection == 'rotated-pole' and -60 <= lat <= 60):
-                    pass
-                    #plt.text(lon + offsets[key][0], lat + offsets[key][1], " " + str(i) + modification, c="white", transform=cartopy.crs.PlateCarree(), path_effects=[pe.withStroke(linewidth=2*scale, foreground=stroke_color)])
+                    plt.text(lon + offsets[key][0], lat + offsets[key][1], " " + str(i) + modification, c="white", transform=cartopy.crs.PlateCarree(), path_effects=[pe.withStroke(linewidth=2*scale, foreground=stroke_color)])
             #plt.plot(lon, lat, c=cmap(norm(math.log(obj['ratio'], 10))), markeredgecolor='black', marker='.', markersize=6, transform=cartopy.crs.PlateCarree())
             index_name_map[i] = key
             i += 1
