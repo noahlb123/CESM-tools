@@ -22,6 +22,7 @@ if analysis == '2024 LA Wildfires':
     import matplotlib.pyplot as plt
     from matplotlib.cm import ScalarMappable
     from matplotlib.colors import LogNorm
+    from matplotlib.colors import Normalize
     import numpy as np
     import pandas as pd
     from netCDF4 import Dataset
@@ -121,8 +122,8 @@ if analysis == '2024 LA Wildfires':
     ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
 
     #color
-    cmap = colormaps['viridis']
-    c_norm = LogNorm(vmin=1, vmax=325)
+    cmap = colormaps['hsv']
+    c_norm = Normalize(vmin=1, vmax=200)
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
     #plot
