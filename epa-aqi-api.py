@@ -126,8 +126,8 @@ if analysis == '2024 LA Wildfires':
 
     #get data
     f = Dataset(file.replace('temp', 'epa-regridded'))['pm2.5'][240,:,:]
-    lats = f['lat_0'][:]
-    lons = f['lon_0'][:]
+    lats = f['lat'][:]
+    lons = f['lon'][:]
     x = f['AEROT_P0_L101_GLL0'][:]
 
     #color
