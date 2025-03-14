@@ -124,13 +124,19 @@ if analysis == '2024 LA Wildfires':
     ax.set_extent((238, 244, 31, 37), cartopy.crs.PlateCarree())
     ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
 
+    #get data
+    f = Dataset(file.replace('temp', 'epa-regridded'))['pm2.5'][240,:,:]
+    lats = f['lat_0'][:]
+    lons = f['lon_0'][:]
+    x = f['AEROT_P0_L101_GLL0'][:]
+
     #color
     cmap = colormaps['hsv']
     c_norm = Normalize(vmin=0, vmax=200)
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
     #plot
-    plt.pcolormesh(lons, lats, Dataset(file.replace('temp', 'epa-regridded'))['pm2.5'][240,:,:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+    plt.pcolormesh(lons, lats, f, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
     plt.colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal", ax=ax, extend='both')
     plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'), dpi=200)
 
