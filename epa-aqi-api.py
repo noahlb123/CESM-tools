@@ -16,6 +16,8 @@ if analysis == '2024 LA Wildfires':
     #ncks -O -d lat_0,31.,37. -d lon_0,238.,244. copy.nc copy.nc
     #get data from specific lat,lon
     #ncks --no_nm_prn -H -C -v AEROT_P0_L101_GLL0 -d lat_0,34.0549 -d lon_0,241.7574 copy.nc
+    #remap
+    #cdo remapbil,mygrid.txt epa-final.nc epa-regridded.nc
     #import la specific packages
     import cartopy
     from matplotlib import colormaps
@@ -113,6 +115,7 @@ if analysis == '2024 LA Wildfires':
     main_v[:] = x
     #oldemissions.close()
     out.close()
+    f.close()
 
     #setup cartopy
     print('ploting...')
@@ -123,12 +126,12 @@ if analysis == '2024 LA Wildfires':
 
     #color
     cmap = colormaps['hsv']
-    c_norm = Normalize(vmin=1, vmax=200)
+    c_norm = Normalize(vmin=0, vmax=200)
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
     #plot
-    plt.pcolormesh(lons, lats, Dataset(file.replace('temp', 'epa-final'))['pm2.5'][240,:,:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
-    plt.colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal", ax=ax)
+    plt.pcolormesh(lons, lats, Dataset(file.replace('temp', 'epa-regridded'))['pm2.5'][240,:,:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+    plt.colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal", ax=ax, extend='both')
     plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'), dpi=200)
 
 elif analysis == 'Seasonal PM2.5':
