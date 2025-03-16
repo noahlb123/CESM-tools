@@ -1402,6 +1402,22 @@ elif (inp == 'lat-plt'):#lat vs ratio greenland plot
     plt.ylabel('BC 1980/1850 Ratio')
     plt.title('Greenland Ratio vs Lattitude, r^2=' + str(round(np.power(r_value, 2), 3)) + ', m=' + str(round(slope, 3)))
     plt.savefig('figures/ice-cores/test-greenland-lat-ratio', dpi=300)
+elif (inp == 'methods'):#lat vs ratio greenland plot
+    df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'methods-fig-data.csv'))
+    #annual layer counting
+    alc_df = df.pop('Annual Layer Counting Abbrv').str.get_dummies(',')
+    r = [np.random.randint(-2, 2) for i in range(len(alc_df.columns))]
+    x = alc_df.sum(axis=0).to_numpy() * 4 + r
+    plt.bar(alc_df.columns, [2, 2, 8, 1])
+    plt.savefig('figures/ice-cores/test-methods-alc.png', dpi=200)
+    plt.close()
+    #BC methods
+    bc_df = df.pop('Methodology Abbreviation').str.get_dummies(',')
+    r = [np.random.randint(-2, 2) for i in range(len(bc_df.columns))]
+    x = bc_df.sum(axis=0).to_numpy() * 3 + r
+    plt.bar(bc_df.columns, [7, 1 ])
+    plt.savefig('figures/ice-cores/test-methods-bc.png', dpi=200)
+    plt.close()
 elif (inp == 'z'):#testing
     print()
 
