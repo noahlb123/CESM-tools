@@ -1198,7 +1198,7 @@ elif (inp == 'ets'): #breakdown of how timeseries become pd/pi
         avg, center, lower, upper = avg_data
         plt.plot([lower, upper], [avg[windows[0]], avg[windows[0]]], c=color, label=label)
         return (avg[windows[0]], np.mean((lower, upper)))
-    for file in ['zdanowicz-2018-1.csv']:#['zhang-2024-9.csv', 'liu-2021-5.csv', 'mcconnell-2021-5.csv', 'zdanowicz-2018-1.csv']:
+    for file in ['chellman-2017-1.csv', 'liu-2021-3.csv', 'liu-2021-2.csv', 'matthew-2016-1.csv']: #['zhang-2024-9.csv', 'liu-2021-5.csv', 'mcconnell-2021-5.csv', 'zdanowicz-2018-1.csv']:
         df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', file))
         plt.plot(df['Yr'], df['BC'], c='grey', label='Raw Data')
         BC = np.flip(df['BC'].to_numpy())
@@ -1207,8 +1207,8 @@ elif (inp == 'ets'): #breakdown of how timeseries become pd/pi
         t_series_max += 0.3 if file == 'mcconnell-2021-5.csv' else 0
         #plot
         print(windows)
-        p_i, pi_center = plot_from_avg(t.get_avgs(Yr, BC, 1850.49, windows), 'black', 'PI')
-        p_d, pd_center = plot_from_avg(t.get_avgs(Yr, BC, 1980, windows), 'black', 'PD')
+        p_i, pi_center = plot_from_avg(t.simplified_avg(Yr, BC, 1850.49 + 25/2, windows), 'black', 'PI')
+        p_d, pd_center = plot_from_avg(t.simplified_avg(Yr, BC, 1967.5, windows), 'black', 'PD')
         #plt.bar(pi_center, t_series_max, width=windows[0], color='#CC397C90')
         #plt.bar(pd_center, t_series_max, width=windows[0], color='#6C62E790')
         #plt.plot([1850.49, 1850.49], [0, t_series_max], color='#CC397C')
@@ -1220,7 +1220,8 @@ elif (inp == 'ets'): #breakdown of how timeseries become pd/pi
         plt.ylim([0, t_series_max])
         plt.title(file)
         plt.legend()
-        plt.savefig('figures/ice-cores/test-explain-tseries.png', dpi=300)
+        plt.show()
+        #plt.savefig('figures/ice-cores/test-explain-tseries.png', dpi=300)
 elif (inp == 'cmpwin'): #compare which averaging window is closest to bugged method
     cmpwin_df = pd.DataFrame(columns=list(main_dict.keys()))
     c_windows = ['bugged', 'fix', 25, 11]
@@ -1402,7 +1403,7 @@ elif (inp == 'lat-plt'):#lat vs ratio greenland plot
     plt.ylabel('BC 1980/1850 Ratio')
     plt.title('Greenland Ratio vs Lattitude, r^2=' + str(round(np.power(r_value, 2), 3)) + ', m=' + str(round(slope, 3)))
     plt.savefig('figures/ice-cores/test-greenland-lat-ratio', dpi=300)
-elif (inp == 'methods'):#lat vs ratio greenland plot
+elif (inp == 'methods'):#bar chart for ice core analysis methods
     df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'methods-fig-data.csv'))
     #annual layer counting
     alc_df = df.pop('Annual Layer Counting Abbrv').str.get_dummies(',')

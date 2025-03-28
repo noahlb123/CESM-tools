@@ -1,5 +1,6 @@
 import pyperclip
 import numpy as np
+import os
 #import tools
 #T = tools.ToolBox()
 
@@ -37,4 +38,16 @@ for name in pyperclip.paste().split('\n'):
     if not ('wget' in filename or 'wetbc' in filename or 'drybc' in filename):
         print(filename, end=' ')'''
 
-print(', '.join(pyperclip.paste().split()))
+#print(', '.join(pyperclip.paste().split()))
+
+goods = []
+for filename in ['US-25012114_pm25.nc']: #os.listdir('/glade/derecho/scratch/nlbills/la-pm2.5/la-pm2.5'):
+    if '_pm25.nc' not in filename:
+        continue
+    day = filename[7:9]
+    hour = filename[9:11]
+    if int(day) == 10 and 7 <= int(hour) <= 19:
+        goods.append(filename)
+
+print(len(goods))
+print(' '.join(goods))
