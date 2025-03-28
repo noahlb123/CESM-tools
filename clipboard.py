@@ -1,4 +1,4 @@
-import pyperclip
+#import pyperclip
 import numpy as np
 import os
 #import tools
