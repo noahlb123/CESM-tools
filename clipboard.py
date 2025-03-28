@@ -46,7 +46,7 @@ for filename in os.listdir('/glade/derecho/scratch/nlbills/la-pm2.5/la-pm2.5'):
         continue
     day = filename[7:9]
     hour = filename[9:11]
-    if int(day) == 10 and 7 <= int(hour) <= 19:
+    if int(day) == 10 and 7 < int(hour) <= 19:
         goods.append(filename)
 
 print(len(goods))
