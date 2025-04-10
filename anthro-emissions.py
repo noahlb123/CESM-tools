@@ -11,4 +11,7 @@ sector_dict = {0: 'Agriculture', 1: 'Energy', 2: 'Industrial', 3: 'Transportatio
 for i in range(8):
     plt.plot(f['time'][:] / 365 + 1750, regional_mean[:,i], label=sector_dict[i])
 plt.legend()
+plt.title('North American CEDS BC Emissions')
+plt.xlabel('Year (CE)')
+plt.ylabel('BC (kg m-2 s-1)')
 plt.savefig(os.path.join(os.getcwd(), 'stacked-anthro-emissions.png'), dpi=200)
