@@ -109,6 +109,26 @@ def divide_pd_pi(p_d, p_i):
             df.loc[i] = [model] + list(p_d.loc[model].div(p_i.loc[model]))
     return df.drop(['model'], axis=1)
 
+def plot_timeseries_decomp(x, y, name):
+    plt.rc('font', size=10)
+    timeseries_windows = [3, 10, 25, 33, 50]
+    for i in timeseries_windows:
+        if len(x) < 2 * i:
+            continue
+        fig, ax = plt.subplots(4, 1)
+        fig.tight_layout()
+        res = sm.tsa.seasonal_decompose(y, period=i)
+        ax[0].plot(x, res.seasonal, label='seasonal')
+        ax[0].set_title("Seasonal  period=" + str(i))
+        ax[2].plot(x, res.resid, label='residual')
+        ax[2].set_title("Residual")
+        ax[1].plot(x, res.trend, label='trend')
+        ax[1].set_title("Trend")
+        ax[3].plot(x, y, label='obs', color='black')
+        ax[3].set_title("Observation")
+        plt.savefig('figures/ice-cores/decomposition/' + name + '-' + str(i) + '.png', dpi=200)
+        plt.close()
+
 #alternative workflow cmip6 data:
 if system == 'Linux':
     alt_df = pd.DataFrame()
@@ -1083,12 +1103,13 @@ elif (inp == 'nt'):
     else:
         #python3 pi-pd.py nt <path to sootsn file
         raise Exception('3 command line arguments required: python3 pi-pd.py nt <sootsn file name>')'''
-    nco_model_colors = {'ice core': '#6C62E7', 'CESM2': '#EE692C'}#, 'TaiESM1': '#CC397C'}# 'sootsn': '#638FF6'}
+    nco_model_colors = {'ice core': '#1177bc', 'CESM2': '#ed292c'} #, 'TaiESM1': '#CC397C'}#{'ice core': '#6C62E7', 'CESM2': '#EE692C'}#, 'TaiESM1': '#CC397C'}# 'sootsn': '#638FF6'}
     valid_keys_set = set(main_dict.keys())
     axis_ticks = [(i + 0.5) for i in range(1850, 1981)]
     figures = {'North Pole': [a_p, 90], 'South Pole': [-90, -60], 'Rest': [-60, a_p]}
     model_data = {}
     for fig_name, min_max_lat in figures.items():
+        plt.rc('font', size=16)
         mode = 'one-line'
         df = pd.DataFrame(index = axis_ticks)
         timeseries = []
@@ -1118,26 +1139,29 @@ elif (inp == 'nt'):
         #ax1.set_zorder(ax2.get_zorder()+1)
         #ax1.patch.set_visible(False)
         ax1.plot(df.index, np.divide(df.mean(axis=1), np.max(df.mean(axis=1))), c=nco_model_colors['ice core'])
-        n_axis = 1
+        #make hemisphere avg timeseries plot
+        plot_timeseries_decomp(df.index, df.mean(axis=1), fig_name)
         for series in timeseries:
             if series['group'] not in nco_model_colors:
                 nco_model_colors[series['group']] = random.choice(list(model_colors.keys()))
             alpha = 0.1 if series['group'] == 'ice core' else 1
+            print(series['group'] == 'ice core')
             y = np.interp(axis_ticks, series['x'], series['y']) if series['group'] == 'ice core' else series['y']
             y = np.divide(y, np.max(y))
             color = nco_model_colors[series['group']]
             #ax = ax1 if series['group'] == 'ice core' else ax1.twinx()
-            n_axis += 1
-            ax1.plot(axis_ticks, y, c=color, alpha=alpha)
+            #ax1.plot(axis_ticks, y, c=color, alpha=alpha)
             #if series['group'] != 'ice core':
                 #ax.spines['right'].set_position(('outward', 60 * (n_axis - 2)))
         ax1.set_ylim([0, np.max(y)])
-        ax1.set_ylabel('Normalized BC Concentration')
-        ax1.tick_params(axis='y', labelcolor=color)
-        ax1.legend([Line2D([0], [0], color=v, lw=1.5, label=k) for k, v in nco_model_colors.items()], nco_model_colors.keys())#, prop={'size': 6})
-        ax1.tick_params(axis='y', labelcolor=nco_model_colors['ice core'])
+        #ax1.set_ylabel('Normalized BC Concentration')
+        #ax1.set_yticks(np.arange(0, 100.1, 100/3))
+        ax1.set_ylabel('Relative Northern Hemisphere Wildfire')
+        label_map = {'CESM2': 'Model', 'ice core': 'Observations'}
+        ax1.legend([Line2D([0], [0], color=v, lw=1.5, label=k) for k, v in nco_model_colors.items()], [label_map[s] for s in list(nco_model_colors.keys())])#, prop={'size': 6})
+        #ax1.tick_params(axis='y', labelcolor=nco_model_colors['ice core'])
         plt.xlabel("Year (CE)")
-        plt.title(fig_name + ' Ice Core vs Modeled BC Comparison')
+        #plt.title(fig_name + ' Ice Core vs Modeled BC Comparison')
         save_path = 'figures/ice-cores/timeseries-' + fig_name + '.png'
         plt.savefig(save_path, dpi=300) #bbox_inches='tight', pad_inches=0.0, dpi=300)
         print('saved to ' + save_path)
@@ -1371,21 +1395,10 @@ elif (inp == 'yawc'): #year avergeing window comparison
 elif (inp == 'tdc'):#timeseries decomposition
     dta = sm.datasets.co2.load_pandas().data
     for file in main_dict.keys():
-        if file in ['eichler-2023-1.csv']:
-            continue
         print(file)
         df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', file))
         df.interpolate(inplace=True)
-        for i in [3, 10, 25]:
-            res = sm.tsa.seasonal_decompose(df['BC'], period=i)
-            plt.plot(df['Yr'], res.seasonal, label='seasonal')
-            plt.plot(df['Yr'], res.resid, label='residual')
-            plt.plot(df['Yr'], res.trend, label='trend')
-            plt.plot(df['Yr'], df['BC'], label='obs', color='black')
-            plt.legend()
-            plt.title(file + ' period=' + str(i))
-            plt.savefig('figures/ice-cores/decomposition/' + file + '-' + str(i) + '.png', dpi=200)
-            plt.close()
+        plot_timeseries_decomp(df['Yr'], df['BC'], file)
 elif (inp == 'lat-plt'):#lat vs ratio greenland plot
     lats = []
     ratios = []
