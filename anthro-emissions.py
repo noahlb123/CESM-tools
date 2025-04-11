@@ -24,6 +24,7 @@ plt.xlabel('Year (CE)')
 plt.ylabel('BC (kg m-2 s-1)')
 plt.ylim()
 plt.savefig(os.path.join(os.getcwd(), 'component-anthro-emissions.png'), dpi=200)
+plt.close()
 
 #combined
 na_sum = np.sum(np.mean(np.mean(f_na['BC_em_anthro'][:], axis=3), axis=2), axis=1)
