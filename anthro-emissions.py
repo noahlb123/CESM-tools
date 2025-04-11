@@ -1,6 +1,7 @@
 from netCDF4 import Dataset
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import os
 
 #crop to north america
@@ -37,3 +38,7 @@ plt.xlabel('Year (CE)')
 plt.ylabel('BC (kg m-2 s-1)')
 plt.ylim()
 plt.savefig(os.path.join(os.getcwd(), 'combined-anthro-emissions.png'), dpi=200)
+
+#save pandas csv
+df = pd.DataFrame(columns=['nh time', 'na time', 'nh', 'na'], data=[f_nh['time'][:] / 365 + 1750, f_na['time'][:] / 365 + 1750, nh_sum, na_sum])
+df.to_csv('antrho-emissions.csv')
