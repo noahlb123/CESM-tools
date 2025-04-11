@@ -40,5 +40,5 @@ plt.ylim()
 plt.savefig(os.path.join(os.getcwd(), 'combined-anthro-emissions.png'), dpi=200)
 
 #save pandas csv
-df = pd.DataFrame(columns=['nh time', 'na time', 'nh', 'na'], data=[f_nh['time'][:] / 365 + 1750, f_na['time'][:] / 365 + 1750, nh_sum, na_sum])
+df = pd.DataFrame(columns=['nh time', 'na time', 'nh', 'na'], data=np.transpose([f_nh['time'][:] / 365 + 1750, f_na['time'][:] / 365 + 1750, nh_sum, na_sum]))
 df.to_csv(os.path.join(os.getcwd(), 'antrho-emissions.csv'))
