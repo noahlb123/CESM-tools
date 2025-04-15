@@ -18,6 +18,10 @@ python3 nco-pi-pd.py sootsn /glade/derecho/scratch/nlbills/all-ice-core-data/soo
 python3 nco-pi-pd.py loadbc /glade/derecho/scratch/nlbills/all-ice-core-data/loadbc x 10,10 &&
 python3 nco-pi-pd.py mmrbc /glade/derecho/scratch/nlbills/all-ice-core-data/mmrbc x 10,10 &&
 
+#lens analysis
+python3 lens-avg.py &&
+python3 bin-timeseries.py &&
+
 #timeseries
 python3 nco-timeseries.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all &&
 python3 nco-timeseries.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all CESM &&
