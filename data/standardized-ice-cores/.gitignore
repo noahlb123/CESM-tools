@@ -1,1 +1,3 @@
-fake-file.txt
+*
+!index-dup-cores.csv
+!index.csv
