@@ -46,4 +46,5 @@ for sub_dir in os.listdir(root):
         for i in range(1, 36):
             for year in [1980, 1975, 1970, 1965, 1960, 1955]:
                 path = os.path.join(root, sub_dir, 'b.e11.B20TRC5CNBDRD.f09_g16.0' + "{:02d}".format(i) + '.rest.' + str(year) + '-01-01-00000.tar')
-                assert os.path.isfile(path)
+                if not os.path.isfile(path):
+                    print(path)
