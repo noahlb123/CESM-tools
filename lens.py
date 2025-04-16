@@ -23,6 +23,9 @@ def setup():
     #copy files
     print('cp' + ' '.join(files) + ' .')
 
+setup()
+exit()
+
 system = platform.system() #differentiate local and derecho env by sys platform
 T = tools.ToolBox()
 

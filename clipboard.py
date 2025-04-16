@@ -39,18 +39,3 @@ for name in pyperclip.paste().split('\n'):
         print(filename, end=' ')'''
 
 #print(', '.join(pyperclip.paste().split()))
-
-#gather files
-files = []
-root = '/glade/campaign/cesm/collections/cesmLE/restarts'
-for sub_dir in os.listdir(root):
-    if ('B20TRC5CNBDRD' in sub_dir) and (not 'OIC' in sub_dir):
-        i = int(sub_dir.split('.')[-1])
-        years = [1980, 1975, 1970, 1965, 1960, 1955] if i != 34 else [1982, 1977, 1972, 1970, 1965, 1960, 1955]
-        for year in years:
-            path = os.path.join(root, sub_dir, 'b.e11.B20TRC5CNBDRD.f09_g16.0' + "{:02d}".format(i) + '.rest.' + str(year) + '-01-01-00000.tar')
-            if not os.path.isfile(path):
-                files.append(path)
-
-#copy files
-print('cp' + ' '.join(files) + ' .')
