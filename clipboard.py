@@ -44,16 +44,6 @@ root = '/glade/campaign/cesm/collections/cesmLE/restarts'
 for sub_dir in os.listdir(root):
     if 'B20TRC5CNBDRD' in sub_dir:
         for i in range(1, 36):
-            print(i)
-        exit()
-        for year in [1980, 1975, 1970, 1965, 1960, 1955]:
-            pass
-    if '_pm25.nc' not in filename:
-        continue
-    day = filename[7:9]
-    hour = filename[9:11]
-    if int(day) == 10 and 7 < int(hour) <= 19:
-        goods.append(filename)
-
-print(len(goods))
-print(' '.join(goods))
+            for year in [1980, 1975, 1970, 1965, 1960, 1955]:
+                path = os.path.join(root, sub_dir, 'b.e11.B20TRC5CNBDRD.f09_g16.0' + "{:02d}".format(i) + '.rest.' + str(year) + '-01-01-00000.tar')
+                assert os.path.isfile(path)
