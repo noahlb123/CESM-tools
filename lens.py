@@ -16,8 +16,10 @@ def setup():
             years = [1980, 1975, 1970, 1965, 1960, 1955] if i != 34 else [1982, 1977, 1972, 1970, 1965, 1960, 1955]
             for year in years:
                 path = os.path.join(root, sub_dir, 'b.e11.B20TRC5CNBDRD.f09_g16.0' + "{:02d}".format(i) + '.rest.' + str(year) + '-01-01-00000.tar')
-                if not os.path.isfile(path):
+                if os.path.isfile(path):
                     files.append(path)
+                else:
+                    assert os.path.isfile(path)
     #copy files
     print('cp' + ' '.join(files) + ' .')
 
