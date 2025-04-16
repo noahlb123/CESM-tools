@@ -42,10 +42,9 @@ for name in pyperclip.paste().split('\n'):
 
 root = '/glade/campaign/cesm/collections/cesmLE/restarts'
 for sub_dir in os.listdir(root):
-    if 'B20TRC5CNBDRD' in sub_dir:
+    if ('B20TRC5CNBDRD' in sub_dir) and (not 'OIC' in sub_dir):
         i = int(sub_dir.split('.')[-1])
-        for i in range(1, 36):
-            for year in [1980, 1975, 1970, 1965, 1960, 1955]:
-                path = os.path.join(root, sub_dir, 'b.e11.B20TRC5CNBDRD.f09_g16.0' + "{:02d}".format(i) + '.rest.' + str(year) + '-01-01-00000.tar')
-                if not os.path.isfile(path):
-                    print(path)
+        for year in [1980, 1975, 1970, 1965, 1960, 1955]:
+            path = os.path.join(root, sub_dir, 'b.e11.B20TRC5CNBDRD.f09_g16.0' + "{:02d}".format(i) + '.rest.' + str(year) + '-01-01-00000.tar')
+            if not os.path.isfile(path):
+                print(path)
