@@ -41,9 +41,13 @@ for name in pyperclip.paste().split('\n'):
 #print(', '.join(pyperclip.paste().split()))
 
 root = '/glade/campaign/cesm/collections/cesmLE/restarts'
-[print(i) for i in os.listdir(root)]
-exit()
-for filename in os.listdir:
+for sub_dir in os.listdir(root):
+    if 'B20TRC5CNBDRD' in sub_dir:
+        for i in range(1, 36):
+            print(i)
+        exit()
+        for year in [1980, 1975, 1970, 1965, 1960, 1955]:
+            pass
     if '_pm25.nc' not in filename:
         continue
     day = filename[7:9]
