@@ -74,9 +74,10 @@ for mode in ['pd', 'pi']:
             year_s = str(year) + "-01-01-00000"
             working_path = '/glade/derecho/scratch/nlbills/lens-all-' + mode
             file_paths = modelN2fnames(model, year_s, h)
+            print(file_paths)
             continue
-        exit()
-        if True:
+        continue
+    if 'cringe':
             for file_path in file_paths:
                 if system == "Darwin":
                     path = os.path.join(working_path, "data", "model-ice-depo", "lens", file_path)
