@@ -40,8 +40,10 @@ for name in pyperclip.paste().split('\n'):
 
 #print(', '.join(pyperclip.paste().split()))
 
-goods = []
-for filename in os.listdir('/glade/derecho/scratch/nlbills/la-pm2.5/la-pm2.5'):
+root = '/glade/campaign/cesm/collections/cesmLE/restarts'
+[print(i) for i in os.listdir(root)]
+exit()
+for filename in os.listdir:
     if '_pm25.nc' not in filename:
         continue
     day = filename[7:9]
