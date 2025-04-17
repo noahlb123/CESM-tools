@@ -30,7 +30,7 @@ def setup():
     root = '/glade/derecho/scratch/nlbills/lens/pd'
     for file in os.listdir(root):
         f = Dataset(os.path.join(root, file))
-        if 'bc_a4_SRF' in f.variables.keys():
+        if 'bc_a1_SRF' in f.variables.keys():
             files.append(file)
         else:
             print(file)
