@@ -35,6 +35,8 @@ if sys.argv[1] == 'setup':
     token = 'b.e11.B20TRC5CNBDRD.f09_g16.'
     root = '/glade/derecho/scratch/nlbills/lens/pd'
     for file in os.listdir(root):
+        if not token in file:
+            continue
         i = int(file[file.index(token)+len(token):file.index(token)+len(token)+3])
         f = Dataset(os.path.join(root, file))
         if 'bc_a1_SRF' in f.variables.keys():
