@@ -55,7 +55,7 @@ if sys.argv[1] == 'setup':
 
 
 
-elif sys.argv[1] == 'old' or sys.argv[1] == 'old':
+elif sys.argv[1] == 'old' or sys.argv[1] == 'new':
 
     system = platform.system() #differentiate local and derecho env by sys platform
     T = tools.ToolBox()
@@ -166,7 +166,6 @@ elif sys.argv[1] == 'old' or sys.argv[1] == 'old':
                     model_var_map[file] = ['bc_a1_SRF']
                     model_year_map = 1980
                     model_path_map[file] = os.path.join(root, file)
-
 
 
         
