@@ -23,6 +23,7 @@ def setup():
     #copy files
     print('cp ' + ' '.join(files) + ' .')
     #delete unneeded files
+    print('\n\n\n\n')
     print('for file in *; do mkdir "${{file:0:52}}" && tar -xf "$file" -C "${{file:0:52}}" && my_dir="${{file:0:31}}"; for subfile in "${{file:0:52}}"/*/*; do if [ "${{subfile:102:3}}" != "cam" ]; then rm -r $subfile; fi; done; done')
 setup()
 exit()
