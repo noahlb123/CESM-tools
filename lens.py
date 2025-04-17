@@ -221,7 +221,7 @@ elif sys.argv[1] == 'old' or sys.argv[1] == 'new':
                 [fields.append(name) for name in ice_coords.keys()]
                 filename = mode + "-lv" + str(lv) + '-s' + str(len(shape)) + ".csv"
                 print('saving to ' + os.path.join(os.getcwd(), filename))
-                filepath = os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'lens', filename) if sys.argv[1] == 'old' else os.path.join(os.getcwd(), filename)
+                filepath = os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'lens', filename) #if sys.argv[1] == 'old' else os.path.join(os.getcwd(), filename)
                 with open(filepath, 'w') as csvfile:
                     writer = csv.DictWriter(csvfile, fieldnames=fields)
                     writer.writeheader()
@@ -229,4 +229,6 @@ elif sys.argv[1] == 'old' or sys.argv[1] == 'new':
 
     pd.DataFrame(data=[model_path_map[model] for model in viable_models], columns=['files']).to_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'lens', 'fileuse-index.csv'))
 
-    print("done.")
+    print("done lens.py.")
+print('evaluating lens-avg.py...')
+os.system('python lens-avg.py && echo "everything completed!"')
