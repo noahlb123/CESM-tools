@@ -182,7 +182,6 @@ elif sys.argv[1] == 'old' or sys.argv[1] == 'new':
                 print('shape len:', len(shape))
                 csv_dict = []
                 for model in viable_models:
-                    print(model)
                     row = {"model number": model}
                     f = Dataset(model_path_map[model])
                     #1 192 288 (t, lat, lon)
