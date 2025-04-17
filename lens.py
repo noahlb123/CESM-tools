@@ -24,7 +24,19 @@ def setup():
     print('cp ' + ' '.join(files) + ' .')
     #delete unneeded files
     print('\n\n\n\n')
-    print('for file in *; do mkdir "${{file:0:52}}" && tar -xf "$file" -C "${{file:0:52}}" && my_dir="${{file:0:31}}"; for subfile in "${{file:0:52}}"/*/*; do if [ "${{subfile:102:3}}" != "cam" ]; then rm -r $subfile; fi; done; done')
+    print('for file in *; do mkdir "${{file:0:52}}" && tar -xf "$file" -C "${{file:0:52}}" && my_dir="${{file:0:31}}"; for subfile in "${{file:0:52}}"/*/*; do if [ "${{subfile:102:3}}" != "cam" ]; then rm -r $subfile; fi; done; done\n')
+    #average files that have bc_a vars
+    files = []
+    root = '/glade/derecho/scratch/nlbills/lens/pd'
+    for file in os.listdir(root):
+        f = Dataset(os.path.join(root, file))
+        if 'bc_a4_SRF' in f.variables.keys():
+            files.append(file)
+        else:
+            print(file)
+    print(len(files))
+
+
 setup()
 exit()
 
