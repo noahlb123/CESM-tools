@@ -231,4 +231,8 @@ elif sys.argv[1] == 'old' or sys.argv[1] == 'new':
 
     print("done lens.py.")
 print('evaluating lens-avg.py...')
-os.system('python lens-avg.py && echo "everything completed!"')
+if sys.argv[1] == 'old':
+    os.system('python lens-avg.py && echo "everything completed!"')
+elif sys.argv[1] == 'new':
+    df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'lens', 'pd-lv30-s1.csv')).drop(['BC_vars', 'year'], axis=1)
+    df.div(df.loc['pi-small.nc']).drop(['pi-small.nc'], axis=0).to_csv(os.path.join(os.getcwd(), 'lens.csv'))
