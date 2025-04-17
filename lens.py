@@ -159,13 +159,13 @@ elif sys.argv[1] == 'old' or sys.argv[1] == 'new':
             file = 'pi-small.nc'
             viable_models.append(file)
             model_var_map[file] = ['bc_a1_SRF']
-            model_year_map = 1850
+            model_year_map[file] = 1850
             model_path_map[file] = os.path.join('/glade/derecho/scratch/nlbills/lens/pi', 'pi-small.nc')
             for file in os.listdir(root):
                 if file.replace('.nc', '').isnumeric():
                     viable_models.append(file)
                     model_var_map[file] = ['bc_a1_SRF']
-                    model_year_map = 1980
+                    model_year_map[file] = 1980
                     model_path_map[file] = os.path.join(root, file)
 
 
