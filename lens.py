@@ -32,9 +32,7 @@ def setup():
         f = Dataset(os.path.join(root, file))
         if 'bc_a1_SRF' in f.variables.keys():
             files.append(file)
-        else:
-            print(file)
-    print(len(files))
+    print('ncra ' + ' '.join(files) + ' pd-avg.nc')
 
 
 setup()
