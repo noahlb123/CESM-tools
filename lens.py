@@ -47,7 +47,7 @@ if sys.argv[1] == 'setup':
         f.close()
     s = ''
     for run, files in run_file_map.items():
-        s += 'ncra ' + ' '.join(files) + ' ' + run + '.nc && '
+        s += 'ncra ' + ' '.join(files) + ' ' + str(run) + '.nc && '
     print(s[0:len(s - 4)])
     #remove unneeded vars
     print('ncks -v bc_a1_SRF,hyai,hybi,P0,PSL,TREFHT,lat,lon pd-avg.nc pd-small.nc')
