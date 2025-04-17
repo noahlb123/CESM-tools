@@ -221,7 +221,7 @@ elif sys.argv[1] == 'old' or sys.argv[1] == 'old':
                 fields = ["model number", "BC_vars", "year"]
                 [fields.append(name) for name in ice_coords.keys()]
                 filename = mode + "-lv" + str(lv) + '-s' + str(len(shape)) + ".csv"
-                filepath = os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'lens', filename)
+                filepath = os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'lens', filename) if sys.argv[1] == 'old' else os.path.join(os.getcwd(), 'lens', filename)
                 with open(filepath, 'w') as csvfile:
                     writer = csv.DictWriter(csvfile, fieldnames=fields)
                     writer.writeheader()
