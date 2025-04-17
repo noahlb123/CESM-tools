@@ -156,7 +156,8 @@ elif sys.argv[1] == 'old' or sys.argv[1] == 'new':
 
         if sys.argv[1] == 'new':
             root = '/glade/derecho/scratch/nlbills/lens/pd'
-            viable_models.append('pi-small.nc')
+            file = 'pi-small.nc'
+            viable_models.append(file)
             model_var_map[file] = ['bc_a1_SRF']
             model_year_map = 1850
             model_path_map[file] = os.path.join('/glade/derecho/scratch/nlbills/lens/pi', 'pi-small.nc')
