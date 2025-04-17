@@ -235,5 +235,5 @@ if sys.argv[1] == 'old':
     os.system('python lens-avg.py && echo "everything completed!"')
 elif sys.argv[1] == 'new':
     df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'lens', 'pd-lv30-s1.csv')).drop(['BC_vars', 'year'], axis=1)
-    df.set_index('model number')
+    df = df.set_index('model number')
     df.div(df.loc['pi-small.nc']).drop(['pi-small.nc'], axis=0).to_csv(os.path.join(os.getcwd(), 'lens.csv'))
