@@ -142,6 +142,7 @@ if target_v == 'drybc':
             new_name = m_suffix.replace('_a', '').replace('.nc', '')
             #get sign of wetbc
             f = Dataset(root + '/' + p_suffix)
+            print(list(f.variables()))
             wet_arr = f['wetbc'][:]
             f.close()
             if np.min(wet_arr) >= 0 and not np.max(wet_arr) <= 0:
