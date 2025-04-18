@@ -147,7 +147,7 @@ if target_v == 'drybc':
             new_name = m_suffix.replace('_a', '').replace('.nc', '')
             #get sign of wetbc
             f = Dataset(root + '/' + p_suffix)
-            print(list(f.variables.keys()), m_suffix)
+            print(list(f.variables.keys()), p_suffix)
             print(p_suffix)
             wet_arr = f['wetbc'][:]
             f.close()
