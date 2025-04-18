@@ -798,6 +798,9 @@ ncap2 -s 'new_var=(a-b)' b.nc output.nc
 ncks -A output-dry.nc output-wet.nc && 
 ncap2 -s 'new_var=(drybc-wetbc)' output-wet.nc output.nc
 
+#alternative append that uses record dimension
+ncrcat -O 1.nc 2.nc out.nc
+
 #rename variable
 ncrename -h -O -v wetbc,drybc MRI-ESM2-0_b_pi.nc
 

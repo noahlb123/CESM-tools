@@ -12,11 +12,11 @@ do
 done
 
 #main data analysis
-python3 nco-pi-pd.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all x 10,10 &&
-python3 nco-pi-pd.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all CESM 10,10 &&
-python3 nco-pi-pd.py sootsn /glade/derecho/scratch/nlbills/all-ice-core-data/sootsn x 10,10 &&
-python3 nco-pi-pd.py loadbc /glade/derecho/scratch/nlbills/all-ice-core-data/loadbc x 10,10 &&
-python3 nco-pi-pd.py mmrbc /glade/derecho/scratch/nlbills/all-ice-core-data/mmrbc x 10,10 &&
+python3 nco-pi-pd.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all &&
+python3 nco-pi-pd.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all CESM &&
+python3 nco-pi-pd.py sootsn /glade/derecho/scratch/nlbills/all-ice-core-data/sootsn &&
+python3 nco-pi-pd.py loadbc /glade/derecho/scratch/nlbills/all-ice-core-data/loadbc &&
+python3 nco-pi-pd.py mmrbc /glade/derecho/scratch/nlbills/all-ice-core-data/mmrbc &&
 
 #lens analysis
 python3 lens-avg.py &&
