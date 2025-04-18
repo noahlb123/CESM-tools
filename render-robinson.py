@@ -36,6 +36,6 @@ c_norm = Normalize(vmin=0, vmax=200)
 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
 #plot
-plt.pcolormesh(lons, lats, f[var_name][:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+plt.pcolormesh(lons, lats, f[var_name][:][0], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
 plt.colorbar(mappable=sm, label=var_name, orientation="horizontal", ax=ax, extend='both')
 plt.savefig(os.path.join(os.getcwd(), 'robinson-fig.png'), dpi=200)
