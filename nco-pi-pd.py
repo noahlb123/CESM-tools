@@ -147,8 +147,6 @@ if target_v == 'drybc':
             new_name = m_suffix.replace('_a', '').replace('.nc', '')
             #get sign of wetbc
             f = Dataset(root + '/' + p_suffix)
-            print(list(f.variables.keys()), p_suffix)
-            print(p_suffix)
             wet_arr = f['wetbc'][:]
             f.close()
             if np.min(wet_arr) >= 0 and not np.max(wet_arr) <= 0:
@@ -189,6 +187,7 @@ for i in range(len(filenames)):
     file_name = filenames[i]
     f = Dataset(root + '/' + file_name)
     to_eval += "ncap2 -O -s '" + target_v + "=double(" + target_v + ");' " + file_name + ' ' + file_name + ' && '
+    print(list(f.variables.keys()))
     if f.variables['lat'].shape[0] > 64 or f.variables['lon'].shape[0] > 128:
         to_eval += 'ncremap -d ' + smallest_grid + ' ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
         filenames[i] = file_name.replace('.nc', '_re.nc')
