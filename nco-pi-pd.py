@@ -126,11 +126,11 @@ print('all files:')
 print(og_new_name_map)
 
 to_eval = evaluate(to_eval)
-
 #comands to combine files with their partners (subtraction)
 if target_v == 'drybc':
     to_eval += 'echo "combining files with partners..." && '
     valid_models = list(set(main_dict.keys()).difference(bads))
+    print(len(valid_models))
     valid_er_models = set()
     for model_name in valid_models:
         if '_b' in model_name:
@@ -143,20 +143,26 @@ if target_v == 'drybc':
             #get sign of wetbc
             f = Dataset(root + '/' + p_suffix)
             print(list(f.variables.keys()), root + '/' + p_suffix)
-            wet_arr = f['wetbc'][:]
-            f.close()
-            if np.min(wet_arr) >= 0 and not np.max(wet_arr) <= 0:
-                operation = 'add'
-            elif np.max(wet_arr) <= 0 and not np.min(wet_arr) >= 0:
-                operation = 'sub'
-            if np.max(wet_arr) > 0 and np.min(wet_arr) < 0:
-                raise Exception('this wetbc file contains both negative and positive values: ' + p_suffix)
-            to_eval += 'ncrename -h -O -v wetbc,drybc ' + p_suffix + ' && '
-            to_eval += 'ncbo --op_typ=' + operation + ' ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
-            valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
+            try:
+                wet_arr = f['wetbc'][:]
+                f.close()
+                if np.min(wet_arr) >= 0 and not np.max(wet_arr) <= 0:
+                    operation = 'add'
+                elif np.max(wet_arr) <= 0 and not np.min(wet_arr) >= 0:
+                    operation = 'sub'
+                if np.max(wet_arr) > 0 and np.min(wet_arr) < 0:
+                    raise Exception('this wetbc file contains both negative and positive values: ' + p_suffix)
+                to_eval += 'ncrename -h -O -v wetbc,drybc ' + p_suffix + ' && '
+                to_eval += 'ncbo --op_typ=' + operation + ' ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
+                valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
+            except:
+                pass
     to_eval = evaluate(to_eval)
 else:
     valid_er_models = list(set(main_dict.keys()).difference(bads))
+
+print(len(valid_er_models))
+exit()
 
 #commands to divide files
 to_eval += 'echo "dividing..." && '
