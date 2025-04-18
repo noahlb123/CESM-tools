@@ -65,10 +65,9 @@ def evaluate(s):
 for filename in files:
     if target_v in filename and (not cesm_mode or T.any_substrings_in_string(['CanESM', 'CESM'], filename)) and filename != target_v + '.nc':
         if (target_v == 'drybc'):
-            partner_name = filename.replace('wetbc', 'drybc') if 'wetbc' in filename else filename.replace('drybc', 'wetbc')
-            assert not 'wetbc' in filename
-            '''if not ('drybc' in partner_name and 'wetbc' in filename):
-                print('should be wet, dry:', filename, partner_name)'''
+            partner_name = filename.replace('drybc', 'wetbc')
+            if not ('wetbc' in partner_name and 'drybc' in filename):
+                print('should be dry, wet:', filename, partner_name)
         if target_v != 'drybc' or os.path.isfile(os.path.join(root, partner_name)):
             partners = [filename, partner_name] if target_v == 'drybc' else [filename]
             for f_name in partners:
