@@ -22,7 +22,7 @@ prefix = prefix_map[target_v]
 system = platform.system() #differentiate local and derecho env by sys platform
 partners = {}
 og_new_name_map = {}
-files = ['MRI-ESM2-0_b_pi.nc', 'MRI-ESM2-0_a_pi.nc']#os.listdir(root)
+files = os.listdir(root)
 bads = set([])
 to_eval = 'cd ' + root + ' && '
 
@@ -118,7 +118,7 @@ for model_name, d in main_dict.items():
                 partner_suffix = model_name[len(model_name) - 1: len(model_name)]
                 assert partner_suffix == 'a' or partner_suffix == 'b'
                 file_var = 'wetbc' if partner_suffix == 'b' else 'drybc'
-            to_eval += "eval ncap2 -O -s '" + file_var + "=asort(time,&srt_map);' " + filename + " " + filename + " && "
+            #to_eval += "eval ncap2 -O -s '" + file_var + "=asort(time,&srt_map);' " + filename + " " + filename + " && "
             #average times
             og_new_name_map[filename] = year
             new_filename = model_name + file_suffix + '.nc'
