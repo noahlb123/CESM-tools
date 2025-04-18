@@ -119,7 +119,7 @@ for model_name, d in main_dict.items():
                 partner_suffix = model_name[len(model_name) - 1: len(model_name)]
                 assert partner_suffix == 'a' or partner_suffix == 'b'
                 file_var = 'wetbc' if partner_suffix == 'b' else 'drybc'
-            to_eval += "ncap2 -O -s '" + file_var + "=asort(time,&srt_map);' " + filename + " " + filename + " && "
+            to_eval += "eval ncap2 -O -s '" + file_var + "=asort(time,&srt_map);' " + filename + " " + filename + " && "
             print()
             #average times
             og_new_name_map[filename] = year
