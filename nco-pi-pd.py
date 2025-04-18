@@ -88,8 +88,11 @@ for filename in files:
 
 d = {'b': 'drybc', 'a': 'wetbc'}
 for model in main_dict.keys():
-    f = Dataset(os.path.join(root, model))
-    print(model[len(model)-1:len(model)])
+    for k in ['e_file', 's_file']:
+        f = Dataset(os.path.join(root, main_dict[model][k]))
+        print(model[len(model)-1:len(model)])
+        f.close()
+exit()
 
 
 #commands to extract file timeslices and decadally average
