@@ -22,7 +22,7 @@ prefix = prefix_map[target_v]
 system = platform.system() #differentiate local and derecho env by sys platform
 partners = {}
 og_new_name_map = {}
-files = os.listdir(root)
+files = ['MRI-ESM2-0_b_pi.nc', 'MRI-ESM2-0_a_pi.nc']#os.listdir(root)
 bads = set([])
 to_eval = 'cd ' + root + ' && '
 
