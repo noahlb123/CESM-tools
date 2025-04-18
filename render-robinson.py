@@ -31,8 +31,8 @@ lons = f[lon_name][:]
 x = f[var_name][:]
 
 #color
-cmap = colormaps['hsv']
-c_norm = Normalize(vmin=0, vmax=200)
+cmap = colormaps['viridis']
+c_norm = Normalize(vmin=0, vmax=100)
 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
 #plot
