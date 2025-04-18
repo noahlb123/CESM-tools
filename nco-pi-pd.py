@@ -107,8 +107,6 @@ for model_name, d in main_dict.items():
             if np.max(times) >= 365 * 1850:
                 times = np.divide(times, 365)
             assert 'days since' in time_var.units
-            for i in times:
-                print(i)
             i_start_decade = T.nearest_search(times, year)
             end_target = year + avg_window if year == 1850 else year - avg_window
             i_end_decade = T.nearest_search(times, end_target)

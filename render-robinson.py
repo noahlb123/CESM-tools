@@ -21,7 +21,7 @@ var_name = sys.argv[4]
 
 #setup cartopy
 plt.clf()
-fig, ax = plt.subplots(dpi=200, subplot_kw={'projection': cartopy.ccrs.Robinson()})
+fig, ax = plt.subplots(dpi=200, subplot_kw={'projection': cartopy.crs.Robinson()})
 ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
 
 #get data
