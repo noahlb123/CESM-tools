@@ -120,7 +120,6 @@ for model_name, d in main_dict.items():
                 assert partner_suffix == 'a' or partner_suffix == 'b'
                 file_var = 'wetbc' if partner_suffix == 'b' else 'drybc'
             to_eval += "eval ncap2 -O -s '" + file_var + "=asort(time,&srt_map);' " + filename + " " + filename + " && "
-            print()
             #average times
             og_new_name_map[filename] = year
             new_filename = model_name + file_suffix + '.nc'
@@ -130,8 +129,8 @@ for model_name, d in main_dict.items():
         #print('doesnt have start and end:', model_name)
         bads.add(model_name)
 
-print('all files:')
-print(og_new_name_map)
+#print('all files:')
+#print(og_new_name_map)
 
 to_eval = evaluate(to_eval)
 #comands to combine files with their partners (subtraction)
