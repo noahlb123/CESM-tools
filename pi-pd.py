@@ -352,7 +352,7 @@ elif (inp == 'big-table'): #make table comparing individual models
     cmip_binned.columns = cmip_binned.loc['model']
     cmip_binned = cmip_binned.drop(['model'])
     cmip_binned = cmip_binned.join(cmip_binned.mean(axis=1).rename('CMIP6'))
-    lens = pd.read_csv('data/model-ice-depo/lens/a10lv30.csv')
+    lens = pd.read_csv('data/model-ice-depo/lens/lens.csv')
     lens = lens.rename(columns={"Unnamed: 0": "Restart"}).T
     lens.columns = lens.loc['Restart']
     lens = lens.drop(['Restart'])
@@ -498,7 +498,7 @@ elif (inp == 'l'):
     #setup data:
     models = {
         'LENS': {
-            'dataset': pd.read_csv('data/model-ice-depo/lens/a10lv30.csv'),
+            'dataset': pd.read_csv('data/model-ice-depo/lens/lens.csv'),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['LENS'],#IBM Design library's colorblind pallete
             },
