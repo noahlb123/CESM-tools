@@ -91,7 +91,7 @@ for model in main_dict.keys():
     for k in ['e_file', 's_file']:
         f = Dataset(os.path.join(root, main_dict[model][k]))
         if not d[model[len(model)-1:len(model)]] in f.variables.keys():
-            print(list(f.variables.keys()), os.path.join(root, main_dict[model][k]))
+            print(d[model[len(model)-1:len(model)]], list(f.variables.keys()), os.path.join(root, main_dict[model][k]))
         f.close()
 exit()
 
