@@ -32,7 +32,7 @@ x = f[var_name][:]
 
 #color
 cmap = colormaps['viridis']
-c_norm = Normalize(vmin=0, vmax=100)
+c_norm = LogNorm(vmin=0.1, vmax=10)
 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
 #plot
