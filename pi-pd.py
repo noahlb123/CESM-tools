@@ -76,7 +76,7 @@ patches = { #Okabe and Ito colorblind pallet
     'East Antarctica': (-180, -60, 180, -30, '#000000'),
     'West Antarctica': (0, -60, 180, -30, '#6CB3E4'),'''
 #IBM Design Library colorblind pallet https://www.nceas.ucsb.edu/sites/default/files/2022-06/Colorblind%20Safe%20Color%20Schemes.pdf
-model_colors = {'CESM': '#EE692C', 'CMIP6': '#CC397C', 'Ice Core': '#6C62E7', 'CESM-SOOTSN': '#638FF6', 'LENS': '#F5B341', 'loadbc': '#CC397C', 'mmrbc': '#F5B341'}
+model_colors = {'CESM': '#EE692C', 'CMIP6': '#CC397C', 'Ice Core': '#6C62E7', 'CESM-SOOTSN': '#638FF6', 'LENS': '#F5B341', 'LENS-Bias': '#CC397C', 'loadbc': '#CC397C', 'mmrbc': '#F5B341'}
 
 def within_patch(lat, lon, patch, name):
     lat_min, lat_max, lon_min, lon_max = t.patch_min_max(patch)
@@ -502,6 +502,11 @@ elif (inp == 'l'):
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['LENS'],#IBM Design library's colorblind pallete
             },
+        'LENS-Bias': {
+            'dataset': pd.read_csv('data/model-ice-depo/lens/lens-bias.csv'),
+            'data': {'ratios': None, 'means': None, 'stds': None},
+            'color': model_colors['CESM'],#IBM Design library's colorblind pallete
+            },
         'CESM': {
             'dataset': pd.read_csv('data/model-ice-depo/cesm-wetdry/cesm-25.csv').drop(['model'], axis=1).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
@@ -746,10 +751,11 @@ elif (inp == 'l'):
             'Ice Core': pd.Series(ratios, index=filenames),
             #'loadbc': pd.Series(bar_means['loadbc'], index=order_of_columns),
             #'mmrbc': pd.Series(bar_means['mmrbc'], index=order_of_columns),
-            'CESM': pd.Series(bar_means['CESM'], index=order_of_columns),
+            #'CESM': pd.Series(bar_means['CESM'], index=order_of_columns),
             #'CESM-SOOTSN': pd.Series(bar_means['CESM-SOOTSN'], index=order_of_columns),
-            'CMIP6': pd.Series(bar_means['CMIP6'], index=order_of_columns),
-            'LENS': pd.Series(bar_means['LENS'], index=order_of_columns)
+            #'CMIP6': pd.Series(bar_means['CMIP6'], index=order_of_columns),
+            'LENS': pd.Series(bar_means['LENS'], index=order_of_columns),
+            'LENS-Bias': pd.Series(bar_means['LENS-Bias'], index=order_of_columns)
             }, index=filenames)
         #reformat data
         region_filename = t.invert_dict_list(filename_region)
@@ -816,7 +822,7 @@ elif (inp == 'l'):
         ax.get_yaxis().set_major_formatter(ScalarFormatter())
         #manually setup legend
         legend_handels = []
-        legend_names = {'CMIP6': 'CMIP6 (8 models)', 'CESM': 'CESM (1 model)', 'LENS': 'LENS (1 model)', 'Ice Core': 'Ice Core', 'mmrbc': 'mmrbc'}
+        legend_names = {'CMIP6': 'CMIP6 (8 models)', 'CESM': 'CESM (1 model)', 'LENS': 'LENS (1 model)', 'LENS-Bias': 'LENS-Bias', 'Ice Core': 'Ice Core', 'mmrbc': 'mmrbc'}
         for model in data.keys():
             legend_handels.append(Patch(label=legend_names[model], facecolor=model_colors[model]))
         ax.legend(handles=legend_handels, loc=9, bbox_to_anchor=(-0.05, -0.15))

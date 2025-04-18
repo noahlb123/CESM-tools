@@ -111,6 +111,8 @@ for model_name, d in main_dict.items():
             end_target = year + avg_window if year == 1850 else year - avg_window
             i_end_decade = T.nearest_search(times, end_target)
             f.close()
+            #sort by time
+            to_eval += "ncap2 -O -s 'prate=asort(time,&srt_map);' " + filename + " " + filename + " && "
             #average times
             og_new_name_map[filename] = year
             new_filename = model_name + file_suffix + '.nc'
