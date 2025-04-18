@@ -113,7 +113,14 @@ for model_name, d in main_dict.items():
             i_end_decade = T.nearest_search(times, end_target)
             f.close()
             #sort by time
-            to_eval += "ncap2 -O -s 'prate=asort(time,&srt_map);' " + filename + " " + filename + " && "
+            if target_v != 'drybc':
+                file_var = target_v
+            else:
+                partner_suffix = model_name[len(model_name) - 1: len(model_name)]
+                assert partner_suffix == 'a' or partner_suffix == 'b'
+                file_var = 'wetbc' if partner_suffix == 'b' else 'drybc'
+            to_eval += "ncap2 -O -s '" + file_var + "=asort(time,&srt_map);' " + filename + " " + filename + " && "
+            print()
             #average times
             og_new_name_map[filename] = year
             new_filename = model_name + file_suffix + '.nc'
