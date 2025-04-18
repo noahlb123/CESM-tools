@@ -66,8 +66,6 @@ for filename in files:
     if target_v in filename and (not cesm_mode or T.any_substrings_in_string(['CanESM', 'CESM'], filename)) and filename != target_v + '.nc':
         if (target_v == 'drybc'):
             partner_name = filename.replace('drybc', 'wetbc')
-            if not ('wetbc' in partner_name and 'drybc' in filename):
-                print('should be dry, wet:', filename, partner_name)
         if target_v != 'drybc' or os.path.isfile(os.path.join(root, partner_name)):
             partners = [filename, partner_name] if target_v == 'drybc' else [filename]
             for f_name in partners:
@@ -87,15 +85,15 @@ for filename in files:
                     else:
                         main_dict[model_name]['e_file'] = f_name
                         main_dict[model_name]['e_year'] = years[1]
-exit()
-'''d = {'b': 'drybc', 'a': 'wetbc'}
+
+d = {'b': 'wetbc', 'a': 'drybc'}
 for model in main_dict.keys():
     for k in ['e_file', 's_file']:
         f = Dataset(os.path.join(root, main_dict[model][k]))
         if not d[model[len(model)-1:len(model)]] in f.variables.keys():
             print(d[model[len(model)-1:len(model)]], list(f.variables.keys()), os.path.join(root, main_dict[model][k]))
         f.close()
-exit()'''
+exit()
 
 
 #commands to extract file timeslices and decadally average
