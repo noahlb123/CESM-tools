@@ -86,6 +86,9 @@ for filename in files:
                         main_dict[model_name]['e_file'] = f_name
                         main_dict[model_name]['e_year'] = years[1]
 
+for model_name, d in main_dict.items():
+    assert 'wetbc' in d['e_file'] if '_b' in model_name else 'drybc' in d['e_file']
+exit()
 
 #commands to extract file timeslices and decadally average
 to_eval += 'echo "extracting timeslices..." && '
