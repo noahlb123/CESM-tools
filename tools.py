@@ -19,7 +19,7 @@ class ToolBox:
         return np.all(np.diff(np.array(arr)) >= 0)
 
     def nearest_search(self, arr, x):
-        #assert self.increasing(arr)
+        assert self.increasing(arr)
         low = 0
         high = len(arr) - 1
         mid = 0
