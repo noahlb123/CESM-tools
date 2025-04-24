@@ -128,8 +128,9 @@ for model_name, d in main_dict.items():
         #print('doesnt have start and end:', model_name)
         bads.add(model_name)
 
-#print('all files:')
-#print(og_new_name_map)
+print('all files:')
+print(og_new_name_map)
+exit()
 
 to_eval = evaluate(to_eval)
 #comands to combine files with their partners (subtraction)
