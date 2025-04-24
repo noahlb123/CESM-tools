@@ -28,6 +28,34 @@ files = os.listdir(root)
 bads = set([])
 to_eval = 'cd ' + root + ' && '
 
+class RunIndexManager:
+    def __init__(self):
+        self.run_index_map = {}
+        self.index = 0
+    
+    def add(run, self):
+        if not (run in self.run_index_map.keys() or run.replace('wetbc', 'drybc') in self.run_index_map.keys() or run.replace('drybc', 'wetbc') in self.run_index_map.keys()):
+            self.run_index_map[run] = self.index
+            self.index += 1
+        elif run.replace('wetbc', 'drybc') in self.run_index_map.keys():
+            self.run_index_map[run] = self.get_index(run.replace('wetbc', 'drybc'))
+            self.index += 1
+        elif run.replace('drybc', 'wetbc') in self.run_index_map.keys():
+            self.run_index_map[run] = self.get_index(run.replace('drybc', 'wetbc'))
+            self.index += 1
+
+    def get_index(run, self):
+        if run in self.run_index_map.keys():
+            return self.run_index_map[run]
+        elif run.replace('wetbc', 'drybc') in self.run_index_map.keys():
+            return self.run_index_map[run.replace('wetbc', 'drybc')]
+        elif run.replace('drybc', 'wetbc') in self.run_index_map.keys():
+            return self.run_index_map[run.replace('drybc', 'wetbc')]
+        else:
+            return -1
+
+RIM = RunIndexManager()
+
 def setup():
     x = {'drybc_AERmon_CESM2_historical_r7i1p1f1_gn_195001-199912.nc': 1980, 'wetbc_AERmon_CESM2_historical_r7i1p1f1_gn_195001-199912.nc': 1980, 'drybc_AERmon_EC-Earth3-AerChem_historical_r1i1p1f1_gn_198001-198012.nc': 1980, 'wetbc_AERmon_EC-Earth3-AerChem_historical_r1i1p1f1_gn_198001-198012.nc': 1980}
     if True:
@@ -138,7 +166,8 @@ for run_name, d in main_dict.items():
             #to_eval += "ncap2 -O -s 'time=asort(time);' " + filename + " " + filename + " && "
             #average times
             og_new_name_map[filename] = year
-            run_index = "_" + str(list(main_dict.keys()).index(run_name))
+            RIM.add(run_name)
+            run_index = "_" + str(RIM.get_index(run_name))
             new_filename = run_model_map[run_name] + run_index + file_suffix + '.nc'
             to_eval += 'ncwa -b -a time -d time,' + str(i_start_decade) + ',' + str(i_end_decade) + ' ' + filename + ' ' + new_filename + ' -O && '
             #to_eval += 'ncks -d time,' + str(time_index) + ' ' + filename + ' ' + new_filename + ' -O && '
