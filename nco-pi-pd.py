@@ -33,7 +33,7 @@ class RunIndexManager:
         self.run_index_map = {}
         self.index = 0
     
-    def add(run, self):
+    def add(self, run):
         if not (run in self.run_index_map.keys() or run.replace('wetbc', 'drybc') in self.run_index_map.keys() or run.replace('drybc', 'wetbc') in self.run_index_map.keys()):
             self.run_index_map[run] = self.index
             self.index += 1
@@ -44,7 +44,7 @@ class RunIndexManager:
             self.run_index_map[run] = self.get_index(run.replace('drybc', 'wetbc'))
             self.index += 1
 
-    def get_index(run, self):
+    def get_index(self, run):
         if run in self.run_index_map.keys():
             return self.run_index_map[run]
         elif run.replace('wetbc', 'drybc') in self.run_index_map.keys():
