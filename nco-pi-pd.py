@@ -23,6 +23,7 @@ system = platform.system() #differentiate local and derecho env by sys platform
 partners = {}
 og_new_name_map = {}
 run_model_map = {}
+model_run_map = {}
 files = os.listdir(root)
 bads = set([])
 to_eval = 'cd ' + root + ' && '
@@ -68,11 +69,11 @@ def base_model(model):
             if 'MIROC6' in model:
                 base_model = 'MIROC'
             if '-' in model:
-                base_model = model[0:model.index('-')]
+                base_model = model.split('_')[0][0:model.index('-')]
             else:
-                base_model = model
+                base_model = model.split('_')[0]
         else:
-            base_model = model
+            base_model = model.split('_')[0]
         return base_model
 
 def evaluate(s):
@@ -141,18 +142,16 @@ for run_name, d in main_dict.items():
             og_new_name_map[filename] = year
             run_index = "_" + str(list(main_dict.keys()).index(run_name))
             new_filename = run_model_map[run_name] + run_index + file_suffix + '.nc'
-            print(new_filename)
             to_eval += 'ncwa -b -a time -d time,' + str(i_start_decade) + ',' + str(i_end_decade) + ' ' + filename + ' ' + new_filename + ' -O && '
             #to_eval += 'ncks -d time,' + str(time_index) + ' ' + filename + ' ' + new_filename + ' -O && '
     else:
         #print('doesnt have start and end:', model_name)
         bads.add(model_name)
 
-print('all files:')
-print(og_new_name_map)
-exit()
-
+#print('all files:')
+#print(og_new_name_map)
 to_eval = evaluate(to_eval)
+
 #comands to combine files with their partners (subtraction)
 if target_v == 'drybc':
     to_eval += 'echo "combining files with partners..." && '
@@ -179,6 +178,11 @@ if target_v == 'drybc':
             to_eval += 'ncrename -h -O -v wetbc,drybc ' + p_suffix + ' && '
             to_eval += 'ncbo --op_typ=' + operation + ' ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
             valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
+            model = new_name[0:new_name.find('_')]
+            if model in model_run_map.keys():
+                model_run_map[model].append(new_name.replace('_pi', '').replace('_pd', ''))
+            else:
+                model_run_map[model] = [new_name.replace('_pi', '').replace('_pd', '')]
     to_eval = evaluate(to_eval)
 else:
     valid_er_models = list(set(main_dict.keys()).difference(bads))
@@ -216,7 +220,7 @@ for i in range(len(filenames)):
 
 to_eval = evaluate(to_eval)
 
-#bin models
+#bin models into base models
 bins = {}
 for file in filenames:
     base = base_model(file)
@@ -225,7 +229,6 @@ for file in filenames:
     else:
         bins[base] = [file]
 
-print(list(bins.keys()))
 
 #average bases
 to_eval += 'echo "binning..." && '
