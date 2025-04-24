@@ -214,7 +214,7 @@ for file in filenames:
     else:
         bins[base] = [file]
 
-print(list(base.keys()))
+print(list(bins.keys()))
 exit()
 
 #average bases
