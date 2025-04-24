@@ -36,7 +36,7 @@ def setup():
         for file in files:
             if ('wetbc' in file or 'drybc' in file) and 'CanESM5' in file:
                 f = Dataset(os.path.join(root, file))
-                if ('lat' not in f.variables.keys()) or ('lon' not in f.variables.keys()):
+                if (not 'lat' in f.variables.keys()) or (not 'lon' in f.variables.keys()):
                     print(file, list(f.variables.keys()))
                 f.close()
 
