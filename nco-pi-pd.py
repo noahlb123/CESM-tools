@@ -155,9 +155,9 @@ if target_v == 'drybc':
     to_eval += 'echo "combining files with partners..." && '
     valid_models = list(set(main_dict.keys()).difference(bads))
     valid_er_models = set()
-    for model_name in valid_models:
+    for run_name in valid_models:
         for i in range(len(main_dict.keys())):
-            model_name = run_model_map[model_name] + '_' + str(i)
+            full_model_name = run_model_map[run_name] + '_' + str(i)
             if '_b' in model_name:
                 continue
             partner = model_name.replace('_a', '_b')
