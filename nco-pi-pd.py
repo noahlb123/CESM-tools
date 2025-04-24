@@ -223,6 +223,8 @@ else:
     valid_models = list(set(main_dict.keys()).difference(bads))
     valid_er_models = set()
     for run_name in valid_models:
+        if RIM.get_index(run_name) == -1:
+            continue
         full_model_name = run_model_map[run_name] + '_' + str(RIM.get_index(run_name))
         if '_b' in full_model_name:
             continue
