@@ -185,7 +185,7 @@ if target_v == 'drybc':
     valid_models = list(set(main_dict.keys()).difference(bads))
     valid_er_models = set()
     for run_name in valid_models:
-        for i in range(len(main_dict.keys())):
+        for i in RIM.indexes:
             full_model_name = run_model_map[run_name] + '_' + str(i)
             if '_b' in full_model_name:
                 continue
