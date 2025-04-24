@@ -154,16 +154,15 @@ to_eval = evaluate(to_eval)
 if target_v == 'drybc':
     to_eval += 'echo "combining files with partners..." && '
     valid_models = list(set(main_dict.keys()).difference(bads))
-    print(valid_models)
     valid_er_models = set()
     for run_name in valid_models:
         for i in range(len(main_dict.keys())):
             full_model_name = run_model_map[run_name] + '_' + str(i)
-            if '_b' in model_name:
+            if '_b' in full_model_name:
                 continue
-            partner = model_name.replace('_a', '_b')
+            partner = full_model_name.replace('_a', '_b')
             for suffix in ['_pi.nc', '_pd.nc']:
-                m_suffix = model_name + suffix
+                m_suffix = full_model_name + suffix
                 p_suffix = partner + suffix
                 new_name = m_suffix.replace('_a', '').replace('.nc', '')
                 #get sign of wetbc
@@ -187,8 +186,6 @@ if target_v == 'drybc':
     to_eval = evaluate(to_eval)
 else:
     valid_er_models = list(set(main_dict.keys()).difference(bads))
-
-exit()
 
 #commands to divide files
 to_eval += 'echo "dividing..." && '
