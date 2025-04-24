@@ -228,7 +228,7 @@ else:
             m_suffix = full_model_name + suffix
             p_suffix = partner + suffix
             new_name = m_suffix.replace('_a', '').replace('.nc', '')
-            print(new_name, new_name.replace('_pi', '').replace('_pd', ''), m_suffix, run_model_map[run_name], str(RIM.get_index(run_name))
+            print(new_name, new_name.replace('_pi', '').replace('_pd', ''), m_suffix, run_model_map[run_name], str(RIM.get_index(run_name)))
             valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
 
 #commands to divide files
