@@ -234,7 +234,7 @@ for file in filenames:
 to_eval += 'echo "binning..." && '
 bases = []
 for base, files in bins.items():
-    print(base, files)
+    to_eval += 'echo "base, ' + base + ' '.join(files) + '" && '
     if target_v == 'mmrbc':
         if 'CESM2-WACCM_re.nc' in files:
             files.remove('CESM2-WACCM_re.nc')
