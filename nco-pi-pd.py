@@ -85,6 +85,7 @@ for filename in files:
             partners = [filename, partner_name] if target_v == 'drybc' else [filename]
             for f_name in partners:
                 model_name = get_model_name(f_name)
+                print(model_name)
                 years = get_years(f_name)
                 if (target_v == 'drybc'):
                     model_name += '_b' if target_v == 'drybc' and f_name == partner_name else '_a'
@@ -100,7 +101,7 @@ for filename in files:
                     else:
                         main_dict[model_name]['e_file'] = f_name
                         main_dict[model_name]['e_year'] = years[1]
-
+exit()
 #commands to extract file timeslices and decadally average
 to_eval += 'echo "extracting timeslices..." && '
 for model_name, d in main_dict.items():
