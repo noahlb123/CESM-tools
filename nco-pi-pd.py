@@ -60,8 +60,6 @@ def get_model_name(filename):
 def get_run_name(filename):
     return filename[0: filename.rfind('_')]
 
-print(get_run_name('wetbc_AERmon_MIROC-ES2H_historical_r1i1p4f2_gn_185001-201412.nc'))
-
 def base_model(model):
         model = model.replace('.nc', '')
         model = model.replace('_re', '')
@@ -158,6 +156,7 @@ if target_v == 'drybc':
     valid_models = list(set(main_dict.keys()).difference(bads))
     valid_er_models = set()
     for model_name in valid_models:
+        model_name = run_model_map[model_name]
         if '_b' in model_name:
             continue
         partner = model_name.replace('_a', '_b')
