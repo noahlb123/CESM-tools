@@ -217,7 +217,19 @@ if target_v == 'drybc':
                     model_run_map[model] = [new_name.replace('_pi', '').replace('_pd', '')]
     to_eval = evaluate(to_eval)
 else:
-    valid_er_models = list(set(main_dict.keys()).difference(bads))
+    valid_models = list(set(main_dict.keys()).difference(bads))
+    valid_er_models = set()
+    for run_name in valid_models:
+        for i in RIM.indexes:
+            full_model_name = run_model_map[run_name] + '_' + str(i)
+            if '_b' in full_model_name:
+                continue
+            partner = full_model_name.replace('_a', '_b')
+            for suffix in ['_pi.nc', '_pd.nc']:
+                m_suffix = full_model_name + suffix
+                p_suffix = partner + suffix
+                new_name = m_suffix.replace('_a', '').replace('.nc', '')
+
 
 #commands to divide files
 to_eval += 'echo "dividing..." && '
