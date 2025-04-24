@@ -188,7 +188,7 @@ for i in range(len(filenames)):
     file_name = filenames[i]
     f = Dataset(root + '/' + file_name)
     to_eval += "ncap2 -O -s '" + target_v + "=double(" + target_v + ");' " + file_name + ' ' + file_name + ' && '
-    print(list(f.variables.keys()))
+    print(file_name, list(f.variables.keys()))
     if f.variables['lat'].shape[0] > 64 or f.variables['lon'].shape[0] > 128:
         to_eval += 'ncremap -d ' + smallest_grid + ' ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
         filenames[i] = file_name.replace('.nc', '_re.nc')
