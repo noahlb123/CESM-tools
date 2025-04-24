@@ -123,7 +123,7 @@ for filename in files:
                 run_name = get_run_name(f_name)
                 run_model_map[run_name] = model_name
                 years = get_years(f_name)
-                if contains(years, 1850) and contains(years, 1980):
+                if target_v != 'drybc' or contains(years, 1850) and contains(years, 1980):
                     if contains(years, 1850):
                         if run_name not in main_dict:
                             main_dict[run_name] = {'s_file': f_name, 'e_file': None, 's_year': years[0]}
