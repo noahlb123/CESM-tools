@@ -53,7 +53,7 @@ class RunIndexManager:
         elif run.replace('drybc', 'wetbc') in self.run_index_map.keys():
             return self.run_index_map[run.replace('drybc', 'wetbc')]
         else:
-            return -1
+            raise Exception(run + ' not found in the Run Index Manager, here is its complete map:' + str(self.run_index_map))
 
 RIM = RunIndexManager()
 
