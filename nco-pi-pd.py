@@ -26,6 +26,22 @@ files = os.listdir(root)
 bads = set([])
 to_eval = 'cd ' + root + ' && '
 
+def setup():
+    if False:
+        input = []
+        print('ncrcat -O ' + ' '.join(input) + ' ' + 'mmrbc_AERmon_EC-Earth3-AerChem_historical_r1i1p4f1_gn_195501-198012.nc')
+        print('\n')
+        print('rm ' + ' '.join(input))
+    if True:
+        for file in files:
+            if ('wetbc' in file or 'drybc' in file) and 'CanESM5' in file:
+                f = Dataset(os.paht.join(root, file))
+                print(file, list(f.variables.keys()))
+                f.close()
+
+setup()
+exit()
+
 def get_years(filename):
     years = filename[filename.rfind('_') + 1:filename.rfind(".")].split('-')
     years = [int(year[0:4]) for year in years]
