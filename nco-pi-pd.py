@@ -101,7 +101,7 @@ for filename in files:
                     else:
                         main_dict[model_name]['e_file'] = f_name
                         main_dict[model_name]['e_year'] = years[1]
-exit()
+
 #commands to extract file timeslices and decadally average
 to_eval += 'echo "extracting timeslices..." && '
 for model_name, d in main_dict.items():
@@ -140,7 +140,6 @@ for model_name, d in main_dict.items():
 
 print('all files:')
 print(og_new_name_map)
-exit()
 
 to_eval = evaluate(to_eval)
 #comands to combine files with their partners (subtraction)
@@ -214,6 +213,9 @@ for file in filenames:
         bins[base].append(file)
     else:
         bins[base] = [file]
+
+print(list(base.keys()))
+exit()
 
 #average bases
 to_eval += 'echo "binning..." && '
