@@ -137,8 +137,9 @@ for filename in files:
                             main_dict[run_name]['e_file'] = f_name
                             main_dict[run_name]['e_year'] = years[1]
 
-#commands to extract file timeslices and decadally average
-to_eval += 'echo "extracting timeslices..." && '
+
+#sort by time
+to_eval += 'echo "sorting time..." && '
 for run_name, d in main_dict.items():
     if d['s_file'] != None and d['e_file'] != None:
         for year in (1850, 1980):
@@ -163,21 +164,24 @@ for run_name, d in main_dict.items():
             i_end_decade = T.nearest_search(times, end_target)
             f.close()
             #sort by time
-            to_eval += "ncap2 -O -s 'time=asort(time);' " + filename + " " + filename + " && "
+            to_eval += "ncap2 -s 'time=asort(time);' " + filename + " " + new_filename + " && "
             #average times
             og_new_name_map[filename] = year
             RIM.add(run_name)
             run_index = "_" + str(RIM.get_index(run_name))
             new_filename = run_model_map[run_name] + run_index + file_suffix + '.nc'
-            to_eval += 'ncwa -b -a time -d time,' + str(i_start_decade) + ',' + str(i_end_decade) + ' ' + filename + ' ' + new_filename + ' -O && '
             #to_eval += 'ncks -d time,' + str(time_index) + ' ' + filename + ' ' + new_filename + ' -O && '
     else:
-        #print('doesnt have start and end:', model_name)
         bads.add(model_name)
 
-#print('all files:')
-#print(og_new_name_map)
 to_eval = evaluate(to_eval)
+
+#commands to extract file timeslices and decadally average
+to_eval += 'echo "extracting timeslices..." && '
+for run_name in list(set(main_dict.keys()).difference(bads)):
+        for i in RIM.indexes:
+            full_model_name = run_model_map[run_name] + '_' + str(i)
+            to_eval += 'ncwa -b -a time -d time,' + str(i_start_decade) + ',' + str(i_end_decade) + ' ' + filename + ' ' + new_filename + ' -O && '
 
 #comands to combine files with their partners (subtraction)
 if target_v == 'drybc':
