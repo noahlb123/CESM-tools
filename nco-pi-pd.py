@@ -137,6 +137,9 @@ for filename in files:
                             main_dict[run_name]['e_file'] = f_name
                             main_dict[run_name]['e_year'] = years[1]
 
+print('main dict')
+print(main_dict)
+
 #commands to extract file timeslices and decadally average
 to_eval += 'echo "extracting timeslices..." && '
 for run_name, d in main_dict.items():
@@ -229,7 +232,10 @@ else:
                 m_suffix = full_model_name + suffix
                 p_suffix = partner + suffix
                 new_name = m_suffix.replace('_a', '').replace('.nc', '')
+                valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
 
+print('valid_er_models')
+print(valid_er_models)
 
 #commands to divide files
 to_eval += 'echo "dividing..." && '
