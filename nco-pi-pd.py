@@ -53,7 +53,8 @@ class RunIndexManager:
         elif run.replace('drybc', 'wetbc') in self.run_index_map.keys():
             return self.run_index_map[run.replace('drybc', 'wetbc')]
         else:
-            raise Exception(run + ' not found in the Run Index Manager, here is its complete map:' + str(self.run_index_map))
+            return -1
+            #raise Exception(run + ' not found in the Run Index Manager, here is its complete map:' + str(self.run_index_map))
 
 RIM = RunIndexManager()
 
@@ -189,6 +190,8 @@ if target_v == 'drybc':
     valid_models = list(set(main_dict.keys()).difference(bads))
     valid_er_models = set()
     for run_name in valid_models:
+        if RIM.get_index(run_name) == -1:
+            continue
         full_model_name = run_model_map[run_name] + '_' + str(RIM.get_index(run_name))
         if '_b' in full_model_name:
             continue
