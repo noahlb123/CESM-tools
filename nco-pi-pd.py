@@ -164,7 +164,9 @@ for run_name, d in main_dict.items():
             to_eval += "ncap2 -O -s 'time=asort(time);' " + filename + " " + new_filename + " && "
             to_eval = evaluate(to_eval)
             #average times
-            f = Dataset(root + '/' + new_filename)
+            if not os.path.isfile(os.path.join(root, new_filename)):
+                continue
+            f = Dataset(os.path.join(root, new_filename))
             time_var = f.variables['time']
             times = f['time'][:]
             if np.max(times) >= 365 * 1850:
