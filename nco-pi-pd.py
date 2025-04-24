@@ -141,7 +141,6 @@ for run_name, d in main_dict.items():
             run_index = "_" + str(list(main_dict.keys()).index(run_name))
             new_filename = run_model_map[run_name] + run_index + file_suffix + '.nc'
             print(new_filename)
-            exit()
             to_eval += 'ncwa -b -a time -d time,' + str(i_start_decade) + ',' + str(i_end_decade) + ' ' + filename + ' ' + new_filename + ' -O && '
             #to_eval += 'ncks -d time,' + str(time_index) + ' ' + filename + ' ' + new_filename + ' -O && '
     else:
@@ -150,6 +149,7 @@ for run_name, d in main_dict.items():
 
 print('all files:')
 print(og_new_name_map)
+exit()
 
 to_eval = evaluate(to_eval)
 #comands to combine files with their partners (subtraction)
