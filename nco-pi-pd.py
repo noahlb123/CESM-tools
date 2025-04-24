@@ -154,15 +154,6 @@ for run_name, d in main_dict.items():
                 bads.add(run_name)
                 continue
             f.close()
-            time_var = f.variables['time']
-            times = f['time'][:]
-            if np.max(times) >= 365 * 1850:
-                times = np.divide(times, 365)
-            assert 'days since' in time_var.units
-            i_start_decade = T.nearest_search(times, year)
-            end_target = year + avg_window if year == 1850 else year - avg_window
-            i_end_decade = T.nearest_search(times, end_target)
-            f.close()
             RIM.add(run_name)
             run_index = "_" + str(RIM.get_index(run_name))
             new_filename = run_model_map[run_name] + run_index + file_suffix + '.nc'
