@@ -187,6 +187,9 @@ if target_v == 'drybc':
 else:
     valid_er_models = list(set(main_dict.keys()).difference(bads))
 
+print(valid_er_models)
+exit()
+
 #commands to divide files
 to_eval += 'echo "dividing..." && '
 for model_name in valid_er_models:
@@ -233,7 +236,6 @@ for file in filenames:
 #average bases
 to_eval += 'echo "binning..." && '
 bases = []
-print(bins)
 for base, files in bins.items():
     if target_v == 'mmrbc':
         if 'CESM2-WACCM_re.nc' in files:
@@ -248,7 +250,7 @@ for base, files in bins.items():
         to_eval += 'echo "\tall files from ' + base + ' removed." && '
         continue
     bases.append(base + '.nc')
-exit()
+
 to_eval = evaluate(to_eval)
 
 #comand to average files
