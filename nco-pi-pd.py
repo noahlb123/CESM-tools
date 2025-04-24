@@ -156,32 +156,33 @@ if target_v == 'drybc':
     valid_models = list(set(main_dict.keys()).difference(bads))
     valid_er_models = set()
     for model_name in valid_models:
-        model_name = run_model_map[model_name]
-        if '_b' in model_name:
-            continue
-        partner = model_name.replace('_a', '_b')
-        for suffix in ['_pi.nc', '_pd.nc']:
-            m_suffix = model_name + suffix
-            p_suffix = partner + suffix
-            new_name = m_suffix.replace('_a', '').replace('.nc', '')
-            #get sign of wetbc
-            f = Dataset(root + '/' + p_suffix)
-            wet_arr = f['wetbc'][:]
-            f.close()
-            if np.min(wet_arr) >= 0 and not np.max(wet_arr) <= 0:
-                operation = 'add'
-            elif np.max(wet_arr) <= 0 and not np.min(wet_arr) >= 0:
-                operation = 'sub'
-            if np.max(wet_arr) > 0 and np.min(wet_arr) < 0:
-                raise Exception('this wetbc file contains both negative and positive values: ' + p_suffix)
-            to_eval += 'ncrename -h -O -v wetbc,drybc ' + p_suffix + ' && '
-            to_eval += 'ncbo --op_typ=' + operation + ' ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
-            valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
-            model = new_name[0:new_name.find('_')]
-            if model in model_run_map.keys():
-                model_run_map[model].append(new_name.replace('_pi', '').replace('_pd', ''))
-            else:
-                model_run_map[model] = [new_name.replace('_pi', '').replace('_pd', '')]
+        for i in range(len(main_dict.keys())):
+            model_name = run_model_map[model_name] + '_' + str(i)
+            if '_b' in model_name:
+                continue
+            partner = model_name.replace('_a', '_b')
+            for suffix in ['_pi.nc', '_pd.nc']:
+                m_suffix = model_name + suffix
+                p_suffix = partner + suffix
+                new_name = m_suffix.replace('_a', '').replace('.nc', '')
+                #get sign of wetbc
+                f = Dataset(root + '/' + p_suffix)
+                wet_arr = f['wetbc'][:]
+                f.close()
+                if np.min(wet_arr) >= 0 and not np.max(wet_arr) <= 0:
+                    operation = 'add'
+                elif np.max(wet_arr) <= 0 and not np.min(wet_arr) >= 0:
+                    operation = 'sub'
+                if np.max(wet_arr) > 0 and np.min(wet_arr) < 0:
+                    raise Exception('this wetbc file contains both negative and positive values: ' + p_suffix)
+                to_eval += 'ncrename -h -O -v wetbc,drybc ' + p_suffix + ' && '
+                to_eval += 'ncbo --op_typ=' + operation + ' ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
+                valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
+                model = new_name[0:new_name.find('_')]
+                if model in model_run_map.keys():
+                    model_run_map[model].append(new_name.replace('_pi', '').replace('_pd', ''))
+                else:
+                    model_run_map[model] = [new_name.replace('_pi', '').replace('_pd', '')]
     to_eval = evaluate(to_eval)
 else:
     valid_er_models = list(set(main_dict.keys()).difference(bads))
