@@ -234,7 +234,7 @@ for file in filenames:
 to_eval += 'echo "binning..." && '
 bases = []
 for base, files in bins.items():
-    to_eval += 'echo "base, ' + base + ' '.join(files) + '" && '
+    print(base, files)
     if target_v == 'mmrbc':
         if 'CESM2-WACCM_re.nc' in files:
             files.remove('CESM2-WACCM_re.nc')
@@ -248,7 +248,7 @@ for base, files in bins.items():
         to_eval += 'echo "\tall files from ' + base + ' removed." && '
         continue
     bases.append(base + '.nc')
-
+exit()
 to_eval = evaluate(to_eval)
 
 #comand to average files
