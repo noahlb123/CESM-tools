@@ -44,6 +44,7 @@ def setup():
 def get_years(filename):
     years = filename[filename.rfind('_') + 1:filename.rfind(".")].split('-')
     years = [int(year[0:4]) for year in years]
+    print(years)
     return years
 
 def contains(years, target_year):
@@ -101,6 +102,7 @@ for filename in files:
                     else:
                         main_dict[model_name]['e_file'] = f_name
                         main_dict[model_name]['e_year'] = years[1]
+exit()
 
 #commands to extract file timeslices and decadally average
 to_eval += 'echo "extracting timeslices..." && '
@@ -215,7 +217,6 @@ for file in filenames:
         bins[base] = [file]
 
 print(list(bins.keys()))
-exit()
 
 #average bases
 to_eval += 'echo "binning..." && '
