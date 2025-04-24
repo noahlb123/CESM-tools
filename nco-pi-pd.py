@@ -144,7 +144,6 @@ for model_name, d in main_dict.items():
 
 print('all files:')
 print(og_new_name_map)
-#exit()
 
 to_eval = evaluate(to_eval)
 #comands to combine files with their partners (subtraction)
