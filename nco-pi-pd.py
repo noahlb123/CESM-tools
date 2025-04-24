@@ -3,6 +3,7 @@ import sys
 import platform
 from tools import ToolBox
 from netCDF4 import Dataset
+import pandas as pd
 import numpy as np
 T = ToolBox()
 
@@ -227,15 +228,16 @@ else:
             m_suffix = full_model_name + suffix
             p_suffix = partner + suffix
             new_name = m_suffix.replace('_a', '').replace('.nc', '')
+            print(new_name, new_name.replace('_pi', '').replace('_pd', ''), m_suffix, run_model_map[run_name], str(RIM.get_index(run_name))
             valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
 
 #commands to divide files
 to_eval += 'echo "dividing..." && '
 for model_name in valid_er_models:
-    pi = model_name + '_pi.nc'
-    pd = model_name + '_pd.nc'
+    p_i = model_name + '_pi.nc'
+    p_d = model_name + '_pd.nc'
     new_name = model_name + '.nc'
-    to_eval += 'ncbo -v ' + target_v + ' --op_typ=dvd ' + pd + ' ' + pi + ' ' + new_name + ' -O && '
+    to_eval += 'ncbo -v ' + target_v + ' --op_typ=dvd ' + p_d + ' ' + p_i + ' ' + new_name + ' -O && '
 
 filenames = [model_name + '.nc' for model_name in valid_er_models]
 to_eval = evaluate(to_eval)
@@ -254,7 +256,6 @@ for i in range(len(filenames)):
     file_name = filenames[i]
     f = Dataset(root + '/' + file_name)
     to_eval += "ncap2 -O -s '" + target_v + "=double(" + target_v + ");' " + file_name + ' ' + file_name + ' && '
-    print(file_name, list(f.variables.keys()))
     if f.variables['lat'].shape[0] > 64 or f.variables['lon'].shape[0] > 128:
         to_eval += 'ncremap -d ' + smallest_grid + ' ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
         filenames[i] = file_name.replace('.nc', '_re.nc')
@@ -301,8 +302,6 @@ evaluate(to_eval)
 
 
 print('begin python workflow...')
-import pandas as pd #this has to be here otherwise var "pd" is overwritten
-
 index_path = 'data/standardized-ice-cores/index.csv'
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
 ice_coords = T.get_ice_coords(index_path, dupe_path)
