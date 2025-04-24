@@ -233,8 +233,8 @@ for file in filenames:
 #average bases
 to_eval += 'echo "binning..." && '
 bases = []
+print(bins)
 for base, files in bins.items():
-    print(base, files)
     if target_v == 'mmrbc':
         if 'CESM2-WACCM_re.nc' in files:
             files.remove('CESM2-WACCM_re.nc')
