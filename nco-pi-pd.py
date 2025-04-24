@@ -178,6 +178,7 @@ if target_v == 'drybc':
                 to_eval += 'ncrename -h -O -v wetbc,drybc ' + p_suffix + ' && '
                 to_eval += 'ncbo --op_typ=' + operation + ' ' + m_suffix + ' ' + p_suffix + ' ' + new_name + '.nc -O && '
                 valid_er_models.add(new_name.replace('_pi', '').replace('_pd', ''))
+                print('here:', valid_er_models)
                 model = new_name[0:new_name.find('_')]
                 if model in model_run_map.keys():
                     model_run_map[model].append(new_name.replace('_pi', '').replace('_pd', ''))
@@ -187,7 +188,6 @@ if target_v == 'drybc':
 else:
     valid_er_models = list(set(main_dict.keys()).difference(bads))
 
-print(set(main_dict.keys()), bads)
 exit()
 
 #commands to divide files
