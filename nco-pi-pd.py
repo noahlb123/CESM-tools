@@ -27,18 +27,23 @@ bads = set([])
 to_eval = 'cd ' + root + ' && '
 
 def setup():
+    x = {'drybc_AERmon_CanESM5_historical_r2i1p1f1_gn_185001-201412.nc': 1980, 'wetbc_AERmon_CanESM5_historical_r2i1p1f1_gn_185001-201412.nc': 1980, 'drybc_AERmon_CanESM5-1_historical_r36i1p1f1_gn_185001-201412.nc': 1980, 'wetbc_AERmon_CanESM5-1_historical_r36i1p1f1_gn_185001-201412.nc': 1980, 'drybc_AERmon_CESM2_historical_r2i1p1f1_gn_185001-201412.nc': 1850, 'drybc_AERmon_CESM2_historical_r7i1p1f1_gn_195001-199912.nc': 1980, 'wetbc_AERmon_CESM2_historical_r2i1p1f1_gn_185001-201412.nc': 1850, 'wetbc_AERmon_CESM2_historical_r7i1p1f1_gn_195001-199912.nc': 1980, 'drybc_AERmon_CNRM-ESM2-1_historical_r8i1p1f2_gr_185001-201412.nc': 1980, 'wetbc_AERmon_CNRM-ESM2-1_historical_r8i1p1f2_gr_185001-201412.nc': 1980, 'drybc_AERmon_CanESM5-CanOE_historical_r3i1p2f1_gn_185001-201412.nc': 1980, 'wetbc_AERmon_CanESM5-CanOE_historical_r3i1p2f1_gn_185001-201412.nc': 1980, 'drybc_AERmon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc': 1980, 'wetbc_AERmon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc': 1980, 'drybc_AERmon_EC-Earth3-AerChem_historical_r1i1p1f1_gn_198001-198012.nc': 1980, 'wetbc_AERmon_EC-Earth3-AerChem_historical_r1i1p1f1_gn_198001-198012.nc': 1980}
+    print(len(x))
     if False:
         input = []
         print('ncrcat -O ' + ' '.join(input) + ' ' + 'mmrbc_AERmon_EC-Earth3-AerChem_historical_r1i1p4f1_gn_195501-198012.nc')
         print('\n')
         print('rm ' + ' '.join(input))
-    if True:
+    if False:
         for file in files:
             if ('wetbc' in file or 'drybc' in file) and 'CanESM5' in file:
                 f = Dataset(os.path.join(root, file))
                 #if (not 'lat' in f.variables.keys()) or (not 'lon' in f.variables.keys()):
                 print(file, list(f.variables.keys()))
                 f.close()
+
+setup()
+exit()
 
 def get_years(filename):
     years = filename[filename.rfind('_') + 1:filename.rfind(".")].split('-')
@@ -132,7 +137,7 @@ for model_name, d in main_dict.items():
                 partner_suffix = model_name[len(model_name) - 1: len(model_name)]
                 assert partner_suffix == 'a' or partner_suffix == 'b'
                 file_var = 'wetbc' if partner_suffix == 'b' else 'drybc'
-            #to_eval += "ncap2 -O -s '" + file_var + "=asort(time);' " + filename + " " + filename + " && "
+            #to_eval += "ncap2 -O -s 'time=asort(time);' " + filename + " " + filename + " && "
             #average times
             og_new_name_map[filename] = year
             new_filename = model_name + file_suffix + '.nc'
