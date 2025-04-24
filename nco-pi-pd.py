@@ -163,7 +163,7 @@ for run_name, d in main_dict.items():
             i_end_decade = T.nearest_search(times, end_target)
             f.close()
             #sort by time
-            #to_eval += "ncap2 -O -s 'time=asort(time);' " + filename + " " + filename + " && "
+            to_eval += "ncap2 -O -s 'time=asort(time);' " + filename + " " + filename + " && "
             #average times
             og_new_name_map[filename] = year
             RIM.add(run_name)
