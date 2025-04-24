@@ -22,6 +22,7 @@ prefix = prefix_map[target_v]
 system = platform.system() #differentiate local and derecho env by sys platform
 partners = {}
 og_new_name_map = {}
+run_model_map = {}
 files = os.listdir(root)
 bads = set([])
 to_eval = 'cd ' + root + ' && '
@@ -44,7 +45,6 @@ def setup():
 def get_years(filename):
     years = filename[filename.rfind('_') + 1:filename.rfind(".")].split('-')
     years = [int(year[0:4]) for year in years]
-    print(years)
     return years
 
 def contains(years, target_year):
@@ -55,6 +55,11 @@ def contains(years, target_year):
 
 def get_model_name(filename):
     return filename[filename.index(prefix) + len(prefix): filename.index('_historical')]
+
+def get_run_name(filename):
+    return filename[0: filename.rfind('_')]
+
+print(get_run_name('wetbc_AERmon_MIROC-ES2H_historical_r1i1p4f2_gn_185001-201412.nc'))
 
 def base_model(model):
         model = model.replace('.nc', '')
@@ -86,27 +91,27 @@ for filename in files:
             partners = [filename, partner_name] if target_v == 'drybc' else [filename]
             for f_name in partners:
                 model_name = get_model_name(f_name)
-                print(model_name)
-                years = get_years(f_name)
                 if (target_v == 'drybc'):
                     model_name += '_b' if target_v == 'drybc' and f_name == partner_name else '_a'
+                run_name = get_run_name(f_name)
+                run_model_map[run_name] = model_name
+                years = get_years(f_name)
                 if contains(years, 1850):
-                    if model_name not in main_dict:
-                        main_dict[model_name] = {'s_file': f_name, 'e_file': None, 's_year': years[0]}
+                    if run_name not in main_dict:
+                        main_dict[run_name] = {'s_file': f_name, 'e_file': None, 's_year': years[0]}
                     else:
-                        main_dict[model_name]['s_file'] = f_name
-                        main_dict[model_name]['s_year'] = years[0]
+                        main_dict[run_name]['s_file'] = f_name
+                        main_dict[run_name]['s_year'] = years[0]
                 if contains(years, 1980):
-                    if model_name not in main_dict:
-                        main_dict[model_name] = {'e_file': f_name, 's_file': None, 'e_year': years[1]}
+                    if run_name not in main_dict:
+                        main_dict[run_name] = {'e_file': f_name, 's_file': None, 'e_year': years[1]}
                     else:
-                        main_dict[model_name]['e_file'] = f_name
-                        main_dict[model_name]['e_year'] = years[1]
-exit()
+                        main_dict[run_name]['e_file'] = f_name
+                        main_dict[run_name]['e_year'] = years[1]
 
 #commands to extract file timeslices and decadally average
 to_eval += 'echo "extracting timeslices..." && '
-for model_name, d in main_dict.items():
+for run_name, d in main_dict.items():
     if d['s_file'] != None and d['e_file'] != None:
         for year in (1850, 1980):
             #print(model_name, year, filename)
@@ -117,8 +122,8 @@ for model_name, d in main_dict.items():
             try:
                 f = Dataset(root + '/' + filename)
             except OSError:
-                print('wrong format:', model_name)
-                bads.add(model_name)
+                print('wrong format:', run_name)
+                bads.add(run_name)
                 continue
             time_var = f.variables['time']
             times = f['time'][:]
@@ -133,7 +138,10 @@ for model_name, d in main_dict.items():
             #to_eval += "ncap2 -O -s 'time=asort(time);' " + filename + " " + filename + " && "
             #average times
             og_new_name_map[filename] = year
-            new_filename = model_name + file_suffix + '.nc'
+            run_index = "_" + list(main_dict.keys()).index(run_name)
+            new_filename = run_model_map[run_name] + run_index + file_suffix + '.nc'
+            print(new_filename)
+            exit()
             to_eval += 'ncwa -b -a time -d time,' + str(i_start_decade) + ',' + str(i_end_decade) + ' ' + filename + ' ' + new_filename + ' -O && '
             #to_eval += 'ncks -d time,' + str(time_index) + ' ' + filename + ' ' + new_filename + ' -O && '
     else:
