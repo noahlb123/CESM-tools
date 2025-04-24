@@ -12,8 +12,8 @@ do
 done
 
 #main data analysis
-python3 nco-pi-pd.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all &&
-python3 nco-pi-pd.py drybc /glade/derecho/scratch/nlbills/cmip6-snow-dep/all CESM &&
+python3 nco-pi-pd.py drybc /glade/derecho/scratch/nlbills/all-ice-core-data/wet-dry &&
+python3 nco-pi-pd.py drybc /glade/derecho/scratch/nlbills/all-ice-core-data/wet-dry CESM &&
 python3 nco-pi-pd.py sootsn /glade/derecho/scratch/nlbills/all-ice-core-data/sootsn &&
 python3 nco-pi-pd.py loadbc /glade/derecho/scratch/nlbills/all-ice-core-data/loadbc &&
 python3 nco-pi-pd.py mmrbc /glade/derecho/scratch/nlbills/all-ice-core-data/mmrbc &&
