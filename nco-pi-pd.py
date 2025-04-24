@@ -187,7 +187,7 @@ if target_v == 'drybc':
 else:
     valid_er_models = list(set(main_dict.keys()).difference(bads))
 
-print(valid_er_models)
+print(set(main_dict.keys()), bads)
 exit()
 
 #commands to divide files
