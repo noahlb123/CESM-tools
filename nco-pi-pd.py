@@ -138,7 +138,7 @@ for run_name, d in main_dict.items():
             #to_eval += "ncap2 -O -s 'time=asort(time);' " + filename + " " + filename + " && "
             #average times
             og_new_name_map[filename] = year
-            run_index = "_" + list(main_dict.keys()).index(run_name)
+            run_index = "_" + str(list(main_dict.keys()).index(run_name))
             new_filename = run_model_map[run_name] + run_index + file_suffix + '.nc'
             print(new_filename)
             exit()
