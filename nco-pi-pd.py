@@ -35,7 +35,7 @@ def setup():
     if True:
         for file in files:
             if ('wetbc' in file or 'drybc' in file) and 'CanESM5' in file:
-                f = Dataset(os.paht.join(root, file))
+                f = Dataset(os.path.join(root, file))
                 print(file, list(f.variables.keys()))
                 f.close()
 
