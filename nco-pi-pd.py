@@ -40,9 +40,6 @@ def setup():
                 print(file, list(f.variables.keys()))
                 f.close()
 
-setup()
-exit()
-
 def get_years(filename):
     years = filename[filename.rfind('_') + 1:filename.rfind(".")].split('-')
     years = [int(year[0:4]) for year in years]
