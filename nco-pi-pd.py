@@ -206,7 +206,9 @@ if target_v == 'drybc':
             p_suffix = partner + suffix
             new_name = m_suffix.replace('_a', '').replace('.nc', '')
             #get sign of wetbc
-            f = Dataset(root + '/' + p_suffix)
+            if not os.path.isfile(os.path.join(root, p_suffix)):
+                continue
+            f = Dataset(os.path.join(root, p_suffix))
             wet_arr = f['wetbc'][:]
             f.close()
             if np.min(wet_arr) >= 0 and not np.max(wet_arr) <= 0:
@@ -249,8 +251,14 @@ for model_name in valid_er_models:
     new_name = model_name + '.nc'
     to_eval += 'ncbo -v ' + target_v + ' --op_typ=dvd ' + p_d + ' ' + p_i + ' ' + new_name + ' -O && '
 
-filenames = [model_name + '.nc' for model_name in valid_er_models]
 to_eval = evaluate(to_eval)
+
+#remove non existant files
+filenames = [model_name + '.nc' for model_name in valid_er_models]
+for filename in filenames:
+    if not os.path.isfile(os.path.join(root, filename)):
+        filenames.remove(filename)
+
 
 #commands to remove time_bnds variable
 to_eval += 'echo "removing time_bnds variable..." && '
