@@ -317,6 +317,8 @@ for base, files in bins.items():
 to_eval = evaluate(to_eval)
 
 #comand to average files
+if target_v == 'drybc':
+    bases.remove('CNRM.nc')
 to_eval += 'echo "averaging..." && '
 to_eval += 'ncra ' + ' '.join(bases) + ' output.nc -O && '
 to_eval += 'echo "nco workflow done!"'
