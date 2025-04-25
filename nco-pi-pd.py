@@ -161,7 +161,10 @@ for run_name, d in main_dict.items():
             new_filename = run_model_map[run_name] + run_index + file_suffix + '.nc'
             og_new_name_map[filename] = year
             #sort by time
-            to_eval += "ncap2 -O -s 'time=asort(time);' " + filename + " " + new_filename + " && "
+            if target_v != 'drybc':
+                to_eval += "ncap2 -O -s 'time=asort(time);' " + filename + " " + new_filename + " && "
+            else:
+                to_eval += "cp " + filename + " " + new_filename + " && "
             to_eval = evaluate(to_eval)
             #average times
             if not os.path.isfile(os.path.join(root, new_filename)):
