@@ -114,6 +114,7 @@ def plot_timeseries_decomp(x, y, name):
     timeseries_windows = [3, 10, 25, 33, 50]
     for i in timeseries_windows:
         if len(x) < 2 * i:
+            print('length too short for p=', i)
             continue
         fig, ax = plt.subplots(4, 1)
         fig.tight_layout()
@@ -126,6 +127,8 @@ def plot_timeseries_decomp(x, y, name):
         ax[1].set_title("Trend")
         ax[3].plot(x, y, label='obs', color='black')
         ax[3].set_title("Observation")
+        for ax_i in range(4):
+            ax[ax_i].set_xlim([1850, 1980])
         plt.savefig('figures/ice-cores/decomposition/' + name + '-' + str(i) + '.png', dpi=200)
         plt.close()
 
