@@ -270,15 +270,20 @@ to_eval = evaluate(to_eval)
 
 #commands to regrid all models
 to_eval += 'echo "regriding..." && '
+bads = set()
 for i in range(len(filenames)):
     file_name = filenames[i]
-    f = Dataset(root + '/' + file_name)
+    if not os.path.isfile(os.path.join(root, file_name)):
+        bads.add(filename)
+        continue
+    f = Dataset(os.path.join(root, file_name))
     to_eval += "ncap2 -O -s '" + target_v + "=double(" + target_v + ");' " + file_name + ' ' + file_name + ' && '
     if f.variables['lat'].shape[0] > 64 or f.variables['lon'].shape[0] > 128:
         to_eval += 'ncremap -d ' + smallest_grid + ' ' + file_name + ' ' + file_name.replace('.nc', '_re.nc') + ' && '
         filenames[i] = file_name.replace('.nc', '_re.nc')
     f.close()
 
+filenames = list(set(filenames).difference(bads))
 to_eval = evaluate(to_eval)
 
 #bin models into base models
