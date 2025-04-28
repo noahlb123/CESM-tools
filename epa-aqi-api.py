@@ -143,7 +143,7 @@ if analysis == '2024 LA Wildfires':
         sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
         #plot
-        ax[i].pcolormesh(lons, lats, f['pm2.5'][240,:,:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+        ax[i].pcolormesh(lons, lats, x[240,:,:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
         ax[i].colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal", ax=ax, extend='both')
         ax[i].savefig(os.path.join(os.getcwd(), 'epa-fig.png'), dpi=200)
 
