@@ -120,6 +120,7 @@ if analysis == '2024 LA Wildfires':
     f.close()'''
 
     print('ploting...')
+    root = '/glade/derecho/scratch/nlbills/la-pm2.5/la-pm2.5'
 
     files = ('pm25_exp_sub.nc', 'epa-regridded.nc')
     for i in range(len(files)):
@@ -129,7 +130,7 @@ if analysis == '2024 LA Wildfires':
         ax[i].add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
 
         #get data
-        f = Dataset(files[i])
+        f = Dataset(os.path.join(root, files[i]))
         lats = f['lat'][:]
         lons = f['lon'][:]
         x = f['pm2.5'][:]
