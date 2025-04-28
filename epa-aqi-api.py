@@ -8,7 +8,7 @@ if len(sys.argv) < 2 or sys.argv[1] not in ["Seasonal PM2.5", "2024 LA Wildfires
     #example: python epa-aqi-api.py '2024 LA Wildfires' /glade/derecho/scratch/nlbills/la-pm2.5/la-pm2.5/temp.nc
     raise Exception('1 command line argument required: <anaylysis type ("Seasonal PM2.5" or "2024 LA Wildfires")> ex. python3 epa-aqi-api.py "2024 LA Wildfires"')
 analysis = sys.argv[1]
-file = sys.argv[2] if analysis == '2024 LA Wildfires' else None
+#file = sys.argv[2] if analysis == '2024 LA Wildfires' else None
 
 
 if analysis == '2024 LA Wildfires':
