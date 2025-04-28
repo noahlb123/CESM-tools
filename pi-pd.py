@@ -511,7 +511,7 @@ elif (inp == 'l'):
             'color': model_colors['CESM'],#IBM Design library's colorblind pallete
             },
         'CESM': {
-            'dataset': pd.read_csv('data/model-ice-depo/cesm-wetdry/cesm-25.csv').drop(['model'], axis=1).mean(axis=0),
+            'dataset': pd.read_csv('data/model-ice-depo/cesm-wetdry/cesm.csv').drop(['model'], axis=1).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CESM'],
             },
@@ -528,17 +528,17 @@ elif (inp == 'l'):
             },
         'CESM-SOOTSN': { #changed to intentionally wrong input file
             #'dataset': pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv').loc[pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv')['model'] == 'CESM2'],
-            'dataset': pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn-25.csv').drop(['model'], axis=1).replace(to_replace='--', value=np.nan).mean(axis=0),
+            'dataset': pd.read_csv('data/model-ice-depo/cesm-sootsn/sootsn.csv').drop(['model'], axis=1).replace(to_replace='--', value=np.nan).drop([0,2], axis=0).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CESM-SOOTSN'],
             },
         'loadbc': {
-            'dataset': pd.read_csv('data/model-ice-depo/loadbc/loadbc-25.csv').loc[pd.read_csv('data/model-ice-depo/loadbc/loadbc.csv')['model'] == 'CESM2'],
+            'dataset': pd.read_csv('data/model-ice-depo/loadbc/loadbc.csv').drop(['model'], axis=1).mean(axis=0),#.loc[pd.read_csv('data/model-ice-depo/loadbc/loadbc.csv')['model'] == 'CESM2'],
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['CMIP6'],
             },
         'mmrbc': {
-            'dataset': pd.read_csv('data/model-ice-depo/mmrbc/mmrbc.csv').drop(['model'], axis=1).drop([1,4], axis=0).mean(axis=0),
+            'dataset': pd.read_csv('data/model-ice-depo/mmrbc/mmrbc.csv').drop(['model'], axis=1).drop([1,2,3], axis=0).mean(axis=0),
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['LENS'],
             }
@@ -754,11 +754,11 @@ elif (inp == 'l'):
             'Ice Core': pd.Series(ratios, index=filenames),
             #'loadbc': pd.Series(bar_means['loadbc'], index=order_of_columns),
             #'mmrbc': pd.Series(bar_means['mmrbc'], index=order_of_columns),
-            #'CESM': pd.Series(bar_means['CESM'], index=order_of_columns),
+            'CESM': pd.Series(bar_means['CESM'], index=order_of_columns),
             #'CESM-SOOTSN': pd.Series(bar_means['CESM-SOOTSN'], index=order_of_columns),
-            #'CMIP6': pd.Series(bar_means['CMIP6'], index=order_of_columns),
+            'CMIP6': pd.Series(bar_means['CMIP6'], index=order_of_columns),
             'LENS': pd.Series(bar_means['LENS'], index=order_of_columns),
-            'LENS-Bias': pd.Series(bar_means['LENS-Bias'], index=order_of_columns)
+            #'LENS-Bias': pd.Series(bar_means['LENS-Bias'], index=order_of_columns)
             }, index=filenames)
         #reformat data
         region_filename = t.invert_dict_list(filename_region)
@@ -885,14 +885,14 @@ elif (inp == 'l'):
             #bplot = ax.boxplot(data[model], widths=width, positions=x+offset, patch_artist=True, boxprops=dict(facecolor=c, color=c), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c))
             box_heights += [item.get_ydata()[1] for item in bplot['whiskers']]
             multiplier += 1
-        bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors, zorder=0)
+        bars = ax.bar(x + width * 1.5, rdf['Ice Core'].max() + 0.1, bar_width, color=bar_colors, zorder=0)
         ax.set_xticks(x + width * 1.5, bar_labels)
         ax.set_xlim([x[0] + width * 1.5 - bar_width / 2, x[-1] + width * 1.5 + bar_width / 2])
-        ax.set_ylim([np.min(box_heights), np.max(box_heights) + 0.1]) #np.partition(box_heights, -2)[-2] + 0.1])
         ax.set_yticks([x for x in range(1, 11)])
         ax.set_ylabel("1980/1850 Ratio")
         ax.set_xlabel("Region")
         ax.get_yaxis().set_major_formatter(ScalarFormatter())
+        ax.set_ylim([0, rdf['Ice Core'].max() + 0.1])
         #manually setup legend
         legend_handels = []
         leg_dict = {'Ice Core': 'Ice Core', 'loadbc': 'BC in air column', 'CESM': 'BC deposition to snow', 'CESM-SOOTSN': 'BC in snow', 'mmrbc': 'BC in surface air'}
@@ -905,7 +905,7 @@ elif (inp == 'l'):
         new_model_colors = {k: models_colors[k] for k in list(sub.keys())}
         for i in range(len(list(new_model_colors.items()))):
             key, color = list(new_model_colors.items())[i]
-            leg.legendHandles[i].set_color(color)
+            leg.legend_handles[i].set_color(color)
         for i in range(len(bar_labels)):
             color = patches[region2region[bar_labels[i]]][-1]
             ax.get_xticklabels()[i].set_color(color)

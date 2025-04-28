@@ -75,7 +75,7 @@ if analysis == '2024 LA Wildfires':
         return (AQI - I_lo) * (BP_hi - BP_lo) / (I_hi - I_lo) + BP_lo
     
     #get data
-    f = Dataset(os.path.join(file))
+    '''f = Dataset(os.path.join(file))
     lats = f['lat_0'][:]
     lons = f['lon_0'][:]
     x = f['AEROT_P0_L101_GLL0'][:]
@@ -117,30 +117,33 @@ if analysis == '2024 LA Wildfires':
     main_v[:] = x
     #oldemissions.close()
     out.close()
-    f.close()
+    f.close()'''
 
-    #setup cartopy
     print('ploting...')
-    plt.clf()
-    fig, ax = plt.subplots(dpi=200, subplot_kw={'projection': cartopy.crs.NearsidePerspective(central_latitude=34, central_longitude=-119)})
-    ax.set_extent((238, 244, 31, 37), cartopy.crs.PlateCarree())
-    ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
 
-    #get data
-    f = Dataset(file.replace('temp', 'epa-regridded'))
-    lats = f['lat'][:]
-    lons = f['lon'][:]
-    x = f['pm2.5'][:]
+    files = ('pm25_exp_sub.nc', 'epa-regridded.nc')
+    for i in range(len(files)):
+        #setup cartopy
+        fig, ax = plt.subplots(1, 2, dpi=300, subplot_kw={'projection': cartopy.crs.NearsidePerspective(central_latitude=34, central_longitude=-119)})
+        ax[i].set_extent((238, 244, 31, 37), cartopy.crs.PlateCarree())
+        ax[i].add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
 
-    #color
-    cmap = colormaps['hsv']
-    c_norm = Normalize(vmin=0, vmax=200)
-    sm = ScalarMappable(cmap=cmap, norm=c_norm)
+        #get data
+        f = Dataset(files[i])
+        lats = f['lat'][:]
+        lons = f['lon'][:]
+        x = f['pm2.5'][:]
+        f.close()
 
-    #plot
-    plt.pcolormesh(lons, lats, f['pm2.5'][240,:,:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
-    plt.colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal", ax=ax, extend='both')
-    plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'), dpi=200)
+        #color
+        cmap = colormaps['hsv']
+        c_norm = Normalize(vmin=0, vmax=200)
+        sm = ScalarMappable(cmap=cmap, norm=c_norm)
+
+        #plot
+        ax[i].pcolormesh(lons, lats, f['pm2.5'][240,:,:], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+        ax[i].colorbar(mappable=sm, label="PM2.5 (ug/m^3)", orientation="horizontal", ax=ax, extend='both')
+        ax[i].savefig(os.path.join(os.getcwd(), 'epa-fig.png'), dpi=200)
 
 elif analysis == 'Seasonal PM2.5':
     #Get api credentials
