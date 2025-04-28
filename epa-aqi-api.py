@@ -121,8 +121,9 @@ if analysis == '2024 LA Wildfires':
 
     print('ploting...')
     root = '/glade/derecho/scratch/nlbills/la-pm2.5/la-pm2.5'
+    name_var_map = {'pm25_exp_sub.nc': 'var73', 'aqi-regrid.nc': 'AEROT_P0_L101_GLL0'}
 
-    files = ('pm25_exp_sub.nc', 'epa-regridded.nc')
+    files = ('pm25_exp_sub.nc', 'aqi-regrid.nc')
     for i in range(len(files)):
         #setup cartopy
         fig, ax = plt.subplots(1, 2, dpi=300, subplot_kw={'projection': cartopy.crs.NearsidePerspective(central_latitude=34, central_longitude=-119)})
@@ -133,7 +134,7 @@ if analysis == '2024 LA Wildfires':
         f = Dataset(os.path.join(root, files[i]))
         lats = f['lat'][:]
         lons = f['lon'][:]
-        x = f['pm2.5'][:]
+        x = f[name_var_map[files[i]]][:]
         f.close()
 
         #color
