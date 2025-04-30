@@ -157,7 +157,7 @@ if analysis == '2024 LA Wildfires':
         #plot
         label_map = {'pm25_exp_sub.nc': 'PM2.5 (ug/m^3)', 'aqi-regrid.nc': 'Air Quality Index'}
         ax[i].pcolormesh(lons, lats, to_plot, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
-        ax[i].colorbar(mappable=sm, label=label_map[files[i]], orientation="horizontal", ax=ax, extend='both')
+        #ax[i].colorbar(mappable=sm, label=label_map[files[i]], orientation="horizontal", ax=ax, extend='both')
     plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'), dpi=200)
 
 elif analysis == 'Seasonal PM2.5':
