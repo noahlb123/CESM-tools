@@ -124,7 +124,7 @@ if analysis == '2024 LA Wildfires':
     root = '/glade/derecho/scratch/nlbills/la-pm2.5/la-pm2.5'
     name_var_map = {'pm25_exp_sub.nc': 'var73', 'aqi-regrid.nc': 'AEROT_P0_L101_GLL0'}
 
-    files = ('pm25_exp_sub.nc', 'aqi-regrid.nc')
+    files = ('aqi-regrid.nc', 'pm25_exp_sub.nc')
     for i in range(len(files)):
         #setup cartopy
         fig, ax = plt.subplots(1, len(files), dpi=300, subplot_kw={'projection': cartopy.crs.Robinson()})
@@ -146,16 +146,13 @@ if analysis == '2024 LA Wildfires':
             times = f['time'][:]
             start_t = T.nearest_search(times, (8-6) * 24 - 24)
             end_t = T.nearest_search(times, (13-6) * 24 - 24)
-            print(start_t, end_t, len(times))
             lats = f['lat'][:]
             lons = f['lon'][:]
-            print(lats)
-            print(lons)
         to_plot = np.mean(x[start_t:end_t,:,:], axis=0)
 
         #color
         cmap = colormaps['viridis']
-        c_norm = Normalize(vmin=0, vmax=200)
+        c_norm = Normalize(vmin=np.min(to_plot), vmax=np.max(to_plot))
         sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
         #plot
