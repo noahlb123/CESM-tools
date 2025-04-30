@@ -148,8 +148,7 @@ if analysis == '2024 LA Wildfires':
             lats = f['lat'][:]
             lons = f['lon'][:]
         to_plot = np.mean(x[start_t:end_t,:,:], axis=0)
-        print(files[i])
-        print(to_plot)
+        print(np.shape(to_plot))
 
         #color
         cmap = colormaps['viridis']
