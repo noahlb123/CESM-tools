@@ -128,7 +128,7 @@ if analysis == '2024 LA Wildfires':
 
     for i in range(len(files)):
         #setup cartopy
-        ax[i].set_extent((238.1, 243.9, 31.5, 36.9), cartopy.crs.PlateCarree())
+        ax[i].set_extent((238.2, 243.8, 31.5, 36.9), cartopy.crs.PlateCarree())
         ax[i].add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
 
         #get data
