@@ -148,10 +148,11 @@ if analysis == '2024 LA Wildfires':
             lats = f['lat'][:]
             lons = f['lon'][:]
         to_plot = np.mean(x[start_t:end_t,:,:], axis=0)
+        print(files[i])
         print(to_plot)
 
         #color
-        cmap = colormaps['hsv']
+        cmap = colormaps['viridis']
         c_norm = Normalize(vmin=0, vmax=200)
         sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
