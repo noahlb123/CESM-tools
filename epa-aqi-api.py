@@ -128,7 +128,7 @@ if analysis == '2024 LA Wildfires':
 
     for i in range(len(files)):
         #setup cartopy
-        ax[i].set_extent((238, 244, 31, 37), cartopy.crs.PlateCarree())
+        ax[i].set_extent((238.1, 243.9, 31.5, 36.9), cartopy.crs.PlateCarree())
         ax[i].add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
 
         #get data
@@ -162,7 +162,7 @@ if analysis == '2024 LA Wildfires':
         ax[i].pcolormesh(lons, lats, to_plot, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
         ax[i].set_title(title_map[files[i]])
         plt.colorbar(mappable=sm, label=label_map[files[i]], orientation="horizontal", ax=ax[i], extend='both')
-    plt.title('Mean Conditions from January 8th to January 13th')
+    #plt.title('Mean Conditions from January 8th to January 13th')
     plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'), dpi=200)
     print('saved to ' + os.path.join(os.getcwd(), 'epa-fig.png'))
 
