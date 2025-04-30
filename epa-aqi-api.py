@@ -133,8 +133,6 @@ if analysis == '2024 LA Wildfires':
         #get data
         f = Dataset(os.path.join(root, files[i]))
         x = f[name_var_map[files[i]]][:]
-
-        #extract Jan 8 to Jan 13
         if files[i] == 'aqi-regrid.nc':
             #Jan 8 0:00 to Jan 13 0:00
             start_t = 168
@@ -146,9 +144,11 @@ if analysis == '2024 LA Wildfires':
             times = f['time'][:]
             start_t = T.nearest_search(times, (8-6) * 24 - 24)
             end_t = T.nearest_search(times, (13-6) * 24 - 24)
+            print(start_t, end_t, len(times))
             lats = f['lat'][:]
             lons = f['lon'][:]
         to_plot = np.mean(x[start_t:end_t,:,:], axis=0)
+        print(to_plot)
 
         #color
         cmap = colormaps['hsv']
