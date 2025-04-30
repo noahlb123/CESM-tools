@@ -140,6 +140,7 @@ if analysis == '2024 LA Wildfires':
             end_t = 697
             lats = f['lat_0'][:]
             lons = f['lon_0'][:]
+            vmax = 80
         elif files[i] == 'pm25_exp_sub.nc':
             #Jan 8 0:00 to Jan 13 0:00
             times = f['time'][:]
@@ -147,15 +148,16 @@ if analysis == '2024 LA Wildfires':
             end_t = T.nearest_search(times, (13-6) * 24 - 24)
             lats = f['lat'][:]
             lons = f['lon'][:]
+            vmax = 4
         to_plot = np.mean(x[start_t:end_t,:,:], axis=0)
 
         #color
         cmap = colormaps['viridis']
-        c_norm = Normalize(vmin=np.min(to_plot), vmax=np.max(to_plot))
+        c_norm = Normalize(vmin=np.min(to_plot), vmax=vmax)
         sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
         #plot
-        label_map = {'pm25_exp_sub.nc': 'PM2.5 (ug/m^3)', 'aqi-regrid.nc': 'Air Quality Index (AQI)'}
+        label_map = {'pm25_exp_sub.nc': 'PM2.5 (units?)', 'aqi-regrid.nc': 'Air Quality Index (AQI)'}
         title_map = {'pm25_exp_sub.nc': 'Modeled PM2.5', 'aqi-regrid.nc': 'EPA Observed AQI'}
         ax[i].pcolormesh(lons, lats, to_plot, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
         ax[i].set_title(title_map[files[i]])
