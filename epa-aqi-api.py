@@ -148,12 +148,12 @@ if analysis == '2024 LA Wildfires':
             end_t = T.nearest_search(times, (13-6) * 24 - 24)
             lats = f['lat'][:]
             lons = f['lon'][:]
-            vmax = 4
+            vmax = 4 * np.power(10, -8)
         to_plot = np.mean(x[start_t:end_t,:,:], axis=0)
 
         #color
         cmap = colormaps['viridis']
-        c_norm = Normalize(vmin=np.min(to_plot), vmax=np.max(to_plot))
+        c_norm = Normalize(vmin=np.min(to_plot), vmax=vmax)
         sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
         #plot
