@@ -124,13 +124,13 @@ if analysis == '2024 LA Wildfires':
     root = '/glade/derecho/scratch/nlbills/la-pm2.5/la-pm2.5'
     name_var_map = {'pm25_exp_sub.nc': 'var73', 'aqi-regrid.nc': 'AEROT_P0_L101_GLL0'}
 
-    files = ('aqi-regrid.nc', 'pm25_exp_sub.nc')
+    files = ['pm25_exp_sub.nc'] #('aqi-regrid.nc', 'pm25_exp_sub.nc')
     for i in range(len(files)):
         #setup cartopy
         fig, ax = plt.subplots(1, len(files), dpi=300, subplot_kw={'projection': cartopy.crs.Robinson()})
         #fig, ax = plt.subplots(1, 2, dpi=300, subplot_kw={'projection': cartopy.crs.NearsidePerspective(central_latitude=34, central_longitude=-119)})
-        ax[i].set_extent((238, 244, 31, 37), cartopy.crs.PlateCarree())
-        ax[i].add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
+        #ax.set_extent((238, 244, 31, 37), cartopy.crs.PlateCarree())
+        ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
 
         #get data
         f = Dataset(os.path.join(root, files[i]))
@@ -158,8 +158,8 @@ if analysis == '2024 LA Wildfires':
         #plot
         label_map = {'pm25_exp_sub.nc': 'PM2.5 (ug/m^3)', 'aqi-regrid.nc': 'Air Quality Index (AQI)'}
         title_map = {'pm25_exp_sub.nc': 'Modeled PM2.5', 'aqi-regrid.nc': 'EPA Observed AQI'}
-        ax[i].pcolormesh(lons, lats, to_plot, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
-        ax[i].set_title(title_map[files[i]])
+        ax.pcolormesh(lons, lats, to_plot, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+        ax.set_title(title_map[files[i]])
         #ax[i].colorbar(mappable=sm, label=label_map[files[i]], orientation="horizontal", ax=ax, extend='both')
     plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'), dpi=200)
     print('saved to ' + os.path.join(os.getcwd(), 'epa-fig.png'))
