@@ -132,8 +132,6 @@ if analysis == '2024 LA Wildfires':
 
         #get data
         f = Dataset(os.path.join(root, files[i]))
-        lats = f['lat'][:]
-        lons = f['lon'][:]
         x = f[name_var_map[files[i]]][:]
 
         #extract Jan 8 to Jan 13
@@ -141,13 +139,16 @@ if analysis == '2024 LA Wildfires':
             #Jan 8 0:00 to Jan 13 0:00
             start_t = 168
             end_t = 697
+            lats = f['lat_0'][:]
+            lons = f['lon_0'][:]
         elif files[i] == 'pm25_exp_sub.nc':
             #Jan 8 0:00 to Jan 13 0:00
             times = f['time'][:]
             start_t = T.nearest_search(times, (8-6) * 24 - 24)
             end_t = T.nearest_search(times, (13-6) * 24 - 24)
+            lats = f['lat'][:]
+            lons = f['lon'][:]
         to_plot = np.mean(x[start_t:end_t,:,:], axis=0)
-        f.close()
 
         #color
         cmap = colormaps['hsv']
