@@ -128,7 +128,7 @@ if analysis == '2024 LA Wildfires':
     for i in range(len(files)):
         #setup cartopy
         fig, ax = plt.subplots(1, len(files), dpi=300, subplot_kw={'projection': cartopy.crs.NearsidePerspective(central_latitude=34, central_longitude=-119)})
-        #ax.set_extent((238, 244, 31, 37), cartopy.crs.PlateCarree())
+        ax.set_extent((238, 244, 31, 37), cartopy.crs.PlateCarree())
         ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
 
         #get data
