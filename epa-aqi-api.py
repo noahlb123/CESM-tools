@@ -169,7 +169,7 @@ if analysis == '2024 LA Wildfires':
         sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
         #plot
-        label_map = {'pm25_exp_sub.nc': 'PM2.5 (10^8)', 'aqi-regrid.nc': 'Air Quality Index (AQI)'}
+        label_map = {'pm25_exp_sub.nc': 'PM2.5 * 10^8', 'aqi-regrid.nc': 'Air Quality Index (AQI)'}
         title_map = {'pm25_exp_sub.nc': 'Modeled PM2.5', 'aqi-regrid.nc': 'EPA Observed AQI'}
         ax[i].pcolormesh(lons, lats, to_plot, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
         ax[i].set_title(title_map[files[i]])
