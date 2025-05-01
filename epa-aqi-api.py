@@ -28,6 +28,8 @@ if analysis == '2024 LA Wildfires':
     from matplotlib.cm import ScalarMappable
     from matplotlib.colors import LogNorm
     from matplotlib.colors import Normalize
+    from matplotlib.colors import BoundaryNorm
+    from matplotlib.colors import LinearSegmentedColormap
     import numpy as np
     import pandas as pd
     from netCDF4 import Dataset
@@ -148,16 +150,26 @@ if analysis == '2024 LA Wildfires':
             end_t = T.nearest_search(times, (13-6) * 24 - 24)
             lats = f['lat'][:]
             lons = f['lon'][:]
-            vmax = 3 * (1 / np.power(10, 8))
+            vmax = 2
         to_plot = np.mean(x[start_t:end_t,:,:], axis=0)
+        to_plot *= np.power(10, 8) if files[i] == 'pm25_exp_sub.nc' else 1
 
-        #color
+        #setup color scale
         cmap = colormaps['viridis']
-        c_norm = Normalize(vmin=np.min(to_plot), vmax=vmax)
+        # extract all colors from the map
+        cmaplist = [cmap(i) for i in range(cmap.N)]
+        # create the new map
+        cmap = LinearSegmentedColormap.from_list('Custom cmap', cmaplist, cmap.N)
+        # define the bins and normalize
+        if files[i] == 'aqi-regrid.nc':
+            bounds = [i for i in range(0, 100, 20)]
+        elif files[i] == 'pm25_exp_sub.nc':
+            bounds = [i for i in range(0, 2.5, 0.5)]
+        c_norm = BoundaryNorm(bounds, cmap.N)
         sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
         #plot
-        label_map = {'pm25_exp_sub.nc': 'PM2.5 (units?)', 'aqi-regrid.nc': 'Air Quality Index (AQI)'}
+        label_map = {'pm25_exp_sub.nc': 'PM2.5 (10^8)', 'aqi-regrid.nc': 'Air Quality Index (AQI)'}
         title_map = {'pm25_exp_sub.nc': 'Modeled PM2.5', 'aqi-regrid.nc': 'EPA Observed AQI'}
         ax[i].pcolormesh(lons, lats, to_plot, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
         ax[i].set_title(title_map[files[i]])
