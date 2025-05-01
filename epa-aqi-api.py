@@ -164,7 +164,7 @@ if analysis == '2024 LA Wildfires':
         if files[i] == 'aqi-regrid.nc':
             bounds = [i for i in range(0, 100, 20)]
         elif files[i] == 'pm25_exp_sub.nc':
-            bounds = [i for i in range(0, 2.5, 0.5)]
+            bounds = [0, 0.5, 1.0, 1.5, 2.0]
         c_norm = BoundaryNorm(bounds, cmap.N)
         sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
