@@ -56,6 +56,7 @@ means = {}
 for key, pair in dates.items():
     indexes = [T.nearest_search(nh_times, pair[i]) for i in range(len(pair))]
     means[key] = np.mean(f_nh['BC_em_anthro'][indexes[0]: indexes[1] + 1])
+print('pd/pi ratio: ' + str(means['pd'] / means['pi']))
 plt.bar(list(means.keys()), list(means.values()))
 plt.savefig(os.path.join(os.getcwd(), 'bar-anthro-emissions.png'), dpi=200)
 plt.close()
@@ -63,4 +64,4 @@ plt.close()
 #save pandas csv
 df = pd.DataFrame(columns=['nh time', 'na time', 'nh', 'na'], data=np.transpose([f_nh['time'][:] / 365 + 1750, f_na['time'][:] / 365 + 1750, nh_sum, na_sum]))
 df.to_csv(os.path.join(os.getcwd(), 'antrho-emissions.csv'))
-print('saved to ' + os.path.join(os.getcwd(), 'combined-anthro-emissions.png'))
+print('saved to ' + os.path.join(os.getcwd(), '*'))
