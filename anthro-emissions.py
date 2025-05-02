@@ -2,7 +2,9 @@ from netCDF4 import Dataset
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import tools
 import os
+T = tools.ToolBox()
 
 #combine files
 '''
@@ -36,17 +38,27 @@ plt.close()
 #combined
 na_sum = np.sum(np.sum(np.sum(f_na['BC_em_anthro'][:], axis=3), axis=2), axis=1)
 nh_sum = np.sum(np.sum(np.sum(f_nh['BC_em_anthro'][:], axis=3), axis=2), axis=1)
-plt.plot(f_na['time'][:] / 365 + 1750, na_sum, label='North America')
-plt.plot(f_nh['time'][:] / 365 + 1750, nh_sum, label='Northern Hemisphere')
+na_times = f_na['time'][:] / 365 + 1750
+nh_times = f_nh['time'][:] / 365 + 1750
+plt.plot(na_times, na_sum, label='North America')
+plt.plot(nh_times, nh_sum, label='Northern Hemisphere')
 plt.legend()
 plt.title('CEDS BC Emissions')
 plt.xlabel('Year (CE)')
 plt.ylabel('BC (kg m-2 s-1)')
 plt.ylim()
 plt.savefig(os.path.join(os.getcwd(), 'combined-anthro-emissions.png'), dpi=200)
+plt.close()
 
 #bar chart
-
+dates = {'pi': [1850, 1875], 'pd': [1955, 1980]}
+means = {}
+for key, pair in dates.items():
+    indexes = [T.nearest_search(nh_times, pair[i]) for i in range(len(pair))]
+    means[key] = np.mean(f_nh['BC_em_anthro'][indexes[0]: indexes[1] + 1])
+plt.bar(list(means.keys()), list(means.values()))
+plt.savefig(os.path.join(os.getcwd(), 'bar-anthro-emissions.png'), dpi=200)
+plt.close()
 
 #save pandas csv
 df = pd.DataFrame(columns=['nh time', 'na time', 'nh', 'na'], data=np.transpose([f_nh['time'][:] / 365 + 1750, f_na['time'][:] / 365 + 1750, nh_sum, na_sum]))
