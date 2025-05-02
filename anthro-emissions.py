@@ -21,7 +21,7 @@ f_nh = Dataset('/glade/derecho/scratch/nlbills/ceds-anthro-emissions/cropped-nh.
 sector_dict = {0: 'Agriculture', 1: 'Energy', 2: 'Industrial', 3: 'Transportation', 4: 'Residential, Commercial, Other', 5: 'Solvents production and application', 6: 'Waste', 7: 'International Shipping'}
 
 #compentnet
-na_regional_mean = np.mean(np.mean(f_na['BC_em_anthro'][:], axis=3), axis=2)
+na_regional_mean = np.sum(np.sum(f_na['BC_em_anthro'][:], axis=3), axis=2)
 
 for i in range(8):
     plt.plot(f_na['time'][:] / 365 + 1750, na_regional_mean[:,i], label=sector_dict[i])
@@ -34,8 +34,8 @@ plt.savefig(os.path.join(os.getcwd(), 'component-anthro-emissions.png'), dpi=200
 plt.close()
 
 #combined
-na_sum = np.sum(np.mean(np.mean(f_na['BC_em_anthro'][:], axis=3), axis=2), axis=1)
-nh_sum = np.sum(np.mean(np.mean(f_nh['BC_em_anthro'][:], axis=3), axis=2), axis=1)
+na_sum = np.sum(np.sum(np.sum(f_na['BC_em_anthro'][:], axis=3), axis=2), axis=1)
+nh_sum = np.sum(np.sum(np.sum(f_nh['BC_em_anthro'][:], axis=3), axis=2), axis=1)
 plt.plot(f_na['time'][:] / 365 + 1750, na_sum, label='North America')
 plt.plot(f_nh['time'][:] / 365 + 1750, nh_sum, label='Northern Hemisphere')
 plt.legend()
@@ -45,6 +45,10 @@ plt.ylabel('BC (kg m-2 s-1)')
 plt.ylim()
 plt.savefig(os.path.join(os.getcwd(), 'combined-anthro-emissions.png'), dpi=200)
 
+#bar chart
+
+
 #save pandas csv
 df = pd.DataFrame(columns=['nh time', 'na time', 'nh', 'na'], data=np.transpose([f_nh['time'][:] / 365 + 1750, f_na['time'][:] / 365 + 1750, nh_sum, na_sum]))
 df.to_csv(os.path.join(os.getcwd(), 'antrho-emissions.csv'))
+print('saved to ' + os.path.join(os.getcwd(), 'combined-anthro-emissions.png'))
