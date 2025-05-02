@@ -76,7 +76,7 @@ patches = { #Okabe and Ito colorblind pallet
     'East Antarctica': (-180, -60, 180, -30, '#000000'),
     'West Antarctica': (0, -60, 180, -30, '#6CB3E4'),'''
 #IBM Design Library colorblind pallet https://www.nceas.ucsb.edu/sites/default/files/2022-06/Colorblind%20Safe%20Color%20Schemes.pdf
-model_colors = {'CESM': '#EE692C', 'CMIP6': '#CC397C', 'Ice Core': '#6C62E7', 'CESM-SOOTSN': '#638FF6', 'LENS': '#F5B341', 'LENS-Bias': '#CC397C', 'loadbc': '#CC397C', 'mmrbc': '#F5B341'}
+model_colors = {'CESM': '#EE692C', 'CMIP6': '#CC397C', 'Ice Core': '#6C62E7', 'CESM-SOOTSN': '#638FF6', 'LENS': '#F5B341', 'LENS-Bias': '#CC397C', 'loadbc': '#CC397C', 'mmrbc': '#F5B341', 'Anthro Emissions': '#638FF6'}
 
 def within_patch(lat, lon, patch, name):
     lat_min, lat_max, lon_min, lon_max = t.patch_min_max(patch)
@@ -166,7 +166,11 @@ for index, row in p.iterrows():
         Yr = np.flip(d['Yr'].to_numpy())
         if filename == 'thompson-2002-1.csv':
             BC = np.flip(lowess(BC, Yr, frac=0.2, is_sorted=True, return_sorted=False))
-        a1, y1, temp, temp = t.simplified_avg(Yr, BC, 1850.49 + 25 / 2, windows)
+        if filename == 'legrand-2023-1.csv':
+            a1, y1, temp, temp = t.simplified_avg(Yr, BC, 1881.5, [6.5])
+            a1[25] = a1[6.5]
+        else:
+            a1, y1, temp, temp = t.simplified_avg(Yr, BC, 1850.49 + 25 / 2, windows)
         a3, y3, temp, temp = t.simplified_avg(Yr, BC, 1980 - 25 / 2, windows)
         if len(sys.argv) >= 2 and sys.argv[1] == 'n':
             big_table_years = {'1750': None, '1800': None, '1850': None, '1900': None, '1950': None, '1980': None}
@@ -174,7 +178,7 @@ for index, row in p.iterrows():
                 a_temp, y_temp, temp, temp = t.simplified_avg(Yr, BC, int(key), windows)
                 big_table_years[key] = a_temp[windows[0]]
         #add data to datasets
-        if (y1 != None and y3 != None and abs(y1 - y3) >= 90):
+        if (y1 != None and y3 != None and abs(y1 - y3) >= 85):
             for key in windows:
                 if math.isnan(lat) or math.isnan(lon):
                     lat, lon, abbr = dup_index_map[filename]
@@ -910,6 +914,111 @@ elif (inp == 'l'):
             color = patches[region2region[bar_labels[i]]][-1]
             ax.get_xticklabels()[i].set_color(color)
         plt.savefig('figures/ice-cores/test-var.png', bbox_inches='tight', pad_inches=0.1, dpi=300)
+        plt.close()
+    #plot nh anthro emissions
+    elif len(sys.argv) >= 3 and sys.argv[2] == 'anth':
+        filenames = [x['filename'] for x in main_dict.values()]
+        ratios = [x['ratio'] for x in main_dict.values()]
+        index = [i + 1 for i in range(len(filenames))]
+        df = pd.DataFrame({
+            'core index': pd.Series(index, index=filenames),
+            'region': pd.Series([filename_region[i] for i in filenames], index=filenames),
+            'Ice Core': pd.Series(ratios, index=filenames),
+            #'loadbc': pd.Series(bar_means['loadbc'], index=order_of_columns),
+            #'mmrbc': pd.Series(bar_means['mmrbc'], index=order_of_columns),
+            'CESM': pd.Series(bar_means['CESM'], index=order_of_columns),
+            #'CESM-SOOTSN': pd.Series(bar_means['CESM-SOOTSN'], index=order_of_columns),
+            'CMIP6': pd.Series(bar_means['CMIP6'], index=order_of_columns),
+            'LENS': pd.Series(bar_means['LENS'], index=order_of_columns),
+            #'LENS-Bias': pd.Series(bar_means['LENS-Bias'], index=order_of_columns)
+            }, index=filenames)
+        #reformat data
+        region_filename = t.invert_dict_list(filename_region)
+        #sorted_regions = list(region_filename.keys())
+        #sorted_regions.sort()
+        sorted_regions = ['Arctic', 'North Greenland', 'South Greenland', 'Antarctica', 'Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica']
+        region_filename = {i: region_filename[i] for i in sorted_regions}
+        data = {'Anthro Emissions': [[6.9016223]]}
+        for model in df.columns:
+            data[model] = [[]]
+        del data['core index'], data['region']
+        for model in data.keys():
+            if model == 'Anthro Emissions':
+                continue
+            for region in region_filename.keys():
+                if region == 'Africa' or region == 'South ZAmerica' or region == 'Antarctica':
+                    continue
+                data[model][0] = np.concatenate((data[model][0], df[df['region'] == region][model]))
+        #plot
+        fig, ax = plt.subplots(layout='constrained')
+        width = 0.2
+        x = [0] #np.arange(len(region_filename.keys()))
+        true_x = [width * i for i in range(len(data.keys()))]
+        multiplier = 0
+        #bar_labels = list(region_filename.keys())
+        bar_labels = ['Arctic', 'North Greenland', 'South Greenland', 'Antarctica', 'Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica']
+        bar_colors = [patches[s][-1] + '30' for s in bar_labels]
+        bar_width = 1
+        max_box_height = df.drop('core index', axis=1).max(numeric_only=True).max()
+        box_heights = []
+        plt.hlines(data['Anthro Emissions'][0], x[0] + width * 1.5 - bar_width / 2, x[-1] + width * 2.5 + bar_width / 2, color='#00000090', linewidth=1)
+        for model in data.keys():
+            if model in ['core index', 'region']:
+                continue
+            c = model_colors[model]
+            ca = c + '90'
+            offset = width * multiplier
+            for i in range(len(data[model])):
+                pos = x[i] + offset
+                if len(data[model][0]) != 1:
+                    if len(data[model]) != 2:
+                        bplot = ax.boxplot(data[model][i], widths=width, positions=[pos], patch_artist=True, boxprops=dict(facecolor=ca, color=c, linewidth=0), capprops=dict(color=c), medianprops=dict(color='black', linewidth=0), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False, showcaps=False, showmeans=False, showbox=True)
+                        for median in bplot['medians']:
+                            #median.set(color='k', linewidth=1.5,)
+                            med_x, med_y = median.get_data()
+                            xn = (med_x - (med_x.sum()/2.)) * 0.5 + (med_x.sum()/2.)
+                            plt.plot(med_x, med_y, color="k", linewidth=1, solid_capstyle="butt", zorder=4)
+                        #box_heights += [item.get_ydata()[1] for item in bplot['whiskers']]
+                    else:
+                        plt.plot(2 * [pos], data[model][i], c=c, linewidth=1)
+                        #box_heights += [data[model][i]]
+            for i in range(len(data[model])):
+                if len(data[model][i]) > 1:
+                    plt.scatter(len(data[model][i]) * [x[i] + offset], data[model][i], c=c, s=8)
+                    x_color = 'black'
+                else:
+                    x_color = c
+                plt.scatter(x[i] + offset, np.mean(data[model][i]), c=x_color, s=30, marker='x', zorder=2.5)
+            multiplier += 1
+        #bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors, zorder=0)
+        y_ticks = [0.3, 0.5, 1, 2, 4, 7, 10, 20]
+        max_box_height = np.max([max_box_height + 0.1] + y_ticks)
+        legend_names = {'Anthro Emissions': 'Anthro Emissions', 'CMIP6': 'CMIP6 (8 models)', 'CESM': 'CESM (1 model)', 'LENS': 'LENS (1 model)', 'LENS-Bias': 'LENS-Bias', 'Ice Core': 'Ice Core', 'mmrbc': 'mmrbc'}
+        #bars = ax.bar(width * 1.5, max_box_height, bar_width - 0.03, color=bar_colors, zorder=0)
+        bar_labels[bar_labels.index('South ZAmerica')] = 'South America'
+        plt.title('Northern Hemisphere BC Ratios')
+        plt.xticks(rotation=90)
+        ax.set_yscale('log')
+        ax.set_xticks(true_x, [legend_names[name] for name in data.keys()])
+        ax.set_xlim([x[0] + width * 1.5 - bar_width / 2, x[-1] + width * 2.5 + bar_width / 2])
+        ax.set_ylim([0.2, max_box_height])
+        ax.set_yticks(y_ticks)
+        ax.set_ylabel("1980/1850 Ratio")
+        #ax.set_xlabel("Region")
+        ax.get_yaxis().set_major_formatter(ScalarFormatter())
+        #manually setup legend
+        legend_handels = []
+        '''for model in data.keys():
+            legend_handels.append(Patch(label=legend_names[model], facecolor=model_colors[model]))
+        ax.legend(handles=legend_handels, loc=9, bbox_to_anchor=(-0.05, -0.15))'''
+        #axis labels colors
+        inverse_names = {value: key for key, value in legend_names.items()}
+        print(inverse_names)
+        for a in plt.gcf().get_axes():
+            for i in range(len(data.keys())):
+                color = model_colors[list(data.keys())[i]]
+                a.get_xticklabels()[i].set_color(color)
+        plt.savefig('figures/ice-cores/test-anthro.png', bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close()
     #plot antartica supersets
     elif len(sys.argv) >= 3 and sys.argv[2] == 'ant':
