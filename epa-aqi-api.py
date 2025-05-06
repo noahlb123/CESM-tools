@@ -138,7 +138,7 @@ if analysis == '2024 LA Wildfires':
         f = Dataset(os.path.join(root, files[i]))
         x = f[name_var_map[files[i]]][:]
         f_mask = Dataset(os.path.join(mask_root, files[i].replace('.nc', '-mask.nc')))
-        mask = 1 - np.round(f_mask['landseamask'][:] / 100)
+        mask = 1 - np.floor(f_mask['landseamask'][:] / 100)
         f_mask.close()
 
         if files[i] == 'aqi-regrid.nc':
@@ -170,7 +170,7 @@ if analysis == '2024 LA Wildfires':
             bounds = [i for i in range(0, 100, 20)]
         elif files[i] == 'pm25_exp_sub.nc':
             bounds = [0, 0.5, 1.0, 1.5, 2.0]
-        bounds = [i for i in range(0, 120, 20)]
+        bounds = [i for i in range(0, 1, 20)]
         c_norm = BoundaryNorm(bounds, cmap.N)
         sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
