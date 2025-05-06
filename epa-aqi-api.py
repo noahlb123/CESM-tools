@@ -156,8 +156,8 @@ if analysis == '2024 LA Wildfires':
             lats = f['lat'][:]
             lons = f['lon'][:]
             vmax = 2
-        to_plot = mask #np.multiply(np.mean(x[start_t:end_t,:,:], axis=0), mask)
-        #to_plot *= np.power(10, 8) if files[i] == 'pm25_exp_sub.nc' else 1
+        to_plot = np.multiply(np.mean(x[start_t:end_t,:,:], axis=0), mask)
+        to_plot *= np.power(10, 8) if files[i] == 'pm25_exp_sub.nc' else 1
 
         #setup color scale
         cmap = colormaps['viridis']
@@ -170,7 +170,6 @@ if analysis == '2024 LA Wildfires':
             bounds = [i for i in range(0, 100, 20)]
         elif files[i] == 'pm25_exp_sub.nc':
             bounds = [0, 0.5, 1.0, 1.5, 2.0]
-        bounds = [i / 100 for i in range(0, 120, 20)]
         c_norm = BoundaryNorm(bounds, cmap.N)
         sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
