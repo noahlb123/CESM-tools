@@ -124,6 +124,7 @@ if analysis == '2024 LA Wildfires':
 
     print('ploting...')
     root = '/glade/derecho/scratch/nlbills/la-pm2.5/la-pm2.5'
+    mask_root = '/glade/derecho/scratch/nlbills/ocean-land-masks'
     name_var_map = {'pm25_exp_sub.nc': 'var73', 'aqi-regrid.nc': 'AEROT_P0_L101_GLL0'}
     files = ('aqi-regrid.nc', 'pm25_exp_sub.nc')
     fig, ax = plt.subplots(1, len(files), dpi=300, subplot_kw={'projection': cartopy.crs.NearsidePerspective(central_latitude=34, central_longitude=-119)})
@@ -136,6 +137,10 @@ if analysis == '2024 LA Wildfires':
         #get data
         f = Dataset(os.path.join(root, files[i]))
         x = f[name_var_map[files[i]]][:]
+        f_mask = Dataset(os.path.join(mask_root, files[i].replace('.nc', '-mask.nc')))
+        mask = f_mask['landseamask'][:]
+        f_mask.close()
+
         if files[i] == 'aqi-regrid.nc':
             #Jan 8 0:00 to Jan 13 0:00
             start_t = 168
@@ -151,7 +156,7 @@ if analysis == '2024 LA Wildfires':
             lats = f['lat'][:]
             lons = f['lon'][:]
             vmax = 2
-        to_plot = np.mean(x[start_t:end_t,:,:], axis=0)
+        to_plot = np.multiply(np.mean(x[start_t:end_t,:,:], axis=0), mask)
         to_plot *= np.power(10, 8) if files[i] == 'pm25_exp_sub.nc' else 1
 
         #setup color scale

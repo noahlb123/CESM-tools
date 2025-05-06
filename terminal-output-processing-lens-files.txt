@@ -804,5 +804,8 @@ ncrcat -O 1.nc 2.nc out.nc
 #rename variable
 ncrename -h -O -v wetbc,drybc MRI-ESM2-0_b_pi.nc
 
+#rename dimension
+ncrename -d lat_0,lat aqi-regrid.nc
+
 #delete all files size zero
 find path -size 0 -print -delete
