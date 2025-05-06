@@ -170,7 +170,7 @@ if analysis == '2024 LA Wildfires':
             bounds = [i for i in range(0, 100, 20)]
         elif files[i] == 'pm25_exp_sub.nc':
             bounds = [0, 0.5, 1.0, 1.5, 2.0]
-        bounds = [i for i in range(0, 120, 20)]
+        bounds = [i for i in range(0, 220, 20)]
         c_norm = BoundaryNorm(bounds, cmap.N)
         sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
