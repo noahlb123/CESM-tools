@@ -165,6 +165,7 @@ if analysis == '2024 LA Wildfires':
         cmaplist = [cmap(i) for i in range(cmap.N)]
         # create the new map
         cmap = LinearSegmentedColormap.from_list('Custom cmap', cmaplist, cmap.N)
+        cmap.set_bad(cmaplist[0],1.)
         # define the bins and normalize
         if files[i] == 'aqi-regrid.nc':
             bounds = [i for i in range(0, 100, 20)]
