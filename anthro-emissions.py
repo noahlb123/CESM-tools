@@ -101,6 +101,7 @@ elif mode == 'r':
         #dim order: time, sector, lat, lon
         arr = f['BC_em_anthro'][start_i:end_i,:,:,:]
         d['arr'] = np.sum(np.mean(arr, axis=0), axis=0)
+        print(d['arr'])
         f.close()
     main_arr = np.divide(ncdf_dict['pd']['arr'], ncdf_dict['pi']['arr'])
     for region, boxes in anthro_boxes.items():
