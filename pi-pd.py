@@ -60,16 +60,16 @@ a_p = 66.566667
 m_g = 71.5 #midpoint between lowest greenland (60) and highest (83)
 s_g = 60
 patches = { #Okabe and Ito colorblind pallet
-    'Arctic': (-15, a_p, 315, 90 - a_p, '#6CB3E4'),
-    'South Greenland': (-55, s_g, 35, m_g - s_g, '#6CB3E4'), #'#880D1E'),
-    'North Greenland': (-60, m_g, 45, 90 - m_g, '#6CB3E4'), #'#DDA138'),
-    'Antarctica': (-180, -60, 360, -30, '#2C72AD'),
-    'South ZAmerica': (-90, 15, 70, -71, '#000000'), #'#EFE362'),
-    'North America': (-170, 15, 115, a_p - 15, '#000000'), #'#C17EA5'),
-    'Europe': (-20, 23.5, 80, s_g - 23.5, '#000000'), #'#C86526'),
+    'Arctic': (-15, a_p, 315, 90 - a_p, '#6CB3E4', '#6CB3E4'),
+    'South Greenland': (-55, s_g, 35, m_g - s_g, '#880D1E', '#6CB3E4'), #'#880D1E'),
+    'North Greenland': (-60, m_g, 45, 90 - m_g, '#DDA138', '#6CB3E4'), #'#DDA138'),
+    'Antarctica': (-180, -60, 360, -30, '#2C72AD', '#2C72AD'),
+    'South ZAmerica': (-90, 15, 70, -71, '#EFE362', '#000000'), #'#EFE362'),
+    'North America': (-170, 15, 115, a_p - 15, '#C17EA5', '#000000'), #'#C17EA5'),
+    'Europe': (-20, 23.5, 80, s_g - 23.5, '#C86526', '#000000'), #'#C86526'),
     #'Middle east': (30, 23.5, 30, s_g - 23.5, '#DDA138'),
-    'Africa': (-20, 23.5, 80, -58.5, '#000000'),
-    'Asia': (60, 5, 90, a_p - 5, '#000000'), #'#459B76')
+    'Africa': (-20, 23.5, 80, -58.5, '#000000', '#000000'),
+    'Asia': (60, 5, 90, a_p - 5, '#459B76', '#000000'), #'#459B76')
 }
 '''
     'Greenland': (-55, s_g, 35, 90 - s_g, '#880D1E'),
@@ -501,6 +501,31 @@ elif (inp == 'c'): #Cartopy
     for pub in str(index_name_map).replace('}', '').replace('{', '').split(','):
         s.add(pub[t.find_nth(pub, " ", 2) + 2:t.find_nth(pub, "-", 2)])
     print(len(s), "unique ice core pubs")
+elif (inp == 'c-anthro'):
+    #setup
+    dpi = 300
+    fig, ax = plt.subplots(dpi=dpi, subplot_kw={'projection': cartopy.crs.Robinson()})
+    ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
+    
+    #elevation
+    elev = Dataset('data/elevation-land-only.nc') #from https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2c/netCDF/
+    elev_lon = elev['lon'][:]
+    elev_lat = elev['lat'][:]
+    elev_z = np.transpose(elev['land_elev'][:])
+    mesh = plt.pcolormesh(elev_lon, elev_lat, elev_z, cmap=colormaps['Greys'], vmin=0, transform=cartopy.crs.PlateCarree())
+
+    #patches
+    colors = {k: l[-2] for k, l in patches.items()}
+    colors['South America'] = colors['South ZAmerica']
+    colors['USA'] = colors['North America']
+    colors['Alaska'] = colors['Arctic']
+    colors['Greenland'] = colors['North Greenland']
+    anthro_boxes = json.load(open('data/emission-boxes.json'))
+    for region, boxes in anthro_boxes.items():
+        for box in boxes:
+            ax.add_patch(Rectangle(xy=[box[2], box[0]], width=np.abs(box[3]-box[2]), height=np.abs(box[1]-box[0]), facecolor=colors[region] + '50', edgecolor=colors[region], transform=cartopy.crs.PlateCarree()))
+    plt.savefig('figures/ice-cores/test-anthro-map-.png', bbox_inches='tight', pad_inches=0.0)
+
 elif (inp == 'l'):
     #setup data:
     models = {
@@ -783,6 +808,9 @@ elif (inp == 'l'):
         #bar_labels = list(region_filename.keys())
         bar_labels = ['Arctic', 'North Greenland', 'South Greenland', 'Antarctica', 'Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica']
         bar_colors = [patches[s][-1] + '30' for s in bar_labels]
+        for i in range(len(bar_labels)):
+            print(bar_labels[i], bar_colors[i])
+        exit()
         bar_width = 1
         max_box_height = df.drop('core index', axis=1).max(numeric_only=True).max()
         box_heights = []

@@ -1,3 +1,5 @@
 *
 !.gitignore
 !model-ice-depo
+!emission-boxes.json
+!offsets.json

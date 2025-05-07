@@ -71,4 +71,12 @@ def replace_year(filename, year):
     years = np.add([10, 10], years)
     return prefix + '_' + str(years[0]) + '01' + '-' + str(years[1]) + '12.nc'
 
-print(d[0])
+def squares(lat, lon):
+    meta_a = []
+    for d in [5, 10, 15]:
+        a = [lat - d, lat + d, lon - d, lon + d]
+        a = [str(i) for i in a]
+        meta_a.append('[' + ', '.join(a) + ']')
+    print(',\n'.join(meta_a))
+
+squares(-16.65, -67.8)
