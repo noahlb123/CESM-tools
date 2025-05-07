@@ -96,11 +96,10 @@ elif mode == 'r':
         d['times'] = f['time'][:]
         d['lats'] = f['lat'][:]
         d['lons'] = f['lon'][:]
-        start_i = T.nearest_search(d['times'], d['start'] - 1750)
-        end_i = T.nearest_search(d['times'], d['end'] - 1750)
+        start_i = T.nearest_search(d['times'], 365 * (d['start'] - 1750))
+        end_i = T.nearest_search(d['times'], 365 * (d['end'] - 1750))
         #dim order: time, sector, lat, lon
         arr = f['BC_em_anthro'][start_i:end_i,:,:,:]
-        print(d['times'], d['start'] - 1750)
         exit()
         d['arr'] = np.sum(np.mean(arr, axis=0), axis=0)
         f.close()
