@@ -76,7 +76,7 @@ if mode == 't':
 elif mode == 'r':
     ncdf_dict = {
         'pi': {
-            'filename': '185101-189912.nc',
+            'filename': '185001-189912.nc',
             'start': 1850,
             'end': 1875
             },
