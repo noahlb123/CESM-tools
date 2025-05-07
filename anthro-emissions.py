@@ -93,14 +93,14 @@ elif mode == 'r':
         print(era + ' data setup...')
         d = ncdf_dict[era]
         f = Dataset(os.path.join(root, d['filename']))
-        d['times'] = f['time'][:]
+        print(f['BC_em_anthro'][:])
+        '''d['times'] = f['time'][:]
         d['lats'] = f['lat'][:]
         d['lons'] = f['lon'][:]
         start_i = T.nearest_search(d['times'], d['start'] - 1750)
         end_i = T.nearest_search(d['times'], d['end'] - 1750)
         #dim order: time, sector, lat, lon
         arr = f['BC_em_anthro'][start_i:end_i,:,:,:]
-        print(arr)
         d['arr'] = np.sum(np.mean(arr, axis=0), axis=0)
         f.close()
     main_arr = np.divide(ncdf_dict['pd']['arr'], ncdf_dict['pi']['arr'])
@@ -112,4 +112,4 @@ elif mode == 'r':
             lon_min = T.nearest_search(ncdf_dict['pd']['lons'], box[2])
             lon_max = T.nearest_search(ncdf_dict['pd']['lons'], box[3])
             df.loc[i, region] = main_arr[lat_min:lat_max, lon_min:lon_max]
-    df.to_csv(os.path.join(os.getcwd(), 'anthro-ratios.csv'))
+    df.to_csv(os.path.join(os.getcwd(), 'anthro-ratios.csv'))'''
