@@ -100,7 +100,6 @@ elif mode == 'r':
         end_i = T.nearest_search(d['times'], 365 * (d['end'] - 1750))
         #dim order: time, sector, lat, lon
         arr = f['BC_em_anthro'][start_i:end_i,:,:,:]
-        exit()
         d['arr'] = np.sum(np.mean(arr, axis=0), axis=0)
         f.close()
     main_arr = np.divide(ncdf_dict['pd']['arr'], ncdf_dict['pi']['arr'])
