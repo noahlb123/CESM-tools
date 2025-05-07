@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tools
+import json
 import sys
 import os
 T = tools.ToolBox()
@@ -85,7 +86,11 @@ elif mode == 'r':
             'end': 1980
             }
         }
+    #ice_coords = T.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv')
+    anthro_boxes = json.load(open('data/emission-boxes.json'))
+    df = pd.DataFrame(index=[0, 1, 2], columns=list(anthro_boxes.keys()))
     for era in ncdf_dict.keys():
+        print(era + ' data setup...')
         d = ncdf_dict[era]
         f = Dataset(os.path.join(root, d['filename']))
         d['times'] = f['time'][:]
@@ -97,3 +102,13 @@ elif mode == 'r':
         arr = f['BC_em_anthro'][start_i:end_i,:,:,:]
         d['arr'] = np.sum(np.mean(arr, axis=0), axis=0)
         f.close()
+    main_arr = np.divide(ncdf_dict['pd']['arr'], ncdf_dict['pi']['arr'])
+    for region, boxes in anthro_boxes.items():
+        for i in range(3):
+            box = boxes[i]
+            lat_min = T.nearest_search(box[0], ncdf_dict['pd']['lats'])
+            lat_max = T.nearest_search(box[1], ncdf_dict['pd']['lats'])
+            lon_min = T.nearest_search(box[2], ncdf_dict['pd']['lons'])
+            lon_max = T.nearest_search(box[3], ncdf_dict['pd']['lons'])
+            df.loc[i, region] = main_arr['arr'][lat_min:lat_max, lon_min:lon_max]
+    df.to_csv(os.path.join(os.getcwd(), 'anthro-ratios.csv'))
