@@ -110,5 +110,5 @@ elif mode == 'r':
             lat_max = T.nearest_search(ncdf_dict['pd']['lats'], box[1])
             lon_min = T.nearest_search(ncdf_dict['pd']['lons'], box[2])
             lon_max = T.nearest_search(ncdf_dict['pd']['lons'], box[3])
-            df.loc[i, region] = main_arr[lat_min:lat_max, lon_min:lon_max]
+            df.loc[i, region] = np.mean(main_arr[lat_min:lat_max, lon_min:lon_max])
     df.to_csv(os.path.join(os.getcwd(), 'anthro-ratios.csv'))
