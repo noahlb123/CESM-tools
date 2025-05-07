@@ -106,9 +106,9 @@ elif mode == 'r':
     for region, boxes in anthro_boxes.items():
         for i in range(3):
             box = boxes[i]
-            lat_min = T.nearest_search(box[0], ncdf_dict['pd']['lats'])
-            lat_max = T.nearest_search(box[1], ncdf_dict['pd']['lats'])
-            lon_min = T.nearest_search(box[2], ncdf_dict['pd']['lons'])
-            lon_max = T.nearest_search(box[3], ncdf_dict['pd']['lons'])
+            lat_min = T.nearest_search(ncdf_dict['pd']['lats'], box[0])
+            lat_max = T.nearest_search(ncdf_dict['pd']['lats'], box[1])
+            lon_min = T.nearest_search(ncdf_dict['pd']['lons'], box[2])
+            lon_max = T.nearest_search(ncdf_dict['pd']['lons'], box[3])
             df.loc[i, region] = main_arr['arr'][lat_min:lat_max, lon_min:lon_max]
     df.to_csv(os.path.join(os.getcwd(), 'anthro-ratios.csv'))
