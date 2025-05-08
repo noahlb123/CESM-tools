@@ -114,3 +114,21 @@ elif mode == 'r':
             lon_max = T.nearest_search(ncdf_dict['pd']['lons'], box[3])
             df.loc[i, region] = np.mean(main_arr[lat_min:lat_max, lon_min:lon_max])
     df.to_csv(os.path.join(os.getcwd(), 'anthro-ratios.csv'))
+    print('saved to ' + os.path.join(os.getcwd(), 'anthro-ratios.csv'))
+    print('plotting...')
+    import cartopy
+    from matplotlib import colormaps
+    import matplotlib.pyplot as plt
+    from matplotlib.cm import ScalarMappable
+    from matplotlib.colors import LogNorm
+    #color
+    cmap = colormaps['BrBG_r']
+    c_norm = LogNorm(vmin=0.00001, vmax=100000)
+    sm = ScalarMappable(cmap=cmap, norm=c_norm)
+    #plot
+    fig, ax = plt.subplots(dpi=200, subplot_kw={'projection': cartopy.crs.Robinson()})
+    ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
+    plt.pcolormesh(ncdf_dict['pd']['lons'], ncdf_dict['pd']['lats'], main_arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+    plt.colorbar(mappable=sm, label='Anthro BC Emission Ratio', orientation="horizontal", ax=ax, extend='both')
+    plt.savefig(os.path.join(os.getcwd(), 'robinson-fig.png'), dpi=200)
+    print('saved to ' + os.path.join(os.getcwd(), 'robinson-fig.png'))
