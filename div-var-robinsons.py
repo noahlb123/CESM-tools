@@ -14,6 +14,14 @@ work_dir = os.path.join(root, 'ratios')
 dirs = ['loadbc', 'mmrbc', 'sootsn', 'wet-dry']
 name_var_map = {'loadbc': 'loadbc', 'mmrbc': 'mmrbc', 'sootsn': 'sootsn', 'wet-dry': 'drybc'}
 file2dir = {}
+to_eval = ''
+
+def evaluate(s):
+    l = len(s)
+    if s[l - 4:l] == ' && ':
+        s = s[0:l - 4]
+    os.system(s)
+    return 'cd ' + root + ' && '
 
 if step == '1' or step == 'a': #combine nc files
     columns = []
@@ -35,11 +43,13 @@ if step == '1' or step == 'a': #combine nc files
         new_name = os.path.join(work_dir, dir, 'CESM2.nc')
         old_name = os.path.join(root, dir, 'CESM2.nc')
         old_new_name[old_name] = new_name
-        print(root, dir, old_name)
+        #print(root, dir, old_name)
         #regrid
-        os.system('ncremap -d ' + smallest_grid + ' ' + old_name + ' ' + new_name + ' -O')
+        
+        to_eval += 'ncremap -d ' + smallest_grid + ' ' + old_name + ' ' + new_name + ' -O && '
         #rename var
-        os.system('ncrename -h -O -v ' + name_var_map[dir] + ',' + 'X' + ' ' + old_name)
+        to_eval += 'ncrename -h -O -v ' + name_var_map[dir] + ',' + 'X' + ' ' + old_name + ' && '
+    to_eval = evaluate(to_eval)
     print('combining...')
     for numo in columns:
         for deno in index:
