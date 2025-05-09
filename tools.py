@@ -274,7 +274,7 @@ class ToolBox:
         elif type(dir) == []:
             files = dir
         else:
-            raise TypeError
+            raise Exception('Type of dir not recognised: ' + dir + ':' + type(dir))
         for file in files:
             if qual_f(file, f_param):
                 path = os.path.join(dir, file) if type(dir) == '' else file
