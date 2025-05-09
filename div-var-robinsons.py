@@ -14,8 +14,8 @@ if step == '1' or step == 'a': #combine nc files
         p_i = os.path.join(root, dir, 'CESM2_pi.nc')
         p_d = os.path.join(root, dir, 'CESM2_pd.nc')
         if os.path.isfile(p_i) and os.path.isfile(p_d):
-            pass
+            print(dir, ': good')
         else:
-            print(dir)
+            print(dir, ': bad')
 if step == '2' or step == 'a': #plot
     pass
