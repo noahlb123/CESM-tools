@@ -35,6 +35,7 @@ if step == '1' or step == 'a': #combine nc files
         new_name = os.path.join(work_dir, dir, 'CESM2.nc')
         old_name = os.path.join(root, dir, 'CESM2.nc')
         old_new_name[old_name] = new_name
+        print(smallest_grid, old_name, new_name)
         #regrid
         os.system('ncremap -d ' + smallest_grid + ' ' + old_name + ' ' + new_name + ' -O')
         #rename var
