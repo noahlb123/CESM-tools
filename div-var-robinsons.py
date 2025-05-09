@@ -43,15 +43,12 @@ if step == '1' or step == 'a': #combine nc files
         new_name = os.path.join(work_dir, dir, 'CESM2.nc')
         old_name = os.path.join(root, dir, 'CESM2.nc')
         old_new_name[old_name] = new_name
-        #print('newname', new_name)
-        #print('oldname', old_name)
-        print('smallest', smallest_grid)
-        '''
         #regrid
         to_eval += 'ncremap -d ' + smallest_grid + ' ' + old_name + ' ' + new_name + ' -O && '
         #rename var
         to_eval += 'ncrename -h -O -v ' + name_var_map[dir] + ',' + 'X' + ' ' + old_name + ' && '
     to_eval = evaluate(to_eval)
+    exit()
     print('combining...')
     for numo in columns:
         for deno in index:
@@ -65,4 +62,4 @@ if step == '1' or step == 'a': #combine nc files
                 'ncbo --op_typ=multiply ' + numo_path + ' ' + deno_path + ' ' + new_path + '.nc -O && '
                 df_mult.loc[deno, numo] = new_path
 if step == '2' or step == 'a': #plot
-    pass'''
+    pass
