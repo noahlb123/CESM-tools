@@ -271,7 +271,7 @@ class ToolBox:
         small_lon = 10000000
         if type(dir) == '':
             files = os.listdir(dir)
-        elif type(dir) == []:
+        elif type(dir) == type([]):
             files = dir
         else:
             raise Exception('Type of dir not recognised: ' + str(dir) + ':' + str(type(dir)))
