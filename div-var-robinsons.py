@@ -30,8 +30,8 @@ if step == '1' or step == 'a': #combine nc files
             if numo == deno:
                 df_mult.loc[deno, numo] = os.path.join(root, dir, 'CESM2.nc')
             else:
-                nums = [Dataset(os.path.join(root, numo, 'CESM2_' + era + '.nc')) for era in ('pi', 'pd')]
-                denos = [Dataset(os.path.join(root, deno, 'CESM2_' + era + '.nc')) for era in ('pi', 'pd')]
+                nums = [os.path.join(root, numo, 'CESM2_' + era + '.nc') for era in ('pi', 'pd')]
+                denos = [os.path.join(root, deno, 'CESM2_' + era + '.nc') for era in ('pi', 'pd')]
                 smallest_grid = T.smallest_grid(nums + denos)
                 name_var_map = {}
                 for file in nums + denos:
