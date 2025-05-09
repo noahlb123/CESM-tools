@@ -269,10 +269,17 @@ class ToolBox:
         smallest_name = ''
         small_lat = 10000000
         small_lon = 10000000
-        for file in os.listdir(dir):
+        if type(dir) == '':
+            files = os.listdir(dir)
+        elif type(dir) == []:
+            files = dir
+        else:
+            raise TypeError
+        for file in files:
             if qual_f(file, f_param):
+                path = os.path.join(dir, file) if type(dir) == '' else file
                 try:
-                    f = Dataset(os.path.join(dir, file))
+                    f = Dataset(path)
                 except OSError:
                     continue
                 has_lat_lon = 'lat' in f.variables and 'lat' in f.variables
