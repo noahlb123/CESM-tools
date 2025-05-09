@@ -38,7 +38,8 @@ if step == '1' or step == 'a': #combine nc files
                     f = Dataset(file)
                     vars = list(f.variables())
                     for v in vars:
-                        print(v)
+                        #print(v)
+                        pass
                 '''
                 #rename var
                 t_var = 
