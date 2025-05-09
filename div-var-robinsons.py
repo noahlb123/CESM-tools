@@ -32,7 +32,7 @@ if step == '1' or step == 'a': #combine nc files
             else:
                 nums = [Dataset(os.path.join(root, numo, 'CESM2_' + era + '.nc')) for era in ('pi', 'pd')]
                 denos = [Dataset(os.path.join(root, deno, 'CESM2_' + era + '.nc')) for era in ('pi', 'pd')]
-                smallest_grid = T.smallest_grid(nums + denos)
+                smallest_grid = T.smallest_grid(nums + denos, lambda s, p: ('.nc' in s))
                 name_var_map = {}
                 for file in nums + denos:
                     f = Dataset(file)
