@@ -265,7 +265,7 @@ class ToolBox:
         return output
 
     
-    def smallest_grid(self, dir, qual_f=lambda s, p: '.nc' in s, f_param=None):
+    def smallest_grid(self, dir, qual_f=lambda s, p: '.nc' in s, f_param=''):
         smallest_name = ''
         small_lat = 10000000
         small_lon = 10000000
