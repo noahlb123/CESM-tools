@@ -35,7 +35,7 @@ if step == '1' or step == 'a': #combine nc files
             index.append(dir)
     df_mult = pd.DataFrame(columns=columns, index=index)
     df_div = pd.DataFrame(columns=columns, index=index)
-    smallest_grid = T.smallest_grid(columns)
+    smallest_grid = T.smallest_grid([os.path.join(root, dir, 'CESM2.nc') for dir in columns])
     #regrid and rename
     print('regridding and renaming...')
     old_new_name = {}
@@ -43,8 +43,8 @@ if step == '1' or step == 'a': #combine nc files
         new_name = os.path.join(work_dir, dir, 'CESM2.nc')
         old_name = os.path.join(root, dir, 'CESM2.nc')
         old_new_name[old_name] = new_name
-        print('newname', new_name)
-        print('oldname', old_name)
+        #print('newname', new_name)
+        #print('oldname', old_name)
         print('smallest', smallest_grid)
         '''
         #regrid
