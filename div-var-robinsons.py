@@ -36,10 +36,9 @@ if step == '1' or step == 'a': #combine nc files
                 name_var_map = {}
                 for file in nums + denos:
                     f = Dataset(file)
-                    vars = list(f.variables())
+                    vars = list(f.variables.keys())
                     for v in vars:
-                        #print(v)
-                        pass
+                        print(v)
                 '''
                 #rename var
                 t_var = 

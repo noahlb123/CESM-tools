@@ -276,7 +276,6 @@ class ToolBox:
         else:
             raise Exception('Type of dir not recognised: ' + str(dir) + ':' + str(type(dir)))
         for file in files:
-            print('file:', file, 'param:', f_param)
             if qual_f(file, f_param):
                 path = os.path.join(dir, file) if type(dir) == '' else file
                 try:
