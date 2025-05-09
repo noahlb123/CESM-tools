@@ -28,15 +28,18 @@ if step == '1' or step == 'a': #combine nc files
     df_mult = pd.DataFrame(columns=columns, index=index)
     df_div = pd.DataFrame(columns=columns, index=index)
     smallest_grid = T.smallest_grid(columns)
-    #regrid
+    #regrid and rename
+    print('regridding and renaming...')
     old_new_name = {}
     for dir in columns:
         new_name = os.path.join(work_dir, dir, 'CESM2.nc')
         old_name = os.path.join(root, dir, 'CESM2.nc')
         old_new_name[old_name] = new_name
+        #regrid
         os.system('ncremap -d ' + smallest_grid + ' ' + old_name + ' ' + new_name + ' -O')
         #rename var
         os.system('ncrename -h -O -v ' + name_var_map[dir] + ',' + 'X' + ' ' + old_name)
+    print('combining...')
     for numo in columns:
         for deno in index:
             if numo == deno:
