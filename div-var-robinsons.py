@@ -46,6 +46,7 @@ if step == '1' or step == 'a': #combine nc files
         #regrid
         to_eval += 'ncremap -d ' + smallest_grid + ' ' + old_name + ' ' + new_name + ' -O && '
     to_eval = evaluate(to_eval)
+    exit()
     print('renaming...')
     for dir in columns:
         new_name = os.path.join(work_dir, dir, 'CESM2.nc')
@@ -53,7 +54,6 @@ if step == '1' or step == 'a': #combine nc files
         #rename var
         to_eval += 'ncrename -h -O -v ' + name_var_map[dir] + ',' + 'X' + ' ' + old_name + ' && '
     to_eval = evaluate(to_eval)
-    exit()
     print('combining...')
     for numo in columns:
         for deno in index:
