@@ -1,4 +1,5 @@
 from netCDF4 import Dataset
+import pandas as pd
 import sys
 import os
 
@@ -10,12 +11,13 @@ root = '/glade/derecho/scratch/nlbills/all-ice-core-data'
 dirs = ['loadbc', 'mmrbc', 'sootsn', 'wet-dry']
 
 if step == '1' or step == 'a': #combine nc files
+    columns = []
+    index = []
     for dir in dirs:
         p_i = os.path.join(root, dir, 'CESM2_pi.nc')
         p_d = os.path.join(root, dir, 'CESM2_pd.nc')
-        if os.path.isfile(p_i) and os.path.isfile(p_d):
-            print(dir, ': good')
-        else:
-            print(dir, ': bad')
+        main = os.path.join(root, dir, 'CESM2.nc')
+        if os.path.isfile(p_i) and os.path.isfile(p_d) and os.path.isfile(main):
+            os.system(s)
 if step == '2' or step == 'a': #plot
     pass
