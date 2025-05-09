@@ -265,7 +265,7 @@ class ToolBox:
         return output
 
     
-    def smallest_grid(self, dir, qual_f=lambda s, p: '.nc' in s, f_param=''):
+    def smallest_grid(self, dir, qual_f=lambda s, p: '.nc' in s, f_param=None):
         smallest_name = ''
         small_lat = 10000000
         small_lon = 10000000
@@ -276,6 +276,7 @@ class ToolBox:
         else:
             raise Exception('Type of dir not recognised: ' + str(dir) + ':' + str(type(dir)))
         for file in files:
+            print(file, f_param)
             if qual_f(file, f_param):
                 path = os.path.join(dir, file) if type(dir) == '' else file
                 try:
