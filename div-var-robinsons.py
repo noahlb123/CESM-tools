@@ -90,6 +90,8 @@ if step == '2' or step == 'a': #plot
             numo = columns[numo_i]
             for deno_i in range(len(index)):
                 deno = index[deno_i]
+                if numo == deno:
+                    continue
                 file = numo + '_' + op + '_' + deno + '.nc'
     
                 #setup cartopy
