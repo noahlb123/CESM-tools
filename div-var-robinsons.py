@@ -76,6 +76,7 @@ if step == '1' or step == 'a': #combine nc files
                 df_mult.loc[deno, numo] = new_path
     to_eval = evaluate(to_eval)
 if step == '2' or step == 'a': #plot
+    print('plotting...')
     import cartopy
     from matplotlib import colormaps
     import matplotlib.pyplot as plt
