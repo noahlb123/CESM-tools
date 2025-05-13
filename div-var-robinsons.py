@@ -84,7 +84,7 @@ if step == '2' or step == 'a': #plot
     from matplotlib.colors import Normalize
 
     for op in ('D', 'X'):
-        fig, ax = plt.subplots(len(columns), len(index))
+        fig, ax = plt.subplots(len(columns), len(index), subplot_kw={'projection': cartopy.crs.Robinson()})
         for numo_i in range(len(columns)):
             numo = columns[numo_i]
             for deno_i in range(len(index)):
