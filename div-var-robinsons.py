@@ -69,3 +69,5 @@ if step == '1' or step == 'a': #combine nc files
     to_eval = evaluate(to_eval)
 if step == '2' or step == 'a': #plot
     pass
+
+print('done.')
