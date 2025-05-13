@@ -53,7 +53,7 @@ if step == '1' or step == 'a': #combine nc files
         #rename var
         f = Dataset(new_name)
         vars = list(f.variables.keys())
-        if 'X' in vars:
+        if not 'X' in vars:
             to_eval += 'ncrename -h -O -v ' + name_var_map[dir] + ',' + 'X' + ' ' + new_name + ' && '
     to_eval = evaluate(to_eval)
     print('combining...')
