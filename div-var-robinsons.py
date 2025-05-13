@@ -52,7 +52,7 @@ if step == '1' or step == 'a': #combine nc files
         new_name = os.path.join(work_dir, dir + '.nc')
         old_name = os.path.join(root, dir, 'CESM2.nc')
         #rename var
-        to_eval += 'ncrename -h -O -v ' + name_var_map[dir] + ',' + 'X' + ' ' + old_name + ' && '
+        to_eval += 'ncrename -h -O -v ' + name_var_map[dir] + ',' + 'X' + ' ' + new_name + ' && '
     to_eval = evaluate(to_eval)
     print('combining...')
     for numo in columns:
