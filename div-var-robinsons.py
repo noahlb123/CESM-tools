@@ -109,7 +109,8 @@ if step == '2' or step == 'a': #plot
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
                 #plot
-                ax[numo_i, deno_i].pcolormesh(lons, lats, f['X'][:][0], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+                print(np.shape(x), filename)
+                ax[numo_i, deno_i].pcolormesh(lons, lats, x, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
                 #plt.colorbar(mappable=sm, label=var_name, orientation="horizontal", ax=ax, extend='both')
         plt.savefig(os.path.join(os.getcwd(), op + '.png'), dpi=200)
         print('saved to ' + os.path.join(os.getcwd(), op + '.png'))
