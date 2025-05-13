@@ -37,8 +37,8 @@ if step == '1' or step == 'a': #combine nc files
     df_div = pd.DataFrame(columns=columns, index=index)
     smallest_grid = T.smallest_grid([os.path.join(root, dir, 'CESM2.nc') for dir in columns])
     #regrid
-    print('regridding...')
     old_new_name = {}
+    to_eval += 'echo "regridding..." && '
     for dir in columns:
         new_name = os.path.join(work_dir, dir + '.nc')
         old_name = os.path.join(root, dir, 'CESM2.nc')
@@ -46,7 +46,7 @@ if step == '1' or step == 'a': #combine nc files
         #regrid
         to_eval += 'ncremap -d ' + smallest_grid + ' ' + old_name + ' ' + new_name + ' && '
     to_eval = evaluate(to_eval)
-    print('renaming...')
+    to_eval += 'echo "renaming..." && '
     for dir in columns:
         new_name = os.path.join(work_dir, dir + '.nc')
         old_name = os.path.join(root, dir, 'CESM2.nc')
@@ -56,7 +56,7 @@ if step == '1' or step == 'a': #combine nc files
         if not 'X' in vars:
             to_eval += 'ncrename -h -O -v ' + name_var_map[dir] + ',' + 'X' + ' ' + new_name + ' && '
     to_eval = evaluate(to_eval)
-    print('combining...')
+    to_eval += 'echo "combining..." && '
     for numo in columns:
         for deno in index:
             if numo == deno:
