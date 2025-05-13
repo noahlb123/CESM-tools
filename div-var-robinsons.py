@@ -91,11 +91,18 @@ if step == '2' or step == 'a': #plot
             for deno_i in range(len(index)):
                 deno = index[deno_i]
                 if numo == deno:
-                    continue
-                filename = numo + '_' + op + '_' + deno + '.nc'
-    
+                    filename = os.path.join(root, numo, 'CESM2.nc')
+                else:
+                    filename = numo + '_' + op + '_' + deno + '.nc'
+                
+                #title
+                if numo_i == 0:
+                    ax[numo_i, deno_i].set_title(numo)
+                if deno_i == 0:
+                    ax[numo_i, deno_i].set_ylabel(deno)
+                
                 #setup cartopy
-                ax[numo_i, deno_i].add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
+                ax[numo_i, deno_i].add_feature(cartopy.feature.COASTLINE, edgecolor='black')
 
                 #get data
                 f = Dataset(os.path.join(work_dir, filename))
