@@ -105,8 +105,7 @@ if step == '2' or step == 'a': #plot
 
                 #color
                 cmap = colormaps['viridis']
-                print(np.min(x), np.max(x), filename)
-                c_norm = LogNorm(vmin=np.min(x), vmax=np.max(x))
+                c_norm = LogNorm(vmin=0.01, vmax=100)
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
                 #plot
