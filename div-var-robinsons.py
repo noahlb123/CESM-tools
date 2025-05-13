@@ -46,7 +46,6 @@ if step == '1' or step == 'a': #combine nc files
         #regrid
         to_eval += 'ncremap -d ' + smallest_grid + ' ' + old_name + ' ' + new_name + ' && '
     to_eval = evaluate(to_eval)
-    exit()
     print('renaming...')
     for dir in columns:
         new_name = os.path.join(work_dir, dir + '.nc')
