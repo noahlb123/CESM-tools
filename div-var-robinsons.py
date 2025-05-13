@@ -1,5 +1,6 @@
 from netCDF4 import Dataset
 import pandas as pd
+import numpy as np
 import tools
 import sys
 import os
@@ -23,16 +24,18 @@ def evaluate(s):
     os.system(s)
     return 'cd ' + root + ' && '
 
+#setup
+columns = []
+index = []
+for dir in dirs:
+    p_i = os.path.join(root, dir, 'CESM2_pi.nc')
+    p_d = os.path.join(root, dir, 'CESM2_pd.nc')
+    main = os.path.join(root, dir, 'CESM2.nc')
+    if os.path.isfile(p_i) and os.path.isfile(p_d) and os.path.isfile(main):
+        columns.append(dir)
+        index.append(dir)
+
 if step == '1' or step == 'a': #combine nc files
-    columns = []
-    index = []
-    for dir in dirs:
-        p_i = os.path.join(root, dir, 'CESM2_pi.nc')
-        p_d = os.path.join(root, dir, 'CESM2_pd.nc')
-        main = os.path.join(root, dir, 'CESM2.nc')
-        if os.path.isfile(p_i) and os.path.isfile(p_d) and os.path.isfile(main):
-            columns.append(dir)
-            index.append(dir)
     df_mult = pd.DataFrame(columns=columns, index=index)
     df_div = pd.DataFrame(columns=columns, index=index)
     smallest_grid = T.smallest_grid([os.path.join(root, dir, 'CESM2.nc') for dir in columns])
@@ -67,12 +70,45 @@ if step == '1' or step == 'a': #combine nc files
                 deno_path = os.path.join(work_dir, deno + '.nc')
                 new_path = os.path.join(work_dir, numo + '_X_' + deno + '.nc')
                 #multiply
-                to_eval += 'ncbo --op_typ=multiply ' + numo_path + ' ' + deno_path + ' ' + new_path + '.nc -O && '
+                to_eval += 'ncbo --op_typ=multiply ' + numo_path + ' ' + deno_path + ' ' + new_path + ' -O && '
                 #divide
-                to_eval += 'ncbo --op_typ=divide ' + numo_path + ' ' + deno_path + ' ' + new_path.replace('_X_', '_D_') + '.nc -O && '
+                to_eval += 'ncbo --op_typ=divide ' + numo_path + ' ' + deno_path + ' ' + new_path.replace('_X_', '_D_') + ' -O && '
                 df_mult.loc[deno, numo] = new_path
     to_eval = evaluate(to_eval)
 if step == '2' or step == 'a': #plot
-    print(df_mult)
+    import cartopy
+    from matplotlib import colormaps
+    import matplotlib.pyplot as plt
+    from matplotlib.cm import ScalarMappable
+    from matplotlib.colors import LogNorm
+    from matplotlib.colors import Normalize
+
+    for op in ('D', 'X'):
+        fig, ax = plt.subplots(len(columns), len(index))
+        for numo_i in range(len(columns)):
+            numo = columns[numo_i]
+            for deno_i in range(len(index)):
+                deno = index[deno_i]
+                file = numo + '_' + op + '_' + deno + '.nc'
+    
+                #setup cartopy
+                ax[numo_i, deno_i].add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
+
+                #get data
+                f = Dataset(file)
+                lats = f['lat'][:]
+                lons = f['lon'][:]
+                x = f['X'][:]
+
+                #color
+                cmap = colormaps['viridis']
+                c_norm = LogNorm(vmin=np.min(x), vmax=np.max(x))
+                sm = ScalarMappable(cmap=cmap, norm=c_norm)
+
+                #plot
+                ax[numo_i, deno_i].pcolormesh(lons, lats, f['X'][:][0], cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+                #plt.colorbar(mappable=sm, label=var_name, orientation="horizontal", ax=ax, extend='both')
+        plt.savefig(os.path.join(os.getcwd(), op + '.png'), dpi=200)
+        print('saved to ' + os.path.join(os.getcwd(), op + '.png'))
 
 print('done.')
