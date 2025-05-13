@@ -110,6 +110,7 @@ if step == '2' or step == 'a': #plot
                 #color
                 cmap = colormaps['BrBG_r']
                 max = np.nanmax(x)
+                print(max, 1/max, filename)
                 c_norm = LogNorm(vmin=1/max, vmax=np.nanmax(x))
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
