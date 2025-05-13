@@ -92,13 +92,13 @@ if step == '2' or step == 'a': #plot
                 deno = index[deno_i]
                 if numo == deno:
                     continue
-                file = numo + '_' + op + '_' + deno + '.nc'
+                filename = numo + '_' + op + '_' + deno + '.nc'
     
                 #setup cartopy
                 ax[numo_i, deno_i].add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
 
                 #get data
-                f = Dataset(file)
+                f = Dataset(os.path.join(work_dir, filename))
                 lats = f['lat'][:]
                 lons = f['lon'][:]
                 x = f['X'][:]
