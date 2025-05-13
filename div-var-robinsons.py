@@ -40,7 +40,7 @@ if step == '1' or step == 'a': #combine nc files
     print('regridding...')
     old_new_name = {}
     for dir in columns:
-        new_name = os.path.join(work_dir, dir, 'CESM2.nc')
+        new_name = os.path.join(work_dir, dir + '.nc')
         old_name = os.path.join(root, dir, 'CESM2.nc')
         old_new_name[old_name] = new_name
         #regrid
@@ -49,7 +49,7 @@ if step == '1' or step == 'a': #combine nc files
     exit()
     print('renaming...')
     for dir in columns:
-        new_name = os.path.join(work_dir, dir, 'CESM2.nc')
+        new_name = os.path.join(work_dir, dir + '.nc')
         old_name = os.path.join(root, dir, 'CESM2.nc')
         #rename var
         to_eval += 'ncrename -h -O -v ' + name_var_map[dir] + ',' + 'X' + ' ' + old_name + ' && '
@@ -60,8 +60,8 @@ if step == '1' or step == 'a': #combine nc files
             if numo == deno:
                 df_mult.loc[deno, numo] = os.path.join(root, dir, 'CESM2.nc')
             else:
-                numo_path = os.path.join(work_dir, numo, 'CESM2.nc')
-                deno_path = os.path.join(work_dir, deno, 'CESM2.nc')
+                numo_path = os.path.join(work_dir, numo + '.nc')
+                deno_path = os.path.join(work_dir, deno + '.nc')
                 new_path = os.path.join(work_dir, deno, numo + '_X_' + deno + '.nc')
                 #math
                 'ncbo --op_typ=multiply ' + numo_path + ' ' + deno_path + ' ' + new_path + '.nc -O && '
