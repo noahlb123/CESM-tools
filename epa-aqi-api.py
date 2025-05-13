@@ -181,8 +181,8 @@ if analysis == '2024 LA Wildfires':
         ax[i].set_title(title_map[files[i]])
         plt.colorbar(mappable=sm, label=label_map[files[i]], orientation="horizontal", ax=ax[i], extend='both')
     #plt.title('Mean Conditions from January 8th to January 13th')
-    plt.savefig(os.path.join(os.getcwd(), 'epa-fig.png'), dpi=200)
-    print('saved to ' + os.path.join(os.getcwd(), 'epa-fig.png'))
+    plt.savefig(os.path.join(os.getcwd(), 'epa-fig.svg'), dpi=200)
+    print('saved to ' + os.path.join(os.getcwd(), 'epa-fig.svg'))
 
 elif analysis == 'Seasonal PM2.5':
     #Get api credentials
