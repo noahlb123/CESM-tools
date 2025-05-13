@@ -64,7 +64,7 @@ if step == '1' or step == 'a': #combine nc files
             else:
                 numo_path = os.path.join(work_dir, numo + '.nc')
                 deno_path = os.path.join(work_dir, deno + '.nc')
-                new_path = os.path.join(work_dir, deno, numo + '_X_' + deno + '.nc')
+                new_path = os.path.join(work_dir, numo + '_X_' + deno + '.nc')
                 #math
                 to_eval += 'ncbo --op_typ=multiply ' + numo_path + ' ' + deno_path + ' ' + new_path + '.nc -O && '
                 df_mult.loc[deno, numo] = new_path
