@@ -61,15 +61,18 @@ if step == '1' or step == 'a': #combine nc files
         for deno in index:
             if numo == deno:
                 df_mult.loc[deno, numo] = os.path.join(root, dir, 'CESM2.nc')
+                df_div.loc[deno, numo] = os.path.join(root, dir, 'CESM2.nc')
             else:
                 numo_path = os.path.join(work_dir, numo + '.nc')
                 deno_path = os.path.join(work_dir, deno + '.nc')
                 new_path = os.path.join(work_dir, numo + '_X_' + deno + '.nc')
-                #math
+                #multiply
                 to_eval += 'ncbo --op_typ=multiply ' + numo_path + ' ' + deno_path + ' ' + new_path + '.nc -O && '
+                #divide
+                to_eval += 'ncbo --op_typ=divide ' + numo_path + ' ' + deno_path + ' ' + new_path.replace('_X_', '_D_') + '.nc -O && '
                 df_mult.loc[deno, numo] = new_path
     to_eval = evaluate(to_eval)
 if step == '2' or step == 'a': #plot
-    pass
+    print(df_mult)
 
 print('done.')
