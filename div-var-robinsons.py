@@ -97,10 +97,6 @@ if step == '2' or step == 'a': #plot
                 
                 #title
                 ax[numo_i, deno_i].set_title(numo + '_' + op + '_' + deno)
-                '''if numo_i == 0:
-                    ax[numo_i, deno_i].set_title(numo)
-                if deno_i == 0:
-                    ax[numo_i, deno_i].set_ylabel(deno)'''
                 
                 #setup cartopy
                 ax[numo_i, deno_i].add_feature(cartopy.feature.COASTLINE, edgecolor='black')
@@ -112,8 +108,9 @@ if step == '2' or step == 'a': #plot
                 x = f['X'][0,0,:,:] if 'mmrbc' in filename else f['X'][0,:,:]
 
                 #color
-                cmap = colormaps['viridis']
-                c_norm = LogNorm(vmin=0.01, vmax=100)
+                cmap = colormaps['BrBG_r']
+                max = np.nanmax(x)
+                c_norm = LogNorm(vmin=1/max, vmax=np.nanmax(x))
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
                 #plot
