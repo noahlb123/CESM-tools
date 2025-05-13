@@ -101,7 +101,7 @@ if step == '2' or step == 'a': #plot
                 f = Dataset(os.path.join(work_dir, filename))
                 lats = f['lat'][:]
                 lons = f['lon'][:]
-                x = f['X'][0,0,:,:]
+                x = f['X'][0,0,:,:] if 'mmrbc' in filename else f['X'][0,:,:]
 
                 #color
                 cmap = colormaps['viridis']
