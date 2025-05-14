@@ -115,7 +115,8 @@ if step == '2' or step == 'a': #plot
 
                 #plot
                 ax[numo_i, deno_i].pcolormesh(lons, lats, x, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
-        plt.colorbar(mappable=sm, orientation="horizontal", ax=ax, extend='both').ax.set_xticklabels(('min', '1', 'max'))
+        cbar = plt.colorbar(mappable=sm, orientation="horizontal", ax=ax, extend='both', ticks=(0.1, 1, 10))
+        cbar.ax.set_xticklabels(('min', '1', 'max'))
         plt.savefig(os.path.join(os.getcwd(), op + '.png'), dpi=200)
         print('saved to ' + os.path.join(os.getcwd(), op + '.png'))
 
