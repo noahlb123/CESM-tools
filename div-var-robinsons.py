@@ -110,13 +110,12 @@ if step == '2' or step == 'a': #plot
                 #color
                 cmap = colormaps['BrBG_r'] if op == 'D' else colormaps['viridis']
                 max = np.nanmax(np.ma.masked_invalid(x))
-                print(max, 1/max, filename)
                 c_norm = LogNorm(vmin=1/max, vmax=max)
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
                 #plot
                 ax[numo_i, deno_i].pcolormesh(lons, lats, x, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
-        plt.colorbar(mappable=sm, label='label', orientation="horizontal", ax=ax, extend='both')
+        plt.colorbar(mappable=sm, orientation="horizontal", ax=ax, extend='both').ax.set_xticklabels(('min', '1', 'max'))
         plt.savefig(os.path.join(os.getcwd(), op + '.png'), dpi=200)
         print('saved to ' + os.path.join(os.getcwd(), op + '.png'))
 
