@@ -115,13 +115,12 @@ if step == '2' or step == 'a': #plot
                 if filename == '/glade/derecho/scratch/nlbills/all-ice-core-data/loadbc/CESM2.nc':
                     min = 0.8
                     max = np.nanmax(np.ma.masked_invalid(x))
-                min_percentile = 0.2
+                '''min_percentile = 0.2
                 while min == 0:
                     min = np.nanpercentile(np.ma.masked_invalid(x), min_percentile)
-                    min_percentile += 0.1
+                    min_percentile += 0.1'''
                 if op == 'D':
                     max = np.nanmax(np.ma.masked_invalid(x))
-                    print(1/max <= max, 1/max, max)
                 else:
                     print(min <= max, min, max)
                 c_norm = LogNorm(vmin=1/max, vmax=max) if op == 'D' else LogNorm(vmin=min, vmax=max)
