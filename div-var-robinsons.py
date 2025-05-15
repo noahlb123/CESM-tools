@@ -28,10 +28,8 @@ def evaluate(s):
 columns = []
 index = []
 for dir in dirs:
-    p_i = os.path.join(root, dir, 'CESM2_pi.nc')
-    p_d = os.path.join(root, dir, 'CESM2_pd.nc')
     main = os.path.join(root, dir, 'CESM2.nc')
-    if os.path.isfile(p_i) and os.path.isfile(p_d) and os.path.isfile(main):
+    if os.path.isfile(main):
         columns.append(dir)
         index.append(dir)
 
@@ -59,6 +57,7 @@ if step == '1' or step == 'a': #combine nc files
         if not 'X' in vars:
             to_eval += 'echo "renaming ' + new_name + ',' + name_var_map[dir] + '..." && '
             to_eval += 'ncrename -h -O -v ' + name_var_map[dir] + ',' + 'X' + ' ' + new_name + ' && '
+    exit()
     to_eval = evaluate(to_eval)
     to_eval += 'echo "combining..." && '
     for numo in columns:
