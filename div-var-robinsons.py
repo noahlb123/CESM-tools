@@ -116,6 +116,7 @@ if step == '2' or step == 'a': #plot
                     lons = f_numo['lon'][:]
                     x_n = zscore(f_numo['X'][0,0,:,:]) if 'mmrbc' in numo else zscore(f['X'][0,:,:])
                     x_d = zscore(f_deno['X'][0,0,:,:]) if 'mmrbc' in deno else zscore(f['X'][0,:,:])
+                    print(np.shape(x_n), np.shape(x_d))
                     if op == 'X':
                         x = np.multiply(x_n, x_d)
                     elif op == 'D':
