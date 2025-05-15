@@ -119,7 +119,7 @@ if step == '2' or step == 'a': #plot
                 while min == 0:
                     min = np.nanpercentile(np.ma.masked_invalid(x), min_percentile)
                     min_percentile += 0.1
-                print(min <= max, min, max)
+                print(min <= max, 1/max, max)
                 c_norm = LogNorm(vmin=1/max, vmax=max) if op == 'D' else LogNorm(vmin=min, vmax=max)
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
