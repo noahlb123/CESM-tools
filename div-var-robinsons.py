@@ -83,7 +83,7 @@ if step == '2' or step == 'a': #plot
     from matplotlib.colors import LogNorm
     from matplotlib.colors import Normalize
 
-    for op in ('D', 'X'):
+    for op in ('X'):
         fig, ax = plt.subplots(len(columns), len(index), subplot_kw={'projection': cartopy.crs.Robinson()})
         for numo_i in range(len(columns)):
             numo = columns[numo_i]
@@ -117,13 +117,14 @@ if step == '2' or step == 'a': #plot
                     max = np.nanmax(np.ma.masked_invalid(x))
                 if op == 'D':
                     max = np.nanmax(np.ma.masked_invalid(x))
+                print(min, max)
                 c_norm = LogNorm(vmin=1/max, vmax=max) if op == 'D' else LogNorm(vmin=min, vmax=max)
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
                 #plot
                 ax[numo_i, deno_i].pcolormesh(lons, lats, x, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
         cbar = plt.colorbar(mappable=ScalarMappable(cmap=cmap, norm=LogNorm(vmin=0.1, vmax=10)), orientation="horizontal", ax=ax, extend='both', ticks=(0.1, 1, 10))
-        labels = ('1/Max', '1', 'Max') if op == 'D' else ('70th Percentile', '', '90th Percentile')
+        labels = ('1/Max', '1', 'Max') if op == 'D' else ('80th Percentile', '', '90th Percentile')
         cbar.ax.set_xticklabels(labels)
         plt.savefig(os.path.join(os.getcwd(), op + '.png'), dpi=200)
         print('saved to ' + os.path.join(os.getcwd(), op + '.png'))
