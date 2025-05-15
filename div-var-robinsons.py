@@ -95,7 +95,10 @@ if step == '2' or step == 'a': #plot
                     filename = os.path.join(work_dir, numo + '_' + op + '_' + deno + '.nc')
                 
                 #title
-                ax[numo_i, deno_i].set_title(numo + '_' + op + '_' + deno, fontsize=10)
+                if numo_i == 0:
+                    ax[numo_i, deno_i].set_title(deno, rotation=90, fontsize=10)
+                elif deno_i == 0:
+                    ax[numo_i, deno_i].set_title(numo, fontsize=10)
                 
                 #setup cartopy
                 ax[numo_i, deno_i].add_feature(cartopy.feature.COASTLINE, edgecolor='black')
@@ -104,7 +107,6 @@ if step == '2' or step == 'a': #plot
                 f = Dataset(filename)
                 lats = f['lat'][:]
                 lons = f['lon'][:]
-                print(filename)
                 x = f['X'][0,0,:,:] if 'mmrbc' in filename else f['X'][0,:,:]
 
                 #color
