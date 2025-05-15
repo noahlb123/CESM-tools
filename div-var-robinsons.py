@@ -136,6 +136,7 @@ if step == '2' or step == 'a': #plot
                 max = np.nanmax(np.ma.masked_invalid(x))
                 if filename == '/glade/derecho/scratch/nlbills/all-ice-core-data/loadbc/CESM2.nc':
                     min = 0.8
+                print(min, max)
                 c_norm = LogNorm(vmin=1/max, vmax=max) if op == 'D' else LogNorm(vmin=min, vmax=max)
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
