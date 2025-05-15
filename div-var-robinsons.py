@@ -59,7 +59,7 @@ if step == '1' or step == 'a': #combine nc files
         if not 'X' in vars:
             to_eval += 'ncrename -h -O -v ' + name_var_map[dir] + ',' + 'X' + ' ' + new_name + ' && '
     to_eval = evaluate(to_eval)
-    to_eval += 'echo "combining..." && '
+    '''to_eval += 'echo "combining..." && '
     for numo in columns:
         for deno in index:
             if numo == deno:
@@ -74,7 +74,7 @@ if step == '1' or step == 'a': #combine nc files
                 #divide
                 to_eval += 'ncbo --op_typ=divide ' + numo_path + ' ' + deno_path + ' ' + new_path.replace('_X_', '_D_') + ' -O && '
                 df_mult.loc[deno, numo] = new_path
-    to_eval = evaluate(to_eval)
+    to_eval = evaluate(to_eval)'''
 if step == '2' or step == 'a': #plot
     print('plotting...')
     import cartopy
