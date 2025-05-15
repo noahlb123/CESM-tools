@@ -83,8 +83,8 @@ if step == '2' or step == 'a': #plot
     from matplotlib.colors import LogNorm
 
     def normalize(m):
-        min = np.nanmin(np.ma.masked_invalid(x))
-        max = np.nanmax(np.ma.masked_invalid(x))
+        min = np.nanmin(np.ma.masked_invalid(m))
+        max = np.nanmax(np.ma.masked_invalid(m))
         return (m - min) / (max - min)
 
     for op in ['D', 'X']:
