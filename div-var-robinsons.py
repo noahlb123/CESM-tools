@@ -90,7 +90,6 @@ if step == '2' or step == 'a': #plot
             numo = columns[numo_i]
             for deno_i in range(len(index)):
                 deno = index[deno_i]
-                print(numo, op, deno)
 
                 #title
                 if numo_i == 0:
@@ -112,6 +111,7 @@ if step == '2' or step == 'a': #plot
                     filename = os.path.join(work_dir, numo + '_' + op + '_' + deno + '.nc')
                     f_numo = Dataset(os.path.join(work_dir, numo + '.nc'))
                     f_deno = Dataset(os.path.join(work_dir, deno + '.nc'))
+                    print(f_numo, op, f_deno)
                     lats = f_numo['lat'][:]
                     lons = f_numo['lon'][:]
                     x_n = zscore(f_numo['X'][0,0,:,:]) if 'mmrbc' in numo else zscore(f['X'][0,:,:])
