@@ -115,6 +115,7 @@ if step == '2' or step == 'a': #plot
                 if min == max:
                     min = 0.8
                     max = np.nanmax(np.ma.masked_invalid(x))
+                print(min == max, min, max)
                 c_norm = LogNorm(vmin=1/max, vmax=max) if op == 'D' else LogNorm(vmin=min, vmax=max)
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
