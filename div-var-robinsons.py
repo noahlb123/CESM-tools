@@ -85,6 +85,7 @@ if step == '2' or step == 'a': #plot
     def mask_zeros(m):
         mask = np.logical_and(np.ones(np.shape(m)).astype(bool), m == 0)
         m[mask] = np.nan
+        return m
 
     def normalize(m):
         m = mask_zeros(m)
