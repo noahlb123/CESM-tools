@@ -111,8 +111,7 @@ if step == '2' or step == 'a': #plot
                     filename = os.path.join(work_dir, numo + '_' + op + '_' + deno + '.nc')
                     f_numo = Dataset(os.path.join(work_dir, numo + '.nc'))
                     f_deno = Dataset(os.path.join(work_dir, deno + '.nc'))
-                    print(numo, np.shape(f_numo['X'][0,0,:,:] if 'mmrbc' in numo else f['X'][0,:,:]))
-                    print(deno, np.shape(f_deno['X'][0,0,:,:] if 'mmrbc' in deno else f['X'][0,:,:]))
+                    print(numo, np.shape(f['X'][:]), np.shape(f['X'][0,:,:]))
                     lats = f_numo['lat'][:]
                     lons = f_numo['lon'][:]
                     x_n = zscore(f_numo['X'][0,0,:,:]) if 'mmrbc' in numo else zscore(f['X'][0,:,:])
