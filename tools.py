@@ -269,7 +269,7 @@ class ToolBox:
         smallest_name = ''
         small_lat = 10000000
         small_lon = 10000000
-        if type(dir) == '':
+        if type(dir) == type(''):
             files = os.listdir(dir)
         elif type(dir) == type([]):
             files = dir
