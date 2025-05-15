@@ -88,6 +88,7 @@ if step == '2' or step == 'a': #plot
         fig, ax = plt.subplots(len(columns), len(index), subplot_kw={'projection': cartopy.crs.Robinson()})
         for numo_i in range(len(columns)):
             numo = columns[numo_i]
+            print(numo)
             for deno_i in range(len(index)):
                 deno = index[deno_i]
 
@@ -111,12 +112,10 @@ if step == '2' or step == 'a': #plot
                     filename = os.path.join(work_dir, numo + '_' + op + '_' + deno + '.nc')
                     f_numo = Dataset(os.path.join(work_dir, numo + '.nc'))
                     f_deno = Dataset(os.path.join(work_dir, deno + '.nc'))
-                    print(numo, np.shape(f['X'][:]), np.shape(f['X'][0,:,:]))
                     lats = f_numo['lat'][:]
                     lons = f_numo['lon'][:]
-                    x_n = zscore(f_numo['X'][0,0,:,:]) if 'mmrbc' in numo else zscore(f['X'][0,:,:])
-                    x_d = zscore(f_deno['X'][0,0,:,:]) if 'mmrbc' in deno else zscore(f['X'][0,:,:])
-                    print(np.shape(x_n), np.shape(x_d))
+                    x_n = zscore(f_numo['X'][0,0,:,:]) if 'mmrbc' in numo else zscore(f_numo['X'][0,:,:])
+                    x_d = zscore(f_deno['X'][0,0,:,:]) if 'mmrbc' in deno else zscore(f_deno['X'][0,:,:])
                     if op == 'X':
                         x = np.multiply(x_n, x_d)
                     elif op == 'D':
