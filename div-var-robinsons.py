@@ -73,9 +73,6 @@ if step == '1' or step == 'a': #combine nc files
                 #divide
                 to_eval += 'ncbo --op_typ=divide ' + numo_path + ' ' + deno_path + ' ' + new_path.replace('_X_', '_D_') + ' -O && '
                 df_mult.loc[deno, numo] = new_path
-    print()
-    print(to_eval)
-    print()
     to_eval = evaluate(to_eval)
 if step == '2' or step == 'a': #plot
     print('plotting...')
@@ -107,6 +104,7 @@ if step == '2' or step == 'a': #plot
                 f = Dataset(filename)
                 lats = f['lat'][:]
                 lons = f['lon'][:]
+                print(filename)
                 x = f['X'][0,0,:,:] if 'mmrbc' in filename else f['X'][0,:,:]
 
                 #color
