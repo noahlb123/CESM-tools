@@ -81,8 +81,7 @@ if step == '2' or step == 'a': #plot
     import matplotlib.pyplot as plt
     from matplotlib.cm import ScalarMappable
     from matplotlib.colors import LogNorm
-    from matplotlib.colors import Normalize
-    from scipy.stats import zscore
+    from sklearn.preprocessing import normalize
 
     for op in ['D', 'X']:
         fig, ax = plt.subplots(len(columns), len(index), subplot_kw={'projection': cartopy.crs.Robinson()})
@@ -107,15 +106,15 @@ if step == '2' or step == 'a': #plot
                     f = Dataset(filename)
                     lats = f['lat'][:]
                     lons = f['lon'][:]
-                    x = zscore(f['X'][0,0,:,:]) if 'mmrbc' in filename else zscore(f['X'][0,:,:])
+                    x = normalize(f['X'][0,0,:,:]) if 'mmrbc' in filename else normalize(f['X'][0,:,:])
                 else:
                     filename = os.path.join(work_dir, numo + '_' + op + '_' + deno + '.nc')
                     f_numo = Dataset(os.path.join(work_dir, numo + '.nc'))
                     f_deno = Dataset(os.path.join(work_dir, deno + '.nc'))
                     lats = f_numo['lat'][:]
                     lons = f_numo['lon'][:]
-                    x_n = zscore(f_numo['X'][0,0,:,:]) if 'mmrbc' in numo else zscore(f_numo['X'][0,:,:])
-                    x_d = zscore(f_deno['X'][0,0,:,:]) if 'mmrbc' in deno else zscore(f_deno['X'][0,:,:])
+                    x_n = normalize(f_numo['X'][0,0,:,:]) if 'mmrbc' in numo else normalize(f_numo['X'][0,:,:])
+                    x_d = normalize(f_deno['X'][0,0,:,:]) if 'mmrbc' in deno else normalize(f_deno['X'][0,:,:])
                     if op == 'X':
                         x = np.multiply(x_n, x_d)
                     elif op == 'D':
@@ -132,7 +131,8 @@ if step == '2' or step == 'a': #plot
 
                 #plot
                 ax[numo_i, deno_i].pcolormesh(lons, lats, x, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
-        cbar = plt.colorbar(mappable=ScalarMappable(cmap=cmap, norm=LogNorm(vmin=0.1, vmax=10), label="Z-Score"), orientation="horizontal", ax=ax, extend='both', ticks=(0.1, 1, 10))
+        label = 'Normalized X1 * Normalized X1' if op == 'X' else 'Normalized X1 ÷ Normalized X1'
+        cbar = plt.colorbar(mappable=ScalarMappable(cmap=cmap, norm=LogNorm(vmin=0.1, vmax=10)), label=label, orientation="horizontal", ax=ax, extend='both', ticks=(0.1, 1, 10))
         labels = ('1/Max', '1', 'Max') if op == 'D' else ('Min', '', 'Max')
         cbar.ax.set_xticklabels(labels)
         plt.savefig(os.path.join(os.getcwd(), op + '.png'), dpi=200)
