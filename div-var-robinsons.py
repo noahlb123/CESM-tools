@@ -120,6 +120,7 @@ if step == '2' or step == 'a': #plot
                     min = np.nanpercentile(np.ma.masked_invalid(x), min_percentile)
                     min_percentile += 0.1
                 if op == 'D':
+                    max = np.nanmax(np.ma.masked_invalid(x))
                     print(1/max <= max, 1/max, max)
                 else:
                     print(min <= max, min, max)
