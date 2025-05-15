@@ -88,10 +88,10 @@ if step == '2' or step == 'a': #plot
         fig, ax = plt.subplots(len(columns), len(index), subplot_kw={'projection': cartopy.crs.Robinson()})
         for numo_i in range(len(columns)):
             numo = columns[numo_i]
-            print(numo)
             for deno_i in range(len(index)):
                 deno = index[deno_i]
-                
+                print(numo, op, deno)
+
                 #title
                 if numo_i == 0:
                     ax[numo_i, deno_i].set_title(deno, size=12)
