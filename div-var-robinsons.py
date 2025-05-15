@@ -113,6 +113,7 @@ if step == '2' or step == 'a': #plot
                 cmap = colormaps['BrBG_r'] if op == 'D' else colormaps['viridis']
                 max = np.nanmax(np.ma.masked_invalid(x))
                 min = np.nanmin(np.ma.masked_invalid(x))
+                print(min)
                 c_norm = LogNorm(vmin=1/max, vmax=max) if op == 'D' else LogNorm(vmin=min, vmax=max)
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
