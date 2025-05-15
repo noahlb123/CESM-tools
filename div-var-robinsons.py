@@ -109,8 +109,8 @@ if step == '2' or step == 'a': #plot
                     x = zscore(f['X'][0,0,:,:]) if 'mmrbc' in filename else zscore(f['X'][0,:,:])
                 else:
                     filename = os.path.join(work_dir, numo + '_' + op + '_' + deno + '.nc')
-                    f_numo = Dataset(os.path.join(work_dir, numo + '.nc'))
-                    f_deno = Dataset(os.path.join(work_dir, deno + '.nc'))
+                    f_numo = Dataset(os.path.join(root, numo, 'CESM2.nc'))
+                    f_deno = Dataset(os.path.join(root, deno, 'CESM2.nc'))
                     lats = f_numo['lat'][:]
                     lons = f_numo['lon'][:]
                     x_n = zscore(f['X'][0,0,:,:]) if 'mmrbc' in numo else zscore(f['X'][0,:,:])
