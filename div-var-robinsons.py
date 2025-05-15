@@ -88,6 +88,7 @@ if step == '2' or step == 'a': #plot
         fig, ax = plt.subplots(len(columns), len(index), subplot_kw={'projection': cartopy.crs.Robinson()})
         for numo_i in range(len(columns)):
             numo = columns[numo_i]
+            print(numo)
             for deno_i in range(len(index)):
                 deno = index[deno_i]
                 
@@ -113,8 +114,8 @@ if step == '2' or step == 'a': #plot
                     f_deno = Dataset(os.path.join(root, deno, 'CESM2.nc'))
                     lats = f_numo['lat'][:]
                     lons = f_numo['lon'][:]
-                    x_n = zscore(f['X'][0,0,:,:]) if 'mmrbc' in numo else zscore(f['X'][0,:,:])
-                    x_d = zscore(f['X'][0,0,:,:]) if 'mmrbc' in deno else zscore(f['X'][0,:,:])
+                    x_n = zscore(f_numo['X'][0,0,:,:]) if 'mmrbc' in numo else zscore(f['X'][0,:,:])
+                    x_d = zscore(f_deno['X'][0,0,:,:]) if 'mmrbc' in deno else zscore(f['X'][0,:,:])
                     if op == 'X':
                         x = np.multiply(x_n, x_d)
                     elif op == 'D':
