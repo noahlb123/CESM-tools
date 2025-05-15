@@ -145,7 +145,7 @@ if step == '2' or step == 'a': #plot
                 ax[numo_i, deno_i].pcolormesh(lons, lats, x, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
         label = 'Normalized X1 * Normalized X1' if op == 'X' else 'Normalized X1 ÷ Normalized X1'
         cbar = plt.colorbar(mappable=ScalarMappable(cmap=cmap, norm=LogNorm(vmin=0.1, vmax=10)), label=label, orientation="horizontal", ax=ax, extend='both', ticks=(0.1, 1, 10))
-        labels = ('1/Max', '1', 'Max') if op == 'D' else ('Min', '', 'Max')
+        labels = ('1/Max', '1', 'Max') if op == 'D' else ('0.1', '', 'Max')
         cbar.ax.set_xticklabels(labels)
         plt.savefig(os.path.join(os.getcwd(), op + '.png'), dpi=200)
         print('saved to ' + os.path.join(os.getcwd(), op + '.png'))
