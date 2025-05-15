@@ -82,7 +82,12 @@ if step == '2' or step == 'a': #plot
     from matplotlib.cm import ScalarMappable
     from matplotlib.colors import LogNorm
 
+    def mask_zeros(m):
+        mask = np.logical_and(np.ones(np.shape(m)).astype(bool), m == 0)
+        m[mask] = np.nan
+
     def normalize(m):
+        m = mask_zeros(m)
         min = np.nanmin(np.ma.masked_invalid(m))
         max = np.nanmax(np.ma.masked_invalid(m))
         return (m - min) / (max - min)
