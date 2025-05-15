@@ -96,11 +96,9 @@ if step == '2' or step == 'a': #plot
                 
                 #title
                 if numo_i == 0:
-                    ax[numo_i, deno_i].set_title(deno)
-                elif numo_i == deno_i == 0:
-                    ax[numo_i, deno_i].set_title(deno)
-                elif deno_i == 0:
-                    ax[numo_i, deno_i].set_title(numo, rotation=90, loc='left')
+                    ax[numo_i, deno_i].set_title(deno, size=12)
+                if deno_i == 0:
+                    ax[numo_i, deno_i].text(1.1, 0.5, numo, size=12, verticalalignment='center', rotation=270)
                 
                 #setup cartopy
                 ax[numo_i, deno_i].add_feature(cartopy.feature.COASTLINE, edgecolor='black')
