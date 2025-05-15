@@ -57,7 +57,6 @@ if step == '1' or step == 'a': #combine nc files
         if not 'X' in vars:
             to_eval += 'echo "renaming ' + new_name + ',' + name_var_map[dir] + '..." && '
             to_eval += 'ncrename -h -O -v ' + name_var_map[dir] + ',' + 'X' + ' ' + new_name + ' && '
-    exit()
     to_eval = evaluate(to_eval)
     to_eval += 'echo "combining..." && '
     for numo in columns:
