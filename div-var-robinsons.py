@@ -112,9 +112,13 @@ if step == '2' or step == 'a': #plot
                 #color
                 cmap = colormaps['BrBG_r'] if op == 'D' else colormaps['viridis']
                 min, max = np.nanpercentile(np.ma.masked_invalid(x), (0.1, 0.9))
-                if min == max:
+                if filename == '/glade/derecho/scratch/nlbills/all-ice-core-data/loadbc/CESM2.nc':
                     min = 0.8
                     max = np.nanmax(np.ma.masked_invalid(x))
+                min_percentile = 0.2
+                while min == 0:
+                    min = np.nanpercentile(np.ma.masked_invalid(x), min_percentile)
+                    min_percentile += 0.1
                 print(min <= max, min, max)
                 c_norm = LogNorm(vmin=1/max, vmax=max) if op == 'D' else LogNorm(vmin=min, vmax=max)
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
