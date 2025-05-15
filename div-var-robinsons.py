@@ -81,6 +81,7 @@ if step == '2' or step == 'a': #plot
     import matplotlib.pyplot as plt
     from matplotlib.cm import ScalarMappable
     from matplotlib.colors import LogNorm
+    from matplotlib.colors import Normalize
 
     def mask_zeros(m):
         mask = np.logical_and(np.ones(np.shape(m)).astype(bool), m == 0)
@@ -134,10 +135,10 @@ if step == '2' or step == 'a': #plot
                 cmap = colormaps['BrBG_r'] if op == 'D' else colormaps['viridis']
                 min = np.nanmin(np.ma.masked_invalid(x))
                 max = np.nanmax(np.ma.masked_invalid(x))
-                if filename == '/glade/derecho/scratch/nlbills/all-ice-core-data/loadbc/CESM2.nc':
-                    min = 0.8
+                '''if filename == '/glade/derecho/scratch/nlbills/all-ice-core-data/loadbc/CESM2.nc':
+                    min = 0.8'''
                 print(min, max)
-                c_norm = LogNorm(vmin=1/max, vmax=max) if op == 'D' else LogNorm(vmin=min, vmax=max)
+                c_norm = LogNorm(vmin=1/max, vmax=max) if op == 'D' else LogNorm(vmin=0.1, vmax=max)
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
                 #plot
