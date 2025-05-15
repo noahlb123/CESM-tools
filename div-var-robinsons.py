@@ -96,7 +96,7 @@ if step == '2' or step == 'a': #plot
                     filename = os.path.join(work_dir, numo + '_' + op + '_' + deno + '.nc')
                 
                 #title
-                ax[numo_i, deno_i].set_title(numo + '_' + op + '_' + deno)
+                ax[numo_i, deno_i].set_title(numo + '_' + op + '_' + deno, fontsize=10)
                 
                 #setup cartopy
                 ax[numo_i, deno_i].add_feature(cartopy.feature.COASTLINE, edgecolor='black')
