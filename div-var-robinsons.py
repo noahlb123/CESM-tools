@@ -83,7 +83,7 @@ if step == '2' or step == 'a': #plot
     from matplotlib.colors import LogNorm
     from matplotlib.colors import Normalize
 
-    for op in ('X'):
+    for op in ['X']:
         fig, ax = plt.subplots(len(columns), len(index), subplot_kw={'projection': cartopy.crs.Robinson()})
         for numo_i in range(len(columns)):
             numo = columns[numo_i]
@@ -118,7 +118,7 @@ if step == '2' or step == 'a': #plot
                 if op == 'D':
                     max = np.nanmax(np.ma.masked_invalid(x))
                 print(np.nanmin(np.ma.masked_invalid(x)), min, max)
-                c_norm = LogNorm(vmin=1/max, vmax=max) if op == 'D' else LogNorm(vmin=min, vmax=max)
+                c_norm = LogNorm(vmin=1/max, vmax=max) if op == 'D' else LogNorm(vmin=np.nanmin(np.ma.masked_invalid(x)), vmax=max)
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
                 #plot
