@@ -115,21 +115,15 @@ if step == '2' or step == 'a': #plot
                 if filename == '/glade/derecho/scratch/nlbills/all-ice-core-data/loadbc/CESM2.nc':
                     min = 0.8
                     max = np.nanmax(np.ma.masked_invalid(x))
-                '''min_percentile = 0.2
-                while min == 0:
-                    min = np.nanpercentile(np.ma.masked_invalid(x), min_percentile)
-                    min_percentile += 0.1'''
                 if op == 'D':
                     max = np.nanmax(np.ma.masked_invalid(x))
-                else:
-                    print(min <= max, min, max)
                 c_norm = LogNorm(vmin=1/max, vmax=max) if op == 'D' else LogNorm(vmin=min, vmax=max)
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
                 #plot
                 ax[numo_i, deno_i].pcolormesh(lons, lats, x, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
         cbar = plt.colorbar(mappable=ScalarMappable(cmap=cmap, norm=LogNorm(vmin=0.1, vmax=10)), orientation="horizontal", ax=ax, extend='both', ticks=(0.1, 1, 10))
-        labels = ('1/(90% Percentile)', '1', '90% Percentile') if op == 'D' else ('10% Percentile', '', '90% Percentile')
+        labels = ('1/Max', '1', 'Max') if op == 'D' else ('10th Percentile', '', '90th Percentile')
         cbar.ax.set_xticklabels(labels)
         plt.savefig(os.path.join(os.getcwd(), op + '.png'), dpi=200)
         print('saved to ' + os.path.join(os.getcwd(), op + '.png'))
