@@ -100,7 +100,7 @@ if step == '2' or step == 'a': #plot
                 elif numo_i == deno_i == 0:
                     ax[numo_i, deno_i].set_title(deno)
                 elif deno_i == 0:
-                    ax[numo_i, deno_i].set_title(numo, rotation=90, labelpad=20)
+                    ax[numo_i, deno_i].set_title(numo, rotation=90, loc='left')
                 
                 #setup cartopy
                 ax[numo_i, deno_i].add_feature(cartopy.feature.COASTLINE, edgecolor='black')
