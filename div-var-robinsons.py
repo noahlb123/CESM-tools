@@ -111,7 +111,8 @@ if step == '2' or step == 'a': #plot
 
                 #color
                 cmap = colormaps['BrBG_r'] if op == 'D' else colormaps['viridis']
-                min, max = np.nanpercentile(np.ma.masked_invalid(x), (0.90, 0.99999))
+                min = np.nanpercentile(np.ma.masked_invalid(x), 0.10)
+                max = np.nanmax(np.ma.masked_invalid(x))
                 if filename == '/glade/derecho/scratch/nlbills/all-ice-core-data/loadbc/CESM2.nc':
                     min = 0.8
                     max = np.nanmax(np.ma.masked_invalid(x))
@@ -124,7 +125,7 @@ if step == '2' or step == 'a': #plot
                 #plot
                 ax[numo_i, deno_i].pcolormesh(lons, lats, x, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
         cbar = plt.colorbar(mappable=ScalarMappable(cmap=cmap, norm=LogNorm(vmin=0.1, vmax=10)), orientation="horizontal", ax=ax, extend='both', ticks=(0.1, 1, 10))
-        labels = ('1/Max', '1', 'Max') if op == 'D' else ('10th Percentile', '', '99th Percentile')
+        labels = ('1/Max', '1', 'Max') if op == 'D' else ('10th Percentile', '', 'Max')
         cbar.ax.set_xticklabels(labels)
         plt.savefig(os.path.join(os.getcwd(), op + '.png'), dpi=200)
         print('saved to ' + os.path.join(os.getcwd(), op + '.png'))
