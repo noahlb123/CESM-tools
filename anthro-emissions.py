@@ -211,4 +211,5 @@ elif mode == 'r': #ratios plotted on robinson globe
             ax.pcolormesh(lon, lat, arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
 
     plt.savefig(os.path.join(os.getcwd(), 'anthro-fig.png'), dpi=200)
+    print('median PI vals (hoesly, marle, marle-converted):', np.median(ncdf_dict['hoesly-pi']['arr']), np.median(ncdf_dict['marle-pi']['arr']), np.median(convert_marle_units(ncdf_dict['marle-pi']['arr'])))
     print('saved to ' + os.path.join(os.getcwd(), 'anthro-fig.png'))
