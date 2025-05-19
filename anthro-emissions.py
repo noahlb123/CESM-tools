@@ -191,7 +191,7 @@ elif mode == 'r': #ratios plotted on robinson globe
             #plot
             ax.set_title(key)
             ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
-            plt.pcolormesh(ncdf_dict[key.lower() + '-pd']['lons'], ncdf_dict[key.lower() + '-pd']['lats'], arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+            plt.pcolormesh(ncdf_dict[key.split('+')[0].lower() + '-pd']['lons'], ncdf_dict[key.split('+')[0].lower() + '-pd']['lats'], arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
             plt.colorbar(mappable=sm, label='Anthro BC Emission Ratio', orientation="horizontal", ax=ax, extend='both')
 
     plt.savefig(os.path.join(os.getcwd(), 'anthro-fig.png'), dpi=200)
