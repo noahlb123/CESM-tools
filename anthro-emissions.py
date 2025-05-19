@@ -148,7 +148,8 @@ elif mode == 'r': #ratios plotted on robinson globe
     import matplotlib.pyplot as plt
     from matplotlib.patches import Rectangle
     from matplotlib.cm import ScalarMappable
-    from matplotlib.colors import LogNorm
+    from matplotlib.colors import LinearSegmentedColormap
+    from matplotlib.colors import BoundaryNorm
 
     patches = { #Okabe and Ito colorblind pallet
         'Arctic': ('#6CB3E4', '#6CB3E4'),
@@ -170,7 +171,10 @@ elif mode == 'r': #ratios plotted on robinson globe
 
     #color
     cmap = colormaps['BrBG_r']
-    c_norm = LogNorm(vmin=0.1, vmax=10)
+    cmaplist = [cmap(i) for i in range(cmap.N)]
+    cmap = LinearSegmentedColormap.from_list('Custom cmap', cmaplist, cmap.N)
+    bounds = [round(x, 1) for x in np.linspace(0, 2, 10)]
+    c_norm = BoundaryNorm(bounds, cmap.N)
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
     plt.colorbar(mappable=sm, label='BC Emission Ratio', orientation="horizontal", ax=axes, extend='both')
     
