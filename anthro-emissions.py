@@ -103,8 +103,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     anthro_boxes = json.load(open('data/emission-boxes.json'))
     for key in ncdf_dict.keys():
         author, era = key.split('-')
-        print(era + ' data setup...')
-        d = ncdf_dict[era]
+        d = ncdf_dict[key]
         f = Dataset(os.path.join(root, d['filename']))
         d['times'] = f['time'][:]
         d['lats'] = f['lat'][:]
