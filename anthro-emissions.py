@@ -111,12 +111,11 @@ elif mode == 'r': #ratios plotted on robinson globe
         start_i = T.nearest_search(d['times'], 365 * (d['start'] - 1750))
         end_i = T.nearest_search(d['times'], 365 * (d['end'] - 1750))
         #dim order: time, sector, lat, lon
-        v_name = 'BC_em_anthro' if author == 'hoesly' else 'emiss_bb'
         if author == 'hoesly':
-            arr = f[v_name][start_i:end_i,:,:,:]
+            arr = f['BC_em_anthro'][start_i:end_i,:,:,:]
             d['arr'] = np.sum(np.mean(arr, axis=0), axis=0)
         elif author == 'marle':
-            arr = f[v_name][start_i:end_i,:,:]
+            arr = f['emiss_bb'][start_i:end_i,:,:]
             d['arr'] = np.mean(arr, axis=0)
         #d['arr'][d['arr'] == 0] = 1
         f.close()
@@ -128,7 +127,7 @@ elif mode == 'r': #ratios plotted on robinson globe
         'Hoesly+MarlePD': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pd']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pd']['arr']),
         'Hoesly+MarlePD/PI': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pd']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pi']['arr']),
     }
-    df_index = [[k + ':' + i for k in final_mats.keys()] for i in range(3)]
+    df_index = [[k + ':' + str(i) for k in final_mats.keys()] for i in range(3)]
     df = pd.DataFrame(index=df_index, columns=list(anthro_boxes.keys()))
     for region, boxes in anthro_boxes.items():
         for i in range(3):
