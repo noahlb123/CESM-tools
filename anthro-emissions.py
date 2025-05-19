@@ -163,7 +163,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     }
 
     #setup
-    fig, axes = plt.subplots(2, 3, dpi=200, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=-50)})
+    fig, axes = plt.subplots(2, 3, dpi=200, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
     plt.tight_layout()
     i_d_map = {i: list(final_mats.keys())[i] for i in range(len(final_mats.keys()))}
 
@@ -197,7 +197,9 @@ elif mode == 'r': #ratios plotted on robinson globe
                 for region, boxes in anthro_boxes.items():
                     for box in boxes:
                         ax.add_patch(Rectangle(xy=[box[2], box[0]], width=np.abs(box[3]-box[2]), height=np.abs(box[1]-box[0]), edgecolor=colors[region], facecolor='#00000000', zorder=10, transform=cartopy.crs.PlateCarree()))
-
+            
+            print(arr)
+            
             #plot
             ax.set_title(key)
             ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
