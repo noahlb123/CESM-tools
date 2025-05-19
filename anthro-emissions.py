@@ -163,7 +163,8 @@ elif mode == 'r': #ratios plotted on robinson globe
     }
 
     #setup
-    fig, axes = plt.subplots(3, 2, dpi=200, subplot_kw={'projection': cartopy.crs.Robinson()})
+    fig, axes = plt.subplots(2, 3, dpi=200, subplot_kw={'projection': cartopy.crs.Robinson()})
+    plt.tight_layout()
     i_d_map = {i: list(final_mats.keys())[i] for i in range(len(final_mats.keys()))}
 
     #color
@@ -175,7 +176,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     for col_i in range(3):
         for row_i in range(2):
             ax = axes[col_i, row_i]
-            key = i_d_map[col_i + row_i]
+            key = i_d_map[col_i * 2 + row_i]
             arr = final_mats[key]
 
             #patches
