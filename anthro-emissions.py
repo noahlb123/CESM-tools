@@ -138,7 +138,7 @@ elif mode == 'r': #ratios plotted on robinson globe
             lon_min = T.nearest_search(ncdf_dict['hoesly-pd']['lons'], box[2])
             lon_max = T.nearest_search(ncdf_dict['hoesly-pd']['lons'], box[3])
             for key in final_mats.keys():
-                df.loc[i, region] = np.mean(final_mats[key][lat_min:lat_max, lon_min:lon_max])
+                df.loc[key + ':' + str(i), region] = np.mean(final_mats[key][lat_min:lat_max, lon_min:lon_max])
     df.to_csv(os.path.join(os.getcwd(), 'anthro-ratios.csv'))
     print('saved to ' + os.path.join(os.getcwd(), 'anthro-ratios.csv'))
 
@@ -166,7 +166,7 @@ elif mode == 'r': #ratios plotted on robinson globe
 
     #setup
     col_n, row_n = (3, 2)
-    fig, axes = plt.subplots(row_n, col_n, dpi=800, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
+    fig, axes = plt.subplots(row_n, col_n, dpi=400, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
     plt.tight_layout()
     i_d_map = {i: list(final_mats.keys())[i] for i in range(len(final_mats.keys()))}
 

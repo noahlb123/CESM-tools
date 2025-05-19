@@ -948,18 +948,18 @@ elif (inp == 'l'):
         filenames = [x['filename'] for x in main_dict.values()]
         ratios = [x['ratio'] for x in main_dict.values()]
         index = [i + 1 for i in range(len(filenames))]
+        new_regions = ['South ZAmerica', 'North America', 'Alaska', 'Europe', 'Africa', 'Asia']
+        new_region_map = filename_region
+        new_region_map['zhang-2024-12.csv'] = 'Alaska'
+        new_region_map['zhang-2024-11.csv'] = 'Alaska'
         df = pd.DataFrame({
             'core index': pd.Series(index, index=filenames),
-            'region': pd.Series(['South ZAmerica', 'North America', 'Alaska', 'Europe', 'Africa', 'Asia'], index=filenames),
+            'region': pd.Series([new_region_map[i] for i in filenames], index=filenames),
             'Ice Core': pd.Series(ratios, index=filenames),
-            #'loadbc': pd.Series(bar_means['loadbc'], index=order_of_columns),
-            #'mmrbc': pd.Series(bar_means['mmrbc'], index=order_of_columns),
             'CESM': pd.Series(bar_means['CESM'], index=order_of_columns),
-            #'CESM-SOOTSN': pd.Series(bar_means['CESM-SOOTSN'], index=order_of_columns),
-            'CMIP6': pd.Series(bar_means['CMIP6'], index=order_of_columns),
-            'LENS': pd.Series(bar_means['LENS'], index=order_of_columns),
-            #'LENS-Bias': pd.Series(bar_means['LENS-Bias'], index=order_of_columns)
             }, index=filenames)
+        print(df['CESM'])
+        exit()
         #reformat data
         region_filename = t.invert_dict_list(filename_region)
         #sorted_regions = list(region_filename.keys())
