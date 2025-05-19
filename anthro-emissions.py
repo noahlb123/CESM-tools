@@ -100,6 +100,7 @@ elif mode == 'r': #ratios plotted on robinson globe
         }
         }
     #ice_coords = T.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv')
+    print('loading data...')
     anthro_boxes = json.load(open('data/emission-boxes.json'))
     for key in ncdf_dict.keys():
         author, era = key.split('-')
@@ -190,7 +191,7 @@ elif mode == 'r': #ratios plotted on robinson globe
             #plot
             ax.set_title(key)
             ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
-            plt.pcolormesh(ncdf_dict['pd']['lons'], ncdf_dict['pd']['lats'], arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+            plt.pcolormesh(ncdf_dict[key]['lons'], ncdf_dict[key]['lats'], arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
             plt.colorbar(mappable=sm, label='Anthro BC Emission Ratio', orientation="horizontal", ax=ax, extend='both')
 
     plt.savefig(os.path.join(os.getcwd(), 'anthro-fig.png'), dpi=200)
