@@ -20,7 +20,7 @@ ncrcat BC-em-anthro_input4MIPs_emissions_CMIP_CEDS-2017-05-18_gn_185101-189912.n
 #ncks -d lat,0,90 -d lon,-180,180 out.nc cropped-nh.nc
 
 def convert_marle_units(m): #molecules/cm^2/s to kg/m^2/s
-    return m * (10 ** 23) * 12 * 6.023
+    return (m * (12 / (6.023 * 10 ** -22)))
 
 if len(sys.argv) < 2:
     raise Exception('1 command line arguments required: <mode (t/r)>')
@@ -146,6 +146,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     import cartopy
     from matplotlib import colormaps
     import matplotlib.pyplot as plt
+    import matplotlib.ticker
     from matplotlib.patches import Rectangle
     from matplotlib.cm import ScalarMappable
     from matplotlib.colors import LinearSegmentedColormap
@@ -176,7 +177,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     bounds = [round(x, 1) for x in np.linspace(0, 2, 10)]
     c_norm = BoundaryNorm(bounds, cmap.N)
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
-    plt.colorbar(mappable=sm, label='BC Emission Ratio', orientation="horizontal", ax=axes, extend='both')
+    plt.colorbar(mappable=sm, label='BC Emission Ratio', orientation="horizontal", ax=axes, extend='both', format=ticker.FormatStrFormatter('%.2f'))
     
     for col_i in range(col_n):
         for row_i in range(row_n):
