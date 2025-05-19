@@ -124,9 +124,9 @@ elif mode == 'r': #ratios plotted on robinson globe
     final_mats = {
         'Hoesly': np.divide(ncdf_dict['hoesly-pd']['arr'], ncdf_dict['hoesly-pi']['arr']),
         'Marle': np.divide(ncdf_dict['marle-pd']['arr'], ncdf_dict['marle-pi']['arr']),
-        'Hoesly+MarlePI': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pi']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pi']['arr']),
-        'Hoesly+MarlePD': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pd']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pd']['arr']),
-        'Hoesly+MarlePD/PI': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pd']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pi']['arr']),
+        'Hoesly+MarlePI': np.divide(ncdf_dict['hoesly-pd']['arr'] + convert_marle_units(ncdf_dict['marle-pi']['arr']), ncdf_dict['hoesly-pi']['arr'] + convert_marle_units(ncdf_dict['marle-pi']['arr'])),
+        'Hoesly+MarlePD': np.divide(ncdf_dict['hoesly-pd']['arr'] + convert_marle_units(ncdf_dict['marle-pd']['arr']), ncdf_dict['hoesly-pi']['arr'] + convert_marle_units(ncdf_dict['marle-pd']['arr'])),
+        'Hoesly+MarlePD/PI': np.divide(ncdf_dict['hoesly-pd']['arr'] + convert_marle_units(ncdf_dict['marle-pd']['arr']), ncdf_dict['hoesly-pi']['arr'] + convert_marle_units(ncdf_dict['marle-pi']['arr'])),
     }
     df_index = [[k + ':' + str(i) for k in final_mats.keys()] for i in range(3)]
     df = pd.DataFrame(index=df_index, columns=list(anthro_boxes.keys()))
