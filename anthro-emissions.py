@@ -123,7 +123,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     print('extracting ratios...')
     final_mats = {
         'Hoesly': np.divide(ncdf_dict['hoesly-pd']['arr'], ncdf_dict['hoesly-pi']['arr']),
-        #'Marle': np.divide(ncdf_dict['marle-pd']['arr'], ncdf_dict['marle-pi']['arr']),
+        'Marle': np.divide(ncdf_dict['marle-pd']['arr'], ncdf_dict['marle-pi']['arr']),
         #'Hoesly+MarlePI': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pi']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pi']['arr']),
         #'Hoesly+MarlePD': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pd']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pd']['arr']),
         #'Hoesly+MarlePD/PI': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pd']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pi']['arr']),
@@ -163,7 +163,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     }
 
     #setup
-    col_n, row_n = (2, 2) #(3, 2)
+    col_n, row_n = (1, 2) #(3, 2)
     fig, axes = plt.subplots(row_n, col_n, dpi=400, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
     plt.tight_layout()
     i_d_map = {i: list(final_mats.keys())[i] for i in range(len(final_mats.keys()))}
@@ -176,7 +176,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     
     for col_i in range(col_n):
         for row_i in range(row_n):
-            ax = axes[row_i, col_i]
+            ax = axes[row_i]#[row_i, col_i]
             if col_i * 2 + row_i < 5:
                 key = i_d_map[col_i * 2 + row_i]
                 arr = final_mats[key]
