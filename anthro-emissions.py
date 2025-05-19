@@ -112,7 +112,7 @@ elif mode == 'r': #ratios plotted on robinson globe
         end_i = T.nearest_search(d['times'], 365 * (d['end'] - 1750))
         #dim order: time, sector, lat, lon
         v_name = 'BC_em_anthro' if author == 'hoesly' else 'emiss_bb'
-        arr = f['BC_em_anthro'][start_i:end_i,:,:,:]
+        arr = f[v_name][start_i:end_i,:,:,:]
         if author == 'hoesly':
             d['arr'] = np.sum(np.mean(arr, axis=0), axis=0)
         elif author == 'marle':
