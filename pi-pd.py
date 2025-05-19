@@ -523,7 +523,7 @@ elif (inp == 'c-anthro'):
     anthro_boxes = json.load(open('data/emission-boxes.json'))
     for region, boxes in anthro_boxes.items():
         for box in boxes:
-            ax.add_patch(Rectangle(xy=[box[2], box[0]], width=np.abs(box[3]-box[2]), height=np.abs(box[1]-box[0]), facecolor=colors[region] + '50', edgecolor=colors[region], transform=cartopy.crs.PlateCarree()))
+            ax.add_patch(Rectangle(xy=[box[2], box[0]], width=np.abs(box[3]-box[2]), height=np.abs(box[1]-box[0]), edgecolor=colors[region], facecolor='#00000000', zorder=10, transform=cartopy.crs.PlateCarree()))
     plt.savefig('figures/ice-cores/test-anthro-map-.png', bbox_inches='tight', pad_inches=0.0)
 
 elif (inp == 'l'):

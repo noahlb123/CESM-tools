@@ -19,12 +19,15 @@ ncrcat BC-em-anthro_input4MIPs_emissions_CMIP_CEDS-2017-05-18_gn_185101-189912.n
 #and north hemisphere
 #ncks -d lat,0,90 -d lon,-180,180 out.nc cropped-nh.nc
 
+def convert_marle_units(m): #molecules/cm^2/s to kg/m^2/s
+    return m * 12 * 6.023 * 10 ** 23
+
 if len(sys.argv) < 2:
     raise Exception('1 command line arguments required: <mode (t/r)>')
 mode = sys.argv[1]
 root = '/glade/derecho/scratch/nlbills/ceds-anthro-emissions'
 
-if mode == 't':
+if mode == 't': #timeseries of each component
     f_na = Dataset(os.path.join(root, 'cropped-na.nc'))
     f_nh = Dataset(os.path.join(root, 'cropped-nh.nc'))
 
@@ -73,23 +76,33 @@ if mode == 't':
     df = pd.DataFrame(columns=['nh time', 'na time', 'nh', 'na'], data=np.transpose([f_nh['time'][:] / 365 + 1750, f_na['time'][:] / 365 + 1750, nh_sum, na_sum]))
     df.to_csv(os.path.join(os.getcwd(), 'antrho-emissions.csv'))
     print('saved to ' + os.path.join(os.getcwd(), '*'))
-elif mode == 'r':
+elif mode == 'r': #ratios plotted on robinson globe
     ncdf_dict = {
-        'pi': {
+        'hoesly-pi': {
             'filename': '185001-189912.nc',
             'start': 1850,
             'end': 1875
             },
-        'pd': {
+        'hoesly-pd': {
             'filename': 'BC-em-anthro_input4MIPs_emissions_CMIP_CEDS-2017-05-18_gn_195001-199912.nc',
             'start': 1955,
             'end': 1980
-            }
+            },
+        'marle-pi': {
+            'filename': os.path.join('marle', 'remapped.nc'),
+            'start': 1850,
+            'end': 1875
+        },
+        'marle-pd': {
+            'filename': os.path.join('marle', 'remapped.nc'),
+            'start': 1955,
+            'end': 1980
+        }
         }
     #ice_coords = T.get_ice_coords('data/standardized-ice-cores/index.csv', 'data/standardized-ice-cores/index-dup-cores.csv')
     anthro_boxes = json.load(open('data/emission-boxes.json'))
-    df = pd.DataFrame(index=[0, 1, 2], columns=list(anthro_boxes.keys()))
-    for era in ncdf_dict.keys():
+    for key in ncdf_dict.keys():
+        author, era = key.split('-')
         print(era + ' data setup...')
         d = ncdf_dict[era]
         f = Dataset(os.path.join(root, d['filename']))
@@ -99,12 +112,24 @@ elif mode == 'r':
         start_i = T.nearest_search(d['times'], 365 * (d['start'] - 1750))
         end_i = T.nearest_search(d['times'], 365 * (d['end'] - 1750))
         #dim order: time, sector, lat, lon
+        v_name = 'BC_em_anthro' if author == 'hoesly' else 'emiss_bb'
         arr = f['BC_em_anthro'][start_i:end_i,:,:,:]
-        d['arr'] = np.sum(np.mean(arr, axis=0), axis=0)
-        d['arr'][d['arr'] == 0] = 1
+        if author == 'hoesly':
+            d['arr'] = np.sum(np.mean(arr, axis=0), axis=0)
+        elif author == 'marle':
+            d['arr'] = np.mean(arr, axis=0)
+        #d['arr'][d['arr'] == 0] = 1
         f.close()
     print('extracting ratios...')
-    main_arr = np.divide(ncdf_dict['pd']['arr'], ncdf_dict['pi']['arr'])
+    final_mats = {
+        'Hoesly': np.divide(ncdf_dict['hoesly-pd']['arr'], ncdf_dict['hoesly-pi']['arr']),
+        'Marle': np.divide(ncdf_dict['marle-pd']['arr'], ncdf_dict['marle-pi']['arr']),
+        'Hoesly+MarlePI': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pi']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pi']['arr']),
+        'Hoesly+MarlePD': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pd']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pd']['arr']),
+        'Hoesly+MarlePD/PI': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pd']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pi']['arr']),
+    }
+    df_index = [[k + ':' + i for k in final_mats.keys()] for i in range(3)]
+    df = pd.DataFrame(index=df_index, columns=list(anthro_boxes.keys()))
     for region, boxes in anthro_boxes.items():
         for i in range(3):
             box = boxes[i]
@@ -112,23 +137,62 @@ elif mode == 'r':
             lat_max = T.nearest_search(ncdf_dict['pd']['lats'], box[1])
             lon_min = T.nearest_search(ncdf_dict['pd']['lons'], box[2])
             lon_max = T.nearest_search(ncdf_dict['pd']['lons'], box[3])
-            df.loc[i, region] = np.mean(main_arr[lat_min:lat_max, lon_min:lon_max])
+            for key in final_mats.keys():
+                df.loc[i, region] = np.mean(final_mats[key][lat_min:lat_max, lon_min:lon_max])
     df.to_csv(os.path.join(os.getcwd(), 'anthro-ratios.csv'))
     print('saved to ' + os.path.join(os.getcwd(), 'anthro-ratios.csv'))
+
     print('plotting...')
     import cartopy
     from matplotlib import colormaps
     import matplotlib.pyplot as plt
+    from matplotlib.patches import Rectangle
     from matplotlib.cm import ScalarMappable
     from matplotlib.colors import LogNorm
-    #color
-    cmap = colormaps['BrBG_r']
-    c_norm = LogNorm(vmin=0.00001, vmax=100000)
-    sm = ScalarMappable(cmap=cmap, norm=c_norm)
-    #plot
-    fig, ax = plt.subplots(dpi=200, subplot_kw={'projection': cartopy.crs.Robinson()})
-    ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
-    plt.pcolormesh(ncdf_dict['pd']['lons'], ncdf_dict['pd']['lats'], main_arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
-    plt.colorbar(mappable=sm, label='Anthro BC Emission Ratio', orientation="horizontal", ax=ax, extend='both')
-    plt.savefig(os.path.join(os.getcwd(), 'robinson-fig.png'), dpi=200)
-    print('saved to ' + os.path.join(os.getcwd(), 'robinson-fig.png'))
+
+    patches = { #Okabe and Ito colorblind pallet
+        'Arctic': ('#6CB3E4', '#6CB3E4'),
+        'South Greenland': ( '#880D1E', '#6CB3E4'), #'#880D1E'),
+        'North Greenland': ('#DDA138', '#6CB3E4'), #'#DDA138'),
+        'Antarctica': ('#2C72AD', '#2C72AD'),
+        'South ZAmerica': ('#EFE362', '#000000'), #'#EFE362'),
+        'North America': ('#C17EA5', '#000000'), #'#C17EA5'),
+        'Europe': ('#C86526', '#000000'), #'#C86526'),
+        'Africa': ('#000000', '#000000'),
+        'Asia': ('#459B76', '#000000'), #'#459B76')
+    }
+
+    #setup
+    fig, axes = plt.subplots(3, 2, dpi=200, subplot_kw={'projection': cartopy.crs.Robinson()})
+    i_d_map = {i: list(final_mats.keys())[i] for i in range(len(final_mats.keys()))}
+    for col_i in range(3):
+        for row_i in range(2):
+            ax = axes[col_i, row_i]
+            key = i_d_map[col_i + row_i]
+            arr = final_mats[key]
+    
+            #color
+            cmap = colormaps['BrBG_r']
+            c_norm = LogNorm(vmin=0.1, vmax=10)
+            sm = ScalarMappable(cmap=cmap, norm=c_norm)
+
+            #patches
+            colors = {k: l[-2] for k, l in patches.items()}
+            colors['South America'] = colors['South ZAmerica']
+            colors['USA'] = colors['North America']
+            colors['Alaska'] = colors['Arctic']
+            colors['Greenland'] = colors['North Greenland']
+            anthro_boxes = json.load(open('data/emission-boxes.json'))
+            for region, boxes in anthro_boxes.items():
+                for box in boxes:
+                    ax.add_patch(Rectangle(xy=[box[2], box[0]], width=np.abs(box[3]-box[2]), height=np.abs(box[1]-box[0]), edgecolor=colors[region], facecolor='#00000000', zorder=10, transform=cartopy.crs.PlateCarree()))
+            plt.savefig('figures/ice-cores/test-anthro-map-.png', bbox_inches='tight', pad_inches=0.0)
+
+            #plot
+            ax.set_title()
+            ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
+            plt.pcolormesh(ncdf_dict['pd']['lons'], ncdf_dict['pd']['lats'], arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+            plt.colorbar(mappable=sm, label='Anthro BC Emission Ratio', orientation="horizontal", ax=ax, extend='both')
+
+    plt.savefig(os.path.join(os.getcwd(), 'anthro-fig.png'), dpi=200)
+    print('saved to ' + os.path.join(os.getcwd(), 'anthro-fig.png'))
