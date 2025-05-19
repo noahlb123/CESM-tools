@@ -146,7 +146,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     import cartopy
     from matplotlib import colormaps
     import matplotlib.pyplot as plt
-    import matplotlib.ticker
+    import matplotlib.ticker as ticker
     from matplotlib.patches import Rectangle
     from matplotlib.cm import ScalarMappable
     from matplotlib.colors import LinearSegmentedColormap
