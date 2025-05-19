@@ -163,7 +163,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     }
 
     #setup
-    col_n, row_n = (1, 3) #(3, 2)
+    col_n, row_n = (3, 2)
     fig, axes = plt.subplots(row_n, col_n, dpi=400, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
     plt.tight_layout()
     i_d_map = {i: list(final_mats.keys())[i] for i in range(len(final_mats.keys()))}
@@ -176,7 +176,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     
     for col_i in range(col_n):
         for row_i in range(row_n):
-            ax = axes[row_i]#[row_i, col_i]
+            ax = axes[row_i, col_i]
             if col_i * 2 + row_i < 5:
                 key = i_d_map[col_i * 2 + row_i]
                 arr = final_mats[key]
@@ -202,7 +202,7 @@ elif mode == 'r': #ratios plotted on robinson globe
             #plot
             ax.set_title(key)
             ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
-            plt.pcolormesh(lon, lat, arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+            ax.pcolormesh(lon, lat, arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
 
     plt.savefig(os.path.join(os.getcwd(), 'anthro-fig.png'), dpi=200)
     print('saved to ' + os.path.join(os.getcwd(), 'anthro-fig.png'))
