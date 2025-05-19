@@ -163,7 +163,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     }
 
     #setup
-    fig, axes = plt.subplots(2, 3, dpi=200, subplot_kw={'projection': cartopy.crs.Robinson()})
+    fig, axes = plt.subplots(2, 3, dpi=200, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=-50)})
     plt.tight_layout()
     i_d_map = {i: list(final_mats.keys())[i] for i in range(len(final_mats.keys()))}
 
@@ -171,7 +171,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     cmap = colormaps['BrBG_r']
     c_norm = LogNorm(vmin=0.1, vmax=10)
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
-    plt.colorbar(mappable=sm, label='Anthro BC Emission Ratio', orientation="horizontal", ax=axes, extend='both')
+    plt.colorbar(mappable=sm, label='BC Emission Ratio', orientation="horizontal", ax=axes, extend='both')
     
     for col_i in range(3):
         for row_i in range(2):
