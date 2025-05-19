@@ -188,7 +188,7 @@ elif mode == 'r': #ratios plotted on robinson globe
             plt.savefig('figures/ice-cores/test-anthro-map-.png', bbox_inches='tight', pad_inches=0.0)
 
             #plot
-            ax.set_title()
+            ax.set_title(key)
             ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
             plt.pcolormesh(ncdf_dict['pd']['lons'], ncdf_dict['pd']['lats'], arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
             plt.colorbar(mappable=sm, label='Anthro BC Emission Ratio', orientation="horizontal", ax=ax, extend='both')
