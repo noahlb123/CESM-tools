@@ -132,10 +132,10 @@ elif mode == 'r': #ratios plotted on robinson globe
     for region, boxes in anthro_boxes.items():
         for i in range(3):
             box = boxes[i]
-            lat_min = T.nearest_search(ncdf_dict['pd']['lats'], box[0])
-            lat_max = T.nearest_search(ncdf_dict['pd']['lats'], box[1])
-            lon_min = T.nearest_search(ncdf_dict['pd']['lons'], box[2])
-            lon_max = T.nearest_search(ncdf_dict['pd']['lons'], box[3])
+            lat_min = T.nearest_search(ncdf_dict['hoesly-pd']['lats'], box[0])
+            lat_max = T.nearest_search(ncdf_dict['hoesly-pd']['lats'], box[1])
+            lon_min = T.nearest_search(ncdf_dict['hoesly-pd']['lons'], box[2])
+            lon_max = T.nearest_search(ncdf_dict['hoesly-pd']['lons'], box[3])
             for key in final_mats.keys():
                 df.loc[i, region] = np.mean(final_mats[key][lat_min:lat_max, lon_min:lon_max])
     df.to_csv(os.path.join(os.getcwd(), 'anthro-ratios.csv'))
