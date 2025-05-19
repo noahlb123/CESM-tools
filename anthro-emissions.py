@@ -175,21 +175,24 @@ elif mode == 'r': #ratios plotted on robinson globe
     
     for col_i in range(3):
         for row_i in range(2):
-            ax = axes[col_i, row_i]
-            key = i_d_map[col_i * 2 + row_i]
-            arr = final_mats[key]
+            ax = axes[row_i, col_i]
+            if col_i * 2 + row_i < 5:
+                key = i_d_map[col_i * 2 + row_i]
+                arr = final_mats[key]
+            else:
+                key = 'Emissions Regions'
+                arr = np.ones(np.shape(final_mats[i_d_map[0]]))
 
-            #patches
-            colors = {k: l[-2] for k, l in patches.items()}
-            colors['South America'] = colors['South ZAmerica']
-            colors['USA'] = colors['North America']
-            colors['Alaska'] = colors['Arctic']
-            colors['Greenland'] = colors['North Greenland']
-            anthro_boxes = json.load(open('data/emission-boxes.json'))
-            for region, boxes in anthro_boxes.items():
-                for box in boxes:
-                    ax.add_patch(Rectangle(xy=[box[2], box[0]], width=np.abs(box[3]-box[2]), height=np.abs(box[1]-box[0]), edgecolor=colors[region], facecolor='#00000000', zorder=10, transform=cartopy.crs.PlateCarree()))
-            plt.savefig('figures/ice-cores/test-anthro-map-.png', bbox_inches='tight', pad_inches=0.0)
+                #patches
+                colors = {k: l[-2] for k, l in patches.items()}
+                colors['South America'] = colors['South ZAmerica']
+                colors['USA'] = colors['North America']
+                colors['Alaska'] = colors['Arctic']
+                colors['Greenland'] = colors['North Greenland']
+                anthro_boxes = json.load(open('data/emission-boxes.json'))
+                for region, boxes in anthro_boxes.items():
+                    for box in boxes:
+                        ax.add_patch(Rectangle(xy=[box[2], box[0]], width=np.abs(box[3]-box[2]), height=np.abs(box[1]-box[0]), edgecolor=colors[region], facecolor='#00000000', zorder=10, transform=cartopy.crs.PlateCarree()))
 
             #plot
             ax.set_title(key)
