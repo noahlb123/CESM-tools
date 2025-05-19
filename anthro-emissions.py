@@ -123,10 +123,10 @@ elif mode == 'r': #ratios plotted on robinson globe
     print('extracting ratios...')
     final_mats = {
         'Hoesly': np.divide(ncdf_dict['hoesly-pd']['arr'], ncdf_dict['hoesly-pi']['arr']),
-        'Marle': np.divide(ncdf_dict['marle-pd']['arr'], ncdf_dict['marle-pi']['arr']),
-        'Hoesly+MarlePI': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pi']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pi']['arr']),
-        'Hoesly+MarlePD': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pd']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pd']['arr']),
-        'Hoesly+MarlePD/PI': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pd']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pi']['arr']),
+        #'Marle': np.divide(ncdf_dict['marle-pd']['arr'], ncdf_dict['marle-pi']['arr']),
+        #'Hoesly+MarlePI': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pi']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pi']['arr']),
+        #'Hoesly+MarlePD': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pd']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pd']['arr']),
+        #'Hoesly+MarlePD/PI': np.divide(ncdf_dict['hoesly-pd']['arr'] + ncdf_dict['marle-pd']['arr'], ncdf_dict['hoesly-pi']['arr'] + ncdf_dict['marle-pi']['arr']),
     }
     df_index = [[k + ':' + str(i) for k in final_mats.keys()] for i in range(3)]
     df = pd.DataFrame(index=df_index, columns=list(anthro_boxes.keys()))
@@ -163,7 +163,8 @@ elif mode == 'r': #ratios plotted on robinson globe
     }
 
     #setup
-    fig, axes = plt.subplots(2, 3, dpi=200, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
+    col_n, row_n = (1, 1) #(3, 2)
+    fig, axes = plt.subplots(row_n, col_n, dpi=400, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
     plt.tight_layout()
     i_d_map = {i: list(final_mats.keys())[i] for i in range(len(final_mats.keys()))}
 
@@ -173,8 +174,8 @@ elif mode == 'r': #ratios plotted on robinson globe
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
     plt.colorbar(mappable=sm, label='BC Emission Ratio', orientation="horizontal", ax=axes, extend='both')
     
-    for col_i in range(3):
-        for row_i in range(2):
+    for col_i in range(col_n):
+        for row_i in range(row_n):
             ax = axes[row_i, col_i]
             if col_i * 2 + row_i < 5:
                 key = i_d_map[col_i * 2 + row_i]
@@ -197,10 +198,10 @@ elif mode == 'r': #ratios plotted on robinson globe
                 for region, boxes in anthro_boxes.items():
                     for box in boxes:
                         ax.add_patch(Rectangle(xy=[box[2], box[0]], width=np.abs(box[3]-box[2]), height=np.abs(box[1]-box[0]), edgecolor=colors[region], facecolor='#00000000', zorder=10, transform=cartopy.crs.PlateCarree()))
-            
-            print(arr)
-            
+                        
             #plot
+            print(lat, lon)
+            print(arr)
             ax.set_title(key)
             ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
             plt.pcolormesh(lon, lat, arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
