@@ -179,9 +179,13 @@ elif mode == 'r': #ratios plotted on robinson globe
             if col_i * 2 + row_i < 5:
                 key = i_d_map[col_i * 2 + row_i]
                 arr = final_mats[key]
+                lat = ncdf_dict[key.split('+')[0].lower() + '-pd']['lats']
+                lon = ncdf_dict[key.split('+')[0].lower() + '-pd']['lons']
             else:
                 key = 'Emissions Regions'
                 arr = np.ones(np.shape(final_mats[i_d_map[0]]))
+                lat = ncdf_dict['hoesly-pd']['lats']
+                lon = ncdf_dict['hoesly-pd']['lons']
 
                 #patches
                 colors = {k: l[-2] for k, l in patches.items()}
@@ -197,7 +201,7 @@ elif mode == 'r': #ratios plotted on robinson globe
             #plot
             ax.set_title(key)
             ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
-            plt.pcolormesh(ncdf_dict[key.split('+')[0].lower() + '-pd']['lons'], ncdf_dict[key.split('+')[0].lower() + '-pd']['lats'], arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
+            plt.pcolormesh(lon, lat, arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
 
     plt.savefig(os.path.join(os.getcwd(), 'anthro-fig.png'), dpi=200)
     print('saved to ' + os.path.join(os.getcwd(), 'anthro-fig.png'))
