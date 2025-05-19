@@ -216,5 +216,5 @@ elif mode == 'r': #ratios plotted on robinson globe
     lon_min = T.nearest_search(ncdf_dict['hoesly-pd']['lons'], box[2])
     lon_max = T.nearest_search(ncdf_dict['hoesly-pd']['lons'], box[3])
     plt.savefig(os.path.join(os.getcwd(), 'anthro-fig.png'), dpi=200)
-    print('median non-zero PI vals (hoesly, marle, marle-converted):', [np.median(arr[lat_min:lat_max, lon_min:lon_max]) for arr in (ncdf_dict['hoesly-pi']['arr'], ncdf_dict['marle-pi']['arr'], convert_marle_units(ncdf_dict['marle-pi']['arr']))])
+    print('median non-zero North American PI vals (hoesly, marle, marle-converted):', [np.median(arr[lat_min:lat_max, lon_min:lon_max]) for arr in (ncdf_dict['hoesly-pi']['arr'], ncdf_dict['marle-pi']['arr'], convert_marle_units(ncdf_dict['marle-pi']['arr']))])
     print('saved to ' + os.path.join(os.getcwd(), 'anthro-fig.png'))
