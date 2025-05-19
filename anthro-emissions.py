@@ -20,7 +20,7 @@ ncrcat BC-em-anthro_input4MIPs_emissions_CMIP_CEDS-2017-05-18_gn_185101-189912.n
 #ncks -d lat,0,90 -d lon,-180,180 out.nc cropped-nh.nc
 
 def convert_marle_units(m): #molecules/cm^2/s to kg/m^2/s
-    return (m * (12 / (6.023 * 10 ** -22)))
+    return (m * (12 / (6.023 * 10 ** 22)))
 
 if len(sys.argv) < 2:
     raise Exception('1 command line arguments required: <mode (t/r)>')
