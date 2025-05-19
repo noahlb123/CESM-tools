@@ -165,16 +165,18 @@ elif mode == 'r': #ratios plotted on robinson globe
     #setup
     fig, axes = plt.subplots(3, 2, dpi=200, subplot_kw={'projection': cartopy.crs.Robinson()})
     i_d_map = {i: list(final_mats.keys())[i] for i in range(len(final_mats.keys()))}
+
+    #color
+    cmap = colormaps['BrBG_r']
+    c_norm = LogNorm(vmin=0.1, vmax=10)
+    sm = ScalarMappable(cmap=cmap, norm=c_norm)
+    plt.colorbar(mappable=sm, label='Anthro BC Emission Ratio', orientation="horizontal", ax=axes, extend='both')
+    
     for col_i in range(3):
         for row_i in range(2):
             ax = axes[col_i, row_i]
             key = i_d_map[col_i + row_i]
             arr = final_mats[key]
-    
-            #color
-            cmap = colormaps['BrBG_r']
-            c_norm = LogNorm(vmin=0.1, vmax=10)
-            sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
             #patches
             colors = {k: l[-2] for k, l in patches.items()}
@@ -192,7 +194,6 @@ elif mode == 'r': #ratios plotted on robinson globe
             ax.set_title(key)
             ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
             plt.pcolormesh(ncdf_dict[key.split('+')[0].lower() + '-pd']['lons'], ncdf_dict[key.split('+')[0].lower() + '-pd']['lats'], arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
-            plt.colorbar(mappable=sm, label='Anthro BC Emission Ratio', orientation="horizontal", ax=ax, extend='both')
 
     plt.savefig(os.path.join(os.getcwd(), 'anthro-fig.png'), dpi=200)
     print('saved to ' + os.path.join(os.getcwd(), 'anthro-fig.png'))
