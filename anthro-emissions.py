@@ -201,7 +201,8 @@ elif mode == 'r': #ratios plotted on robinson globe
                         
             #plot
             ax.set_title(key)
-            ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
+            ax.add_feature(cartopy.feature.OCEAN, zorder=100, edgecolor='#00000000')
+            #ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
             ax.pcolormesh(lon, lat, arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
 
     plt.savefig(os.path.join(os.getcwd(), 'anthro-fig.png'), dpi=200)
