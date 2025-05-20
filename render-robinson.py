@@ -33,9 +33,12 @@ x = f[var_name][:]
 #color
 cmap = colormaps['viridis']
 try:
-    c_norm = LogNorm(vmin=np.nanmin(np.ma.masked_invalid(x)), vmax=np.nanmax(np.ma.masked_invalid(x)))
+    vmin, vmax = (np.nanmin(np.ma.masked_invalid(x)), np.nanmax(np.ma.masked_invalid(x)))
 except:
-    c_norm = LogNorm(vmin=0.1, vmax=1000)
+    vmin, vmax = (0.1, 1000)
+print(vmin, vmax)
+exit()
+c_norm = LogNorm(vmin=vmin, vmax=vmax)
 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
 #plot
