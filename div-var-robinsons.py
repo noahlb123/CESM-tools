@@ -138,7 +138,8 @@ if step == '2' or step == 'a': #plot
                 cmap = colormaps['BrBG_r'] if op == 'D' else colormaps['viridis']
                 if op == 'D':
                     cmaplist = [cmap(i) for i in range(cmap.N)]
-                    cmap = LinearSegmentedColormap.from_list('Custom cmap', cmaplist, cmap.N)
+                    custom_list = ['#01655d', '#35978f', '#7fccc0', '#c7eae5', '#ffffff', '#f6e8c3', '#dfc37e', '#bf812d', '#8d520b']
+                    cmap = LinearSegmentedColormap.from_list('Custom cmap', custom_list, cmap.N)
                     cmap.set_extremes(under=cmaplist[0], over=cmaplist[-1])
                     bounds = [0, 0.1, 0.2, 0.4, 0.7, 0.9, 1.1, 1.3, 1.6, 1.8, 2, 10]
                     c_norm = BoundaryNorm(bounds, cmap.N)
