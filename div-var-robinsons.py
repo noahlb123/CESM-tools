@@ -81,7 +81,6 @@ if step == '2' or step == 'a': #plot
     import matplotlib.pyplot as plt
     from matplotlib.cm import ScalarMappable
     from matplotlib.colors import LogNorm
-    import matplotlib.ticker as ticker
     #from matplotlib.colors import Normalize
     from matplotlib.colors import LinearSegmentedColormap
     from matplotlib.colors import BoundaryNorm
@@ -146,7 +145,7 @@ if step == '2' or step == 'a': #plot
                 #plot
                 ax[numo_i, deno_i].pcolormesh(lons, lats, x, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
         label = 'Normalized X1 ' + '*' if op == 'X' else '÷' + ' Normalized X2'
-        plt.colorbar(mappable=sm, label=label, orientation="horizontal", ax=ax, extend='both', format=ticker.FormatStrFormatter('%.2f'))
+        plt.colorbar(mappable=sm, label=label, orientation="horizontal", ax=ax, extend='both')
         labels = ('1/Max', '1', 'Max') if op == 'D' else ('0.1', '', 'Max')
         plt.savefig(os.path.join(os.getcwd(), op + '.png'), dpi=200)
         print('saved to ' + os.path.join(os.getcwd(), op + '.png'))

@@ -140,13 +140,11 @@ elif mode == 'r': #ratios plotted on robinson globe
             for key in final_mats.keys():
                 df.loc[key + ':' + str(i), region] = np.mean(final_mats[key][lat_min:lat_max, lon_min:lon_max])
     df.to_csv(os.path.join(os.getcwd(), 'anthro-ratios.csv'))
-    print('saved to ' + os.path.join(os.getcwd(), 'anthro-ratios.csv'))
 
     print('plotting...')
     import cartopy
     from matplotlib import colormaps
     import matplotlib.pyplot as plt
-    import matplotlib.ticker as ticker
     from matplotlib.patches import Rectangle
     from matplotlib.cm import ScalarMappable
     from matplotlib.colors import LinearSegmentedColormap
@@ -174,10 +172,10 @@ elif mode == 'r': #ratios plotted on robinson globe
     cmap = colormaps['BrBG_r']
     cmaplist = [cmap(i) for i in range(cmap.N)]
     cmap = LinearSegmentedColormap.from_list('Custom cmap', cmaplist, cmap.N)
-    bounds = [x for x in np.linspace(0, 2, 10)]
+    bounds = [round(x, 1) for x in np.linspace(0, 2, 10)]
     c_norm = BoundaryNorm(bounds, cmap.N)
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
-    plt.colorbar(mappable=sm, label='BC Emission Ratio', orientation="horizontal", ax=axes, extend='both', format=ticker.FormatStrFormatter('%.2f'))
+    plt.colorbar(mappable=sm, label='BC Emission Ratio', orientation="horizontal", ax=axes, extend='both')
     
     for col_i in range(col_n):
         for row_i in range(row_n):
@@ -210,9 +208,6 @@ elif mode == 'r': #ratios plotted on robinson globe
             #ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
             ax.pcolormesh(lon, lat, arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
 
-    plt.savefig(os.path.join(os.getcwd(), 'anthro-fig.png'), dpi=200)
-    print('saved to ' + os.path.join(os.getcwd(), 'anthro-fig.png'))
-
     #conversion check
     box = anthro_boxes['USA'][0]
     lat_min = T.nearest_search(ncdf_dict['hoesly-pd']['lats'], box[0])
@@ -220,3 +215,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     lon_min = T.nearest_search(ncdf_dict['hoesly-pd']['lons'], box[2])
     lon_max = T.nearest_search(ncdf_dict['hoesly-pd']['lons'], box[3])
     print('median non-zero North American PI vals (hoesly, marle, marle-converted):', [np.median(arr[lat_min:lat_max, lon_min:lon_max]) for arr in (ncdf_dict['hoesly-pi']['arr'], ncdf_dict['marle-pi']['arr'], convert_marle_units(ncdf_dict['marle-pi']['arr']))])
+    
+    plt.savefig(os.path.join(os.getcwd(), 'anthro-fig.png'), dpi=200)
+    print('saved to ' + os.path.join(os.getcwd(), 'anthro-fig.png'))
+    print('saved to ' + os.path.join(os.getcwd(), 'anthro-ratios.csv'))
