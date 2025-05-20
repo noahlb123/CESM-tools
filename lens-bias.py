@@ -1,13 +1,14 @@
 from netCDF4 import Dataset
 import pandas as pd
 import numpy as np
-import platform
-import tools
-import csv
 import sys
 import os
 from tools import ToolBox
 T = ToolBox()
+
+if len(sys.argv) < 2:
+    #python lens-bias.py filname1 filename2...
+    raise Exception('filename(s) required: (python lens-bias.py bias1.nc bias2.nc...)')
 
 index_path = 'data/standardized-ice-cores/index.csv'
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'

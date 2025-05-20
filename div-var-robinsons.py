@@ -81,7 +81,10 @@ if step == '2' or step == 'a': #plot
     import matplotlib.pyplot as plt
     from matplotlib.cm import ScalarMappable
     from matplotlib.colors import LogNorm
-    from matplotlib.colors import Normalize
+    import matplotlib.ticker as ticker
+    #from matplotlib.colors import Normalize
+    from matplotlib.colors import LinearSegmentedColormap
+    from matplotlib.colors import BoundaryNorm
 
     def mask_zeros(m):
         mask = np.logical_and(np.ones(np.shape(m)).astype(bool), m == 0)
@@ -134,19 +137,17 @@ if step == '2' or step == 'a': #plot
 
                 #color
                 cmap = colormaps['BrBG_r'] if op == 'D' else colormaps['viridis']
-                min = np.nanmin(np.ma.masked_invalid(x))
-                max = np.nanmax(np.ma.masked_invalid(x))
-                '''if filename == '/glade/derecho/scratch/nlbills/all-ice-core-data/loadbc/CESM2.nc':
-                    min = 0.8'''
-                c_norm = LogNorm(vmin=1/max, vmax=max) if op == 'D' else LogNorm(vmin=0.1, vmax=max)
+                cmaplist = [cmap(i) for i in range(cmap.N)]
+                cmap = LinearSegmentedColormap.from_list('Custom cmap', cmaplist, cmap.N)
+                bounds = [round(x, 1) for x in np.linspace(0, 2, 10)]
+                c_norm = BoundaryNorm(bounds, cmap.N)
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
                 #plot
                 ax[numo_i, deno_i].pcolormesh(lons, lats, x, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
         label = 'Normalized X1 ' + '*' if op == 'X' else '÷' + ' Normalized X2'
-        cbar = plt.colorbar(mappable=ScalarMappable(cmap=cmap, norm=LogNorm(vmin=0.1, vmax=10)), label=label, orientation="horizontal", ax=ax, extend='both', ticks=(0.1, 1, 10))
+        plt.colorbar(mappable=sm, label=label, orientation="horizontal", ax=ax, extend='both', format=ticker.FormatStrFormatter('%.2f'))
         labels = ('1/Max', '1', 'Max') if op == 'D' else ('0.1', '', 'Max')
-        cbar.ax.set_xticklabels(labels)
         plt.savefig(os.path.join(os.getcwd(), op + '.png'), dpi=200)
         print('saved to ' + os.path.join(os.getcwd(), op + '.png'))
 

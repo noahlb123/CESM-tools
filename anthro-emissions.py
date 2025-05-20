@@ -176,7 +176,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     cmap = colormaps['BrBG_r']
     cmaplist = [cmap(i) for i in range(cmap.N)]
     cmap = LinearSegmentedColormap.from_list('Custom cmap', cmaplist, cmap.N)
-    bounds = [round(x, 1) for x in np.linspace(0, 2, 10)]
+    bounds = [x for x in np.linspace(0, 2, 10)]
     c_norm = BoundaryNorm(bounds, cmap.N)
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
     plt.colorbar(mappable=sm, label='BC Emission Ratio', orientation="horizontal", ax=axes, extend='both', format=ticker.FormatStrFormatter('%.2f'))
