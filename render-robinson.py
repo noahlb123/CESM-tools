@@ -34,6 +34,8 @@ x = f[var_name][:]
 cmap = colormaps['viridis']
 try:
     vmin, vmax = (np.nanmin(np.ma.masked_invalid(x)), np.nanmax(np.ma.masked_invalid(x)))
+    if vmin == 0:
+        vmin = vmax / 100
 except:
     vmin, vmax = (0.1, 1000)
 c_norm = LogNorm(vmin=vmin, vmax=vmax)
