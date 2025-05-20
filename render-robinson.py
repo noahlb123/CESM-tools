@@ -36,8 +36,6 @@ try:
     vmin, vmax = (np.nanmin(np.ma.masked_invalid(x)), np.nanmax(np.ma.masked_invalid(x)))
 except:
     vmin, vmax = (0.1, 1000)
-print(vmin, vmax)
-exit()
 c_norm = LogNorm(vmin=vmin, vmax=vmax)
 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
