@@ -34,7 +34,7 @@ x = f[var_name][:]
 cmap = colormaps['viridis']
 print(np.nanmin(x), np.nanmax(x))
 exit()
-c_norm = LogNorm(vmin=np.nanmin(x), vmax=np.nanmax(x))
+c_norm = LogNorm(vmin=np.nanmin(np.ma.masked_invalid(x)), vmax=np.nanmax(np.ma.masked_invalid(x)))
 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
 #plot
