@@ -139,7 +139,7 @@ if step == '2' or step == 'a': #plot
                 if op == 'D':
                     cmaplist = [cmap(i) for i in range(cmap.N)]
                     cmap = LinearSegmentedColormap.from_list('Custom cmap', cmaplist, cmap.N)
-                    cmap.set_extremes(under=cmap[0], over=cmap[-1])
+                    cmap.set_extremes(under=cmaplist[0], over=cmaplist[-1])
                     bounds = [0.1, 0.2, 0.4, 0.7, 0.9, 1.1, 1.3, 1.6, 1.8, 2]
                     c_norm = BoundaryNorm(bounds, cmap.N)
                 else:
