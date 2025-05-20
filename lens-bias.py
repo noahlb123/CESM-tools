@@ -31,3 +31,4 @@ for file in files:
     f.close()
 
 df.to_csv(os.path.join(os.getcwd(), 'lens-bias.csv'))
+print('saved to ' + os.path.join(os.getcwd(), 'lens-bias.csv'))
