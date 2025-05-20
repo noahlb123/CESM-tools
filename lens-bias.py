@@ -16,7 +16,7 @@ dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
 ice_coords = T.get_ice_coords(index_path, dupe_path)
 df = pd.DataFrame(columns=files + list(ice_coords.keys()))
 lens_data = pd.read_csv('data/model-ice-depo/lens/lens.csv')
-lens_data = lens_data.set_index('Unnamed: 0').drop(['pi'], axis=0).mean(axis=1)
+lens_data = lens_data.set_index('Unnamed: 0').drop(['pi'], axis=0).mean(axis=0)
 print(lens_data)
 exit()
 
