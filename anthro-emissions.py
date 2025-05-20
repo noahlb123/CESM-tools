@@ -204,7 +204,7 @@ elif mode == 'r': #ratios plotted on robinson globe
                         
             #plot
             ax.set_title(key)
-            ax.add_feature(cartopy.feature.OCEAN, zorder=9, facecolor='white', edgecolor='grey')
+            ax.add_feature(cartopy.feature.OCEAN, zorder=9, facecolor='white', edgecolor='black')
             #ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
             ax.pcolormesh(lon, lat, arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
 
