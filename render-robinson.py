@@ -37,7 +37,7 @@ try:
     if vmin == 0:
         vmin = vmax / 100
 except:
-    vmin, vmax = (0.1, 1000)
+    vmin, vmax = (0.1, 100)
 c_norm = LogNorm(vmin=vmin, vmax=vmax)
 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
