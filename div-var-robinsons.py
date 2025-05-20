@@ -136,10 +136,13 @@ if step == '2' or step == 'a': #plot
 
                 #color
                 cmap = colormaps['BrBG_r'] if op == 'D' else colormaps['viridis']
-                cmaplist = [cmap(i) for i in range(cmap.N)]
-                cmap = LinearSegmentedColormap.from_list('Custom cmap', cmaplist, cmap.N)
-                bounds = [round(x, 1) for x in np.linspace(0, 2, 10)]
-                c_norm = BoundaryNorm(bounds, cmap.N)
+                if op == 'D':
+                    cmaplist = [cmap(i) for i in range(cmap.N)]
+                    cmap = LinearSegmentedColormap.from_list('Custom cmap', cmaplist, cmap.N)
+                    bounds = [0, 0.2, 0.4, 0.5, 0.9, 1.1, 1.5, 2, 4, 10]
+                    c_norm = BoundaryNorm(bounds, cmap.N)
+                else:
+                    c_norm = LogNorm(vmin=0.1, vmax=100)
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
                 #plot
