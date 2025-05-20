@@ -91,6 +91,7 @@ if step == '2' or step == 'a': #plot
         return m
 
     def normalize(m):
+        return m
         m = mask_zeros(m)
         min = np.nanmin(np.ma.masked_invalid(m))
         max = np.nanmax(np.ma.masked_invalid(m))
