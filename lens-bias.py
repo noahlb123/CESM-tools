@@ -17,7 +17,7 @@ ice_coords = T.get_ice_coords(index_path, dupe_path)
 df = pd.DataFrame(columns=files + list(ice_coords.keys()))
 lens_data = pd.read_csv('/glade/derecho/scratch/nlbills/all-ice-core-data/lens.csv')
 #lens_data.drop(['pi'], axis=0)
-print(lens_data)
+print(lens_data.columns)
 exit()
 
 for file in files:
