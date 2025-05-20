@@ -145,7 +145,7 @@ if step == '2' or step == 'a': #plot
                     bounds = [0.1, 0.2, 0.4, 0.7, 0.9, 1.1, 1.3, 1.6, 2, 3]
                     c_norm = BoundaryNorm(bounds, cmap.N)
                 else:
-                    c_norm = LogNorm(vmin=0.1, vmax=100)
+                    c_norm = LogNorm(vmin=1, vmax=10)
                 sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
                 #plot
