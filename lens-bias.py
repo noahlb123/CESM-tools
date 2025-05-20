@@ -15,9 +15,10 @@ index_path = 'data/standardized-ice-cores/index.csv'
 dupe_path = 'data/standardized-ice-cores/index-dup-cores.csv'
 ice_coords = T.get_ice_coords(index_path, dupe_path)
 df = pd.DataFrame(columns=files + list(ice_coords.keys()))
-lens_data = pd.read_csv('/glade/derecho/scratch/nlbills/all-ice-core-data/lens.csv')
-#lens_data.drop(['pi'], axis=0)
-print(lens_data.columns)
+lens_data = pd.read_csv('data/model-ice-depo/lens/lens.csv')
+lens_data.set_index('Unnamed: 0')
+lens_data.drop(['pi'], axis=0)
+print(lens_data)
 exit()
 
 for file in files:
