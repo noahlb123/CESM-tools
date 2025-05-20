@@ -139,8 +139,6 @@ elif mode == 'r': #ratios plotted on robinson globe
             lon_max = T.nearest_search(ncdf_dict['hoesly-pd']['lons'], box[3])
             for key in final_mats.keys():
                 df.loc[key + ':' + str(i), region] = np.mean(final_mats[key][lat_min:lat_max, lon_min:lon_max])
-    print(df)
-    exit()
     df.to_csv(os.path.join(os.getcwd(), 'anthro-ratios.csv'))
     print('saved to ' + os.path.join(os.getcwd(), 'anthro-ratios.csv'))
 
