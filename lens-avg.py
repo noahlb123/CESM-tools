@@ -13,7 +13,7 @@ root_path = os.path.join(os.getcwd(), 'data', 'model-ice-depo', 'lens')
 lvls = [30]
 windows = [25]
 shapes = [1] #(4, 8)
-n_samples = {5: 1, 10: 3, 20: 5}
+n_samples = {5: 1, 10: 3, 20: 5, 25: 25}
 
 for lvl in lvls:
     for shape in shapes:
