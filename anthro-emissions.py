@@ -223,7 +223,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     #test hoesly high values
     plt.close()
     fig, ax = plt.subplots()
-    plt.hist([np.ndarray.flatten(ncdf_dict['hoesly-pi']['arr']), np.ndarray.flatten(ncdf_dict['hoesly-pd']['arr'])], label=['pi', 'pd'])
+    plt.hist([np.ndarray.flatten(ncdf_dict['hoesly-pi']['arr']), np.ndarray.flatten(ncdf_dict['hoesly-pd']['arr'])], bins=[10**x for x in [-100, -50, -20, -15, -14, -13, -12, -11, -10, -9]],label=['pi', 'pd'])
     plt.legend()
     ax.get_xaxis().get_major_formatter().labelOnlyBase = False
     ax.set_yscale('log')
