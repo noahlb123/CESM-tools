@@ -121,6 +121,9 @@ elif mode == 'r': #ratios plotted on robinson globe
         #d['arr'][d['arr'] == 0] = 1
         f.close()
     print('extracting ratios...')
+    #fix very low values:
+    ncdf_dict['hoesly-pd']['arr'][ncdf_dict['hoesly-pd']['arr'] < 10**-25] = 0
+    ncdf_dict['hoesly-pi']['arr'][ncdf_dict['hoesly-pd']['arr'] < 10**-25] = 0
     final_mats = {
         'Hoesly': np.divide(ncdf_dict['hoesly-pd']['arr'], ncdf_dict['hoesly-pi']['arr']),
         'Marle': np.divide(ncdf_dict['marle-pd']['arr'], ncdf_dict['marle-pi']['arr']),
