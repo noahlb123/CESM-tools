@@ -224,6 +224,8 @@ elif mode == 'r': #ratios plotted on robinson globe
     plt.close()
     fig, ax = plt.subplots(3)
     plt.tight_layout(rect=[0, 0.1, 1, 0.95])
+    plt.ylabel('BC (kg m-2 s-1)')
+    plt.ylabel('Histogram Bins')
     bins = [10**x for x in [-50, -25, -20, -15, -14, -13, -12, -11, -10, -9]]
     labels = [str(bins[i]) + ' to ' + str(bins[i + 1]) for i in range(len(bins) - 1)]
     ax[0].hist([np.ndarray.flatten(ncdf_dict['hoesly-pi']['arr']), np.ndarray.flatten(ncdf_dict['hoesly-pd']['arr'])], label=['pi', 'pd'])
@@ -231,18 +233,18 @@ elif mode == 'r': #ratios plotted on robinson globe
     ax[0].set_yscale('log')
     ax[0].legend()
     ax[0].set_title('Hoesly PI & PD BC Emission Histogram')
-    ax[0].ylabel('BC (kg m-2 s-1)')
+    #ax[0].ylabel('BC (kg m-2 s-1)')
     ax[1].bar(labels, np.histogram(np.ndarray.flatten(ncdf_dict['hoesly-pd']['arr']), bins=bins)[0], color='#ff7f0e')
     ax[1].set_title('Expanded Bins')
     ax[1].get_xaxis().get_major_formatter().labelOnlyBase = False
     ax[1].set_yscale('log')
     ax[1].tick_params(axis='x', labelrotation=15)
-    ax[1].ylabel('BC (kg m-2 s-1)')
+    #ax[1].ylabel('BC (kg m-2 s-1)')
     ax[2].bar(labels, np.histogram(np.ndarray.flatten(ncdf_dict['hoesly-pi']['arr']), bins=bins)[0])
     #ax[2].set_title('PI Expanded Bins')
     ax[2].get_xaxis().get_major_formatter().labelOnlyBase = False
     ax[2].set_yscale('log')
     ax[2].tick_params(axis='x', labelrotation=15)
-    ax[2].ylabel('BC (kg m-2 s-1)')
+    #ax[2].ylabel('BC (kg m-2 s-1)')
     #plt.subplots_adjust(hspace = 0.5)
     plt.savefig(os.path.join(os.getcwd(), 'anthro-hist.png'), dpi=200)
