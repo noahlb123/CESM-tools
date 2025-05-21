@@ -241,4 +241,5 @@ elif mode == 'r': #ratios plotted on robinson globe
     ax[2].get_xaxis().get_major_formatter().labelOnlyBase = False
     ax[2].set_yscale('log')
     ax[2].tick_params(axis='x', labelrotation=15)
+    plt.subplots_adjust(bottom = 0.1)
     plt.savefig(os.path.join(os.getcwd(), 'anthro-hist.png'), dpi=200)
