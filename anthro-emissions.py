@@ -222,13 +222,14 @@ elif mode == 'r': #ratios plotted on robinson globe
 
     #test hoesly high values
     plt.close()
-    fig, ax = plt.subplots()
-    plt.hist([np.ndarray.flatten(ncdf_dict['hoesly-pi']['arr']), np.ndarray.flatten(ncdf_dict['hoesly-pd']['arr'])], bins=[10**x for x in [-100, -50, -20, -15, -14, -13, -12, -11, -10, -9]],label=['pi', 'pd'])
-    plt.legend()
-    ax.get_xaxis().get_major_formatter().labelOnlyBase = False
-    ax.set_yscale('log')
+    fig, ax = plt.subplots(3)
+    bins = [10**x for x in [-100, -50, -20, -15, -14, -13, -12, -11, -10, -9]]
+    labels = [bins[i] + ' to ' + bins[i + 1] for i in range(len(bins) - 1)]
+    ax[0].hist([np.ndarray.flatten(ncdf_dict['hoesly-pi']['arr']), np.ndarray.flatten(ncdf_dict['hoesly-pd']['arr'])], bins=bins)
+    ax[0].get_xaxis().get_major_formatter().labelOnlyBase = False
+    ax[0].set_yscale('log')
+    ax[1].bar(labels, np.histogram(np.ndarray.flatten(ncdf_dict['hoesly-pd']['arr']), bins=bins))
+    ax[1].set_title('pd')
+    ax[2].bar(labels, np.histogram(np.ndarray.flatten(ncdf_dict['hoesly-pi']['arr']), bins=bins))
+    ax[2].set_title('pi')
     plt.savefig(os.path.join(os.getcwd(), 'anthro-hist.png'), dpi=200)
-    print('pd:')
-    print(np.histogram(np.ndarray.flatten(ncdf_dict['hoesly-pd']['arr']), bins=[10**x for x in [-100, -50, -20, -15, -14, -13, -12, -11, -10, -9]]))
-    print('pi:')
-    print(np.histogram(np.ndarray.flatten(ncdf_dict['hoesly-pi']['arr']), bins=[10**x for x in [-100, -50, -20, -15, -14, -13, -12, -11, -10, -9]]))
