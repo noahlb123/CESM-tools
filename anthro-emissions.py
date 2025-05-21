@@ -231,12 +231,12 @@ elif mode == 'r': #ratios plotted on robinson globe
     ax[0].set_yscale('log')
     ax[0].legend()
     ax[0].set_title('Hoesly PI & PD BC Emission Histogram')
-    ax[1].bar(labels, np.histogram(np.ndarray.flatten(ncdf_dict['hoesly-pd']['arr']), bins=bins)[0])
+    ax[1].bar(labels, np.histogram(np.ndarray.flatten(ncdf_dict['hoesly-pd']['arr']), bins=bins)[0], color='#ff7f0e')
     ax[1].set_title('Expanded Bins')
     ax[1].get_xaxis().get_major_formatter().labelOnlyBase = False
     ax[1].set_yscale('log')
     ax[1].tick_params(axis='x', labelrotation=15)
-    ax[2].bar(labels, np.histogram(np.ndarray.flatten(ncdf_dict['hoesly-pi']['arr']), bins=bins)[0], color='#ff7f0e')
+    ax[2].bar(labels, np.histogram(np.ndarray.flatten(ncdf_dict['hoesly-pi']['arr']), bins=bins)[0])
     #ax[2].set_title('PI Expanded Bins')
     ax[2].get_xaxis().get_major_formatter().labelOnlyBase = False
     ax[2].set_yscale('log')
