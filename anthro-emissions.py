@@ -226,9 +226,9 @@ elif mode == 'r': #ratios plotted on robinson globe
     #test hoesly high values
     plt.close()
     fig, ax = plt.subplots(3)
-    plt.tight_layout(rect=[0.2, 0.2, 1, 0.95])
+    plt.tight_layout(rect=[0.1, 0.1, 1, 0.95])
     plt.ylabel('BC (kg m-2 s-1)')
-    plt.ylabel('Histogram Bins')
+    plt.xlabel('Histogram Bins')
     bins = [10**x for x in [-50, -25, -20, -15, -14, -13, -12, -11, -10, -9]]
     labels = [str(bins[i]) + ' to ' + str(bins[i + 1]) for i in range(len(bins) - 1)]
     ax[0].hist([np.ndarray.flatten(ncdf_dict['hoesly-pi']['arr']), np.ndarray.flatten(ncdf_dict['hoesly-pd']['arr'])], label=['pi', 'pd'])
