@@ -224,7 +224,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     plt.close()
     fig, ax = plt.subplots(3)
     plt.tight_layout()
-    bins = [10**x for x in [-100, -50, -20, -15, -14, -13, -12, -11, -10, -9]]
+    bins = [10**x for x in [-50, -20, -15, -14, -13, -12, -11, -10, -9]]
     labels = [str(bins[i]) + ' to ' + str(bins[i + 1]) for i in range(len(bins) - 1)]
     ax[0].hist([np.ndarray.flatten(ncdf_dict['hoesly-pi']['arr']), np.ndarray.flatten(ncdf_dict['hoesly-pd']['arr'])])
     ax[0].get_xaxis().get_major_formatter().labelOnlyBase = False
@@ -235,10 +235,10 @@ elif mode == 'r': #ratios plotted on robinson globe
     ax[1].set_title('PD Expanded Bins')
     ax[1].get_xaxis().get_major_formatter().labelOnlyBase = False
     ax[1].set_yscale('log')
-    ax[1].tick_params(axis='x', labelrotation=90)
+    ax[1].tick_params(axis='x', labelrotation=45)
     ax[2].bar(labels, np.histogram(np.ndarray.flatten(ncdf_dict['hoesly-pi']['arr']), bins=bins)[0])
     ax[2].set_title('PI Expanded Bins')
     ax[2].get_xaxis().get_major_formatter().labelOnlyBase = False
     ax[2].set_yscale('log')
-    ax[2].tick_params(axis='x', labelrotation=90)
+    ax[2].tick_params(axis='x', labelrotation=45)
     plt.savefig(os.path.join(os.getcwd(), 'anthro-hist.png'), dpi=200)
