@@ -122,10 +122,10 @@ elif mode == 'r': #ratios plotted on robinson globe
         f.close()
     print('extracting ratios...')
     #fix very low values:
-    print('min before', np.min(np.nonzero(ncdf_dict['hoesly-pi']['arr'])), np.min(np.nonzero(ncdf_dict['hoesly-pd']['arr'])))
+    print('min before', np.min(ncdf_dict['hoesly-pi']['arr'][np.nonzero(ncdf_dict['hoesly-pi']['arr'])]), np.min(ncdf_dict['hoesly-pd']['arr'][np.nonzero(ncdf_dict['hoesly-pd']['arr'])]))
     ncdf_dict['hoesly-pd']['arr'][ncdf_dict['hoesly-pd']['arr'] < 10**-20] = 0
     ncdf_dict['hoesly-pi']['arr'][ncdf_dict['hoesly-pi']['arr'] < 10**-20] = 0
-    print('min after', np.min(np.nonzero(ncdf_dict['hoesly-pi']['arr'])), np.min(np.nonzero(ncdf_dict['hoesly-pd']['arr'])))
+    print('min after', np.min(ncdf_dict['hoesly-pi']['arr'][np.nonzero(ncdf_dict['hoesly-pi']['arr'])]), np.min(ncdf_dict['hoesly-pd']['arr'][np.nonzero(ncdf_dict['hoesly-pd']['arr'])]))
     final_mats = {
         'Hoesly': np.divide(ncdf_dict['hoesly-pd']['arr'], ncdf_dict['hoesly-pi']['arr']),
         'Marle': np.divide(ncdf_dict['marle-pd']['arr'], ncdf_dict['marle-pi']['arr']),
