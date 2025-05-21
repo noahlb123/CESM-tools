@@ -223,7 +223,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     #test hoesly high values
     plt.close()
     fig, ax = plt.subplots(3)
-    plt.tight_layout(rect=[0, 0.1, 1, 0.95])
+    plt.tight_layout(rect=[0.5, 0.5, 1, 0.95])
     plt.ylabel('BC (kg m-2 s-1)')
     plt.ylabel('Histogram Bins')
     bins = [10**x for x in [-50, -25, -20, -15, -14, -13, -12, -11, -10, -9]]
