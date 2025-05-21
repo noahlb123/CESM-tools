@@ -219,3 +219,8 @@ elif mode == 'r': #ratios plotted on robinson globe
     plt.savefig(os.path.join(os.getcwd(), 'anthro-fig.png'), dpi=200)
     print('saved to ' + os.path.join(os.getcwd(), 'anthro-fig.png'))
     print('saved to ' + os.path.join(os.getcwd(), 'anthro-ratios.csv'))
+
+    #test hoesly high values
+    plt.close()
+    plt.hist([np.ndarray.flatten(ncdf_dict['hoesly-pi']['arr']), np.ndarray.flatten(ncdf_dict['hoesly-pd']['arr'])], label=['pi', 'pd'])
+    plt.savefig(os.path.join(os.getcwd(), 'anthro-hist.png'), dpi=200)

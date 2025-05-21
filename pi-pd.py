@@ -70,6 +70,7 @@ patches = { #Okabe and Ito colorblind pallet
     #'Middle east': (30, 23.5, 30, s_g - 23.5, '#DDA138'),
     'Africa': (-20, 23.5, 80, -58.5, '#000000', '#000000'),
     'Asia': (60, 5, 90, a_p - 5, '#459B76', '#000000'), #'#459B76')
+    'Alaska': (0, 0, 0, 0, 0, '#2C72AD', '#000000'),
 }
 '''
     'Greenland': (-55, s_g, 35, 90 - s_g, '#880D1E'),
@@ -808,9 +809,6 @@ elif (inp == 'l'):
         #bar_labels = list(region_filename.keys())
         bar_labels = ['Arctic', 'North Greenland', 'South Greenland', 'Antarctica', 'Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica']
         bar_colors = [patches[s][-1] + '30' for s in bar_labels]
-        for i in range(len(bar_labels)):
-            print(bar_labels[i], bar_colors[i])
-        exit()
         bar_width = 1
         max_box_height = df.drop('core index', axis=1).max(numeric_only=True).max()
         box_heights = []
@@ -844,12 +842,13 @@ elif (inp == 'l'):
         #bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors, zorder=0)
         y_ticks = [0.3, 0.5, 1, 2, 4, 7, 10, 20]
         max_box_height = np.max([max_box_height + 0.1] + y_ticks)
-        bars = ax.bar(x + width * 1.5, max_box_height, bar_width - 0.03, color=bar_colors, zorder=0)
+        spacing = width * 1.5
+        bars = ax.bar(x + spacing, max_box_height, bar_width - 0.03, color=bar_colors, zorder=0)
         bar_labels[bar_labels.index('South ZAmerica')] = 'South America'
         plt.xticks(rotation=90)
         ax.set_yscale('log')
-        ax.set_xticks(x + width * 1.5, bar_labels)
-        ax.set_xlim([x[0] + width * 1.5 - bar_width / 2, x[-1] + width * 1.5 + bar_width / 2])
+        ax.set_xticks(x + spacing, bar_labels)
+        ax.set_xlim([x[0] + spacing - bar_width / 2, x[-1] + spacing + bar_width / 2])
         ax.set_ylim([0.2, max_box_height])
         ax.set_yticks(y_ticks)
         ax.set_ylabel("1980/1850 Ratio")
@@ -948,7 +947,6 @@ elif (inp == 'l'):
         filenames = [x['filename'] for x in main_dict.values()]
         ratios = [x['ratio'] for x in main_dict.values()]
         index = [i + 1 for i in range(len(filenames))]
-        new_regions = ['South ZAmerica', 'North America', 'Alaska', 'Europe', 'Africa', 'Asia']
         new_region_map = filename_region
         new_region_map['zhang-2024-12.csv'] = 'Alaska'
         new_region_map['zhang-2024-11.csv'] = 'Alaska'
@@ -956,39 +954,54 @@ elif (inp == 'l'):
             'core index': pd.Series(index, index=filenames),
             'region': pd.Series([new_region_map[i] for i in filenames], index=filenames),
             'Ice Core': pd.Series(ratios, index=filenames),
-            'CESM': pd.Series(bar_means['CESM'], index=order_of_columns),
             }, index=filenames)
-        print(df['CESM'])
-        exit()
+        anth_df = pd.read_csv(os.path.join('data', 'model-ice-depo', 'anthro-ratios.csv'))
+        anth_df['Method'] = anth_df['Unnamed: 0'].apply(lambda s: s.split(':')[0])
+        anth_df = anth_df.set_index('Unnamed: 0').rename(columns={'USA': 'North America'})
         #reformat data
         region_filename = t.invert_dict_list(filename_region)
         #sorted_regions = list(region_filename.keys())
         #sorted_regions.sort()
-        sorted_regions = ['Arctic', 'North Greenland', 'South Greenland', 'Antarctica', 'Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica']
+        sorted_regions = ['Alaska', 'Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica']
         region_filename = {i: region_filename[i] for i in sorted_regions}
         data = {model: [] for model in df.columns}
         del data['core index'], data['region']
-        for model in data.keys():
-            for region in region_filename.keys():
+        for region in region_filename.keys():
+            for model in data.keys():
                 data[model].append(df[df['region'] == region][model])
+        #add anth methods
+        bad_methods = {'Hoesly+MarlePD'}
+        for method in anth_df['Method']:
+            if method not in bad_methods:
+                data[method] = []
+        used_methods = set()
+        for method in anth_df['Method']:
+            if method in bad_methods:
+                continue
+            if not method in used_methods:
+                for region in region_filename.keys():
+                    used_methods.add(method)
+                    data[method].append(anth_df[anth_df['Method'] == method][region.replace('ZAmerica', 'America')])
         #plot
         fig, ax = plt.subplots(layout='constrained')
         x = np.arange(len(region_filename.keys()))
         multiplier = 0
         width = 0.2
         #bar_labels = list(region_filename.keys())
-        bar_labels = ['Arctic', 'North Greenland', 'South Greenland', 'Antarctica', 'Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica']
-        bar_colors = [patches[s][-1] + '30' for s in bar_labels]
-        for i in range(len(bar_labels)):
-            print(bar_labels[i], bar_colors[i])
-        exit()
+        bar_labels = list(region_filename.keys())
+        bar_colors = [patches[s][-2] + '30' for s in bar_labels]
         bar_width = 1
-        max_box_height = df.drop('core index', axis=1).max(numeric_only=True).max()
+        max_box_height = 0
+        for model in data.keys():
+            for l in data[model]:
+                if np.max(l) > max_box_height:
+                    max_box_height = np.max(l)
+        anth_model_map = {'Hoesly': 'CESM', 'Marle': 'CMIP6', 'Hoesly+MarlePI': 'LENS', 'Hoesly+MarlePD': 'mmrbc', 'Hoesly+MarlePD/PI': 'CESM-SOOTSN', 'Ice Core': 'Ice Core'}
         box_heights = []
-        for model in df.keys():
+        for model in data.keys():
             if model in ['core index', 'region']:
                 continue
-            c = model_colors[model]
+            c = model_colors[anth_model_map[model]]
             ca = c + '90'
             offset = (width) * multiplier
             for i in range(len(data[model])):
@@ -1015,12 +1028,13 @@ elif (inp == 'l'):
         #bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors, zorder=0)
         y_ticks = [0.3, 0.5, 1, 2, 4, 7, 10, 20]
         max_box_height = np.max([max_box_height + 0.1] + y_ticks)
-        bars = ax.bar(x + width * 1.5, max_box_height, bar_width - 0.03, color=bar_colors, zorder=0)
+        spacing = width * 2
+        bars = ax.bar(x + spacing, max_box_height, bar_width, color=bar_colors, zorder=0)
         bar_labels[bar_labels.index('South ZAmerica')] = 'South America'
         plt.xticks(rotation=90)
         ax.set_yscale('log')
-        ax.set_xticks(x + width * 1.5, bar_labels)
-        ax.set_xlim([x[0] + width * 1.5 - bar_width / 2, x[-1] + width * 1.5 + bar_width / 2])
+        ax.set_xticks(x + spacing, bar_labels)
+        ax.set_xlim([x[0] + spacing - bar_width / 2, x[-1] + spacing + bar_width / 2])
         ax.set_ylim([0.2, max_box_height])
         ax.set_yticks(y_ticks)
         ax.set_ylabel("1980/1850 Ratio")
@@ -1030,16 +1044,17 @@ elif (inp == 'l'):
         legend_handels = []
         legend_names = {'CMIP6': 'CMIP6 (8 models)', 'CESM': 'CESM (1 model)', 'LENS': 'LENS (1 model)', 'LENS-Bias': 'LENS-Bias', 'Ice Core': 'Ice Core', 'mmrbc': 'mmrbc'}
         for model in data.keys():
-            legend_handels.append(Patch(label=legend_names[model], facecolor=model_colors[model]))
+            legend_handels.append(Patch(label=model, facecolor=model_colors[anth_model_map[model]]))
         ax.legend(handles=legend_handels, loc=9, bbox_to_anchor=(-0.05, -0.15))
         #axis labels colors
         for a in plt.gcf().get_axes():
             for i in range(len(bar_labels)):
                 label = bar_labels[i].replace('South America', 'South ZAmerica')
-                color = patches[label][-1]
+                color = patches[label][-2]
                 a.get_xticklabels()[i].set_color(color)
-        plt.savefig('figures/ice-cores/test-new-main.png', bbox_inches='tight', pad_inches=0.1, dpi=300)
+        plt.savefig('figures/ice-cores/test-new-main-anth.png', bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close()
+        print('saved as ' + 'figures/ice-cores/test-new-main-anth.png')
     #plot antartica supersets
     elif len(sys.argv) >= 3 and sys.argv[2] == 'ant':
         #setup east and west
@@ -1368,7 +1383,6 @@ elif (inp == 'ets'): #breakdown of how timeseries become pd/pi
         t_series_max = np.max(BC[t.nearest_search(Yr, 1850.49):t.nearest_search(Yr, 1980)]) * 1.1
         t_series_max += 0.3 if file == 'mcconnell-2021-5.csv' else 0
         #plot
-        print(windows)
         p_i, pi_center = plot_from_avg(t.simplified_avg(Yr, BC, 1850.49 + 25/2, windows), 'black', 'PI')
         p_d, pd_center = plot_from_avg(t.simplified_avg(Yr, BC, 1967.5, windows), 'black', 'PD')
         #plt.bar(pi_center, t_series_max, width=windows[0], color='#CC397C90')
@@ -1477,7 +1491,6 @@ elif (inp == 'cmpwin'): #compare which averaging window is closest to bugged met
     plt.ylabel('fix ratio')
     plt.show()
     plt.close()
-    exit()
     #plot some histograms
     for method in ['bugged', '25']:
         for prefix in ['pd', 'pi']:
@@ -1570,6 +1583,25 @@ elif (inp == 'methods'):#bar chart for ice core analysis methods
     plt.bar(bc_df.columns, [7, 1 ])
     plt.savefig('figures/ice-cores/test-methods-bc.png', dpi=200)
     plt.close()
+elif (inp == 'quick-lens-bias-boxplot'):
+    df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'lens-bias.csv')).set_index('Unnamed: 0').replace(to_replace='--', value=np.nan)
+    data = [[x['ratio'] for x in main_dict.values()]]
+    labels = ['ice core']
+    colors = ['#6C62E7']
+    for index in df.index:
+        d = [float(x) for x in df.loc[index]]
+        print(np.count_nonzero(~np.isnan(d)))
+        data.append(d)
+        labels.append(index.split('/')[-1].replace('.csv', '').replace('.nc', ''))
+        colors.append('#CC397C')
+    fig, ax = plt.subplots()
+    ax.set_ylabel('ratio')
+    bplot = ax.boxplot(data, tick_labels=labels)
+    plt.xticks(rotation=90)
+    plt.ylim((0, 4))
+    plt.tight_layout()
+    plt.title('LENS var bias')
+    plt.savefig('figures/ice-cores/quick-lens-bias-boxplot.png', dpi=200)
 elif (inp == 'z'):#testing
     print()
 
