@@ -224,7 +224,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     plt.close()
     fig, ax = plt.subplots(3)
     bins = [10**x for x in [-100, -50, -20, -15, -14, -13, -12, -11, -10, -9]]
-    labels = [bins[i] + ' to ' + bins[i + 1] for i in range(len(bins) - 1)]
+    labels = [str(bins[i]) + ' to ' + str(bins[i + 1]) for i in range(len(bins) - 1)]
     ax[0].hist([np.ndarray.flatten(ncdf_dict['hoesly-pi']['arr']), np.ndarray.flatten(ncdf_dict['hoesly-pd']['arr'])], bins=bins)
     ax[0].get_xaxis().get_major_formatter().labelOnlyBase = False
     ax[0].set_yscale('log')
