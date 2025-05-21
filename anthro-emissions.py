@@ -122,8 +122,8 @@ elif mode == 'r': #ratios plotted on robinson globe
         f.close()
     print('extracting ratios...')
     #fix very low values:
-    ncdf_dict['hoesly-pd']['arr'][ncdf_dict['hoesly-pd']['arr'] < 10**-25] = 0
-    ncdf_dict['hoesly-pi']['arr'][ncdf_dict['hoesly-pd']['arr'] < 10**-25] = 0
+    ncdf_dict['hoesly-pd']['arr'][ncdf_dict['hoesly-pd']['arr'] < 10**-20] = 0
+    ncdf_dict['hoesly-pi']['arr'][ncdf_dict['hoesly-pd']['arr'] < 10**-20] = 0
     final_mats = {
         'Hoesly': np.divide(ncdf_dict['hoesly-pd']['arr'], ncdf_dict['hoesly-pi']['arr']),
         'Marle': np.divide(ncdf_dict['marle-pd']['arr'], ncdf_dict['marle-pi']['arr']),
@@ -224,7 +224,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     print('saved to ' + os.path.join(os.getcwd(), 'anthro-ratios.csv'))
 
     #test hoesly high values
-    plt.close()
+    '''plt.close()
     fig, ax = plt.subplots(3)
     plt.tight_layout(rect=[0.1, 0.1, 1, 0.95])
     plt.ylabel('BC (kg m-2 s-1)')
@@ -250,4 +250,4 @@ elif mode == 'r': #ratios plotted on robinson globe
     ax[2].tick_params(axis='x', labelrotation=15)
     #ax[2].ylabel('BC (kg m-2 s-1)')
     #plt.subplots_adjust(hspace = 0.5)
-    plt.savefig(os.path.join(os.getcwd(), 'anthro-hist.png'), dpi=200)
+    plt.savefig(os.path.join(os.getcwd(), 'anthro-hist.png'), dpi=200)'''
