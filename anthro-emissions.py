@@ -228,3 +228,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     ax.get_xaxis().get_major_formatter().labelOnlyBase = False
     ax.set_yscale('log')
     plt.savefig(os.path.join(os.getcwd(), 'anthro-hist.png'), dpi=200)
+    print('pd:')
+    print(np.histogram(np.ndarray.flatten(ncdf_dict['hoesly-pd']['arr']), bins=[10**x for x in [-100, -50, -20, -15, -14, -13, -12, -11, -10, -9]]))
+    print('pi:')
+    print(np.histogram(np.ndarray.flatten(ncdf_dict['hoesly-pi']['arr']), bins=[10**x for x in [-100, -50, -20, -15, -14, -13, -12, -11, -10, -9]]))
