@@ -170,7 +170,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     #setup
     col_n, row_n = (2, 2)
     fig, axes = plt.subplots(row_n, col_n, dpi=400, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
-    plt.tight_layout()
+    plt.tight_layout(w_pad=2)
     i_d_map = {i: list(final_mats.keys())[i] for i in range(len(final_mats.keys()))}
 
     #color
@@ -209,7 +209,7 @@ elif mode == 'r': #ratios plotted on robinson globe
                         
             #plot
             ax.set_title(key)
-            ax.add_feature(cartopy.feature.OCEAN, zorder=9, facecolor='white', edgecolor='black')
+            ax.add_feature(cartopy.feature.OCEAN, zorder=9, facecolor='white', edgecolor='black', linewidth=0.5)
             #ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
             ax.pcolormesh(lon, lat, arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
 
