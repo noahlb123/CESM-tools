@@ -982,23 +982,41 @@ elif (inp == 'l'):
                 for region in region_filename.keys():
                     used_methods.add(method)
                     data[method].append(anth_df[anth_df['Method'] == method][region.replace('ZAmerica', 'America')])
-        #plot
-        fig, ax = plt.subplots(layout='constrained')
+        #plot top extremes
+        anth_model_map = {'Hoesly': 'CESM', 'Marle': 'CMIP6', 'Hoesly+MarlePI': 'LENS', 'Hoesly+MarlePD': 'mmrbc', 'Hoesly+MarlePD/PI': 'CESM-SOOTSN', 'Ice Core': 'Ice Core'}
         x = np.arange(len(region_filename.keys()))
         multiplier = 0
         width = 0.2
-        #bar_labels = list(region_filename.keys())
+        spacing = width * 2
+        bar_width = 1
         bar_labels = list(region_filename.keys())
         bar_colors = [patches[s][-2] + '30' for s in bar_labels]
-        bar_width = 1
+        fig, ax = plt.subplots(2, layout='constrained')
+        extremes = json.load(open('data/extreme-anth-values.json'))
+        for model in data.keys():
+            offset = (width) * multiplier
+            c = model_colors[anth_model_map[model]]
+            for i in range(len(data[model])):
+                if extremes[model][i] > 20:
+                    ax[0].scatter(x[i] + offset + 0.1, extremes[model][i], c=c, s=30, marker='x', zorder=2.5)
+            multiplier += 1
+        ax[0].bar(x + spacing + 0.1, 50000, bar_width, color=bar_colors, zorder=0)
+        ax[0].set_yscale('log')
+        ax[0].set_xlim((0, 6))
+        ax[0].set_ylim((20, 50000))
+        ax[0].get_xaxis().set_visible(False)
+        #plot main figure
+        ax = ax[1]
+        multiplier = 0
         max_box_height = 0
         for model in data.keys():
             for l in data[model]:
                 if np.max(l) > max_box_height:
                     max_box_height = np.max(l)
-        anth_model_map = {'Hoesly': 'CESM', 'Marle': 'CMIP6', 'Hoesly+MarlePI': 'LENS', 'Hoesly+MarlePD': 'mmrbc', 'Hoesly+MarlePD/PI': 'CESM-SOOTSN', 'Ice Core': 'Ice Core'}
         box_heights = []
+        for_json = {}
         for model in data.keys():
+            for_json[model] = []
             if model in ['core index', 'region']:
                 continue
             c = model_colors[anth_model_map[model]]
@@ -1006,6 +1024,7 @@ elif (inp == 'l'):
             offset = (width) * multiplier
             for i in range(len(data[model])):
                 pos = x[i] + offset
+                for_json[model].append(np.mean(data[model][i]))
                 if len(data[model][i]) != 2:
                     bplot = ax.boxplot(data[model][i], widths=width, positions=[pos], patch_artist=True, boxprops=dict(facecolor=ca, color=c, linewidth=0), capprops=dict(color=c), medianprops=dict(color='black', linewidth=0), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False, showcaps=False, showmeans=False, showbox=True)
                     for median in bplot['medians']:
@@ -1028,14 +1047,13 @@ elif (inp == 'l'):
         #bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors, zorder=0)
         y_ticks = [0.3, 0.5, 1, 2, 4, 7, 10, 20]
         max_box_height = np.max([max_box_height + 0.1] + y_ticks)
-        spacing = width * 2
         bars = ax.bar(x + spacing, max_box_height, bar_width, color=bar_colors, zorder=0)
         bar_labels[bar_labels.index('South ZAmerica')] = 'South America'
         plt.xticks(rotation=90)
         ax.set_yscale('log')
         ax.set_xticks(x + spacing, bar_labels)
         ax.set_xlim([x[0] + spacing - bar_width / 2, x[-1] + spacing + bar_width / 2])
-        ax.set_ylim([0.2, max_box_height])
+        ax.set_ylim([0.2, 20])
         ax.set_yticks(y_ticks)
         ax.set_ylabel("1980/1850 Ratio")
         ax.set_xlabel("Region")
@@ -1045,7 +1063,7 @@ elif (inp == 'l'):
         legend_names = {'CMIP6': 'CMIP6 (8 models)', 'CESM': 'CESM (1 model)', 'LENS': 'LENS (1 model)', 'LENS-Bias': 'LENS-Bias', 'Ice Core': 'Ice Core', 'mmrbc': 'mmrbc'}
         for model in data.keys():
             legend_handels.append(Patch(label=model, facecolor=model_colors[anth_model_map[model]]))
-        ax.legend(handles=legend_handels, loc=9, bbox_to_anchor=(-0.05, -0.15))
+        ax.legend(handles=legend_handels, loc=9, bbox_to_anchor=(-0.05, -0.15)).set_zorder(0)
         #axis labels colors
         for a in plt.gcf().get_axes():
             for i in range(len(bar_labels)):
@@ -1054,6 +1072,8 @@ elif (inp == 'l'):
                 a.get_xticklabels()[i].set_color(color)
         plt.savefig('figures/ice-cores/test-new-main-anth.png', bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close()
+        with open('data/extreme-anth-values.json', 'w') as f:
+            json.dump(for_json, f)
         print('saved as ' + 'figures/ice-cores/test-new-main-anth.png')
     #plot antartica supersets
     elif len(sys.argv) >= 3 and sys.argv[2] == 'ant':
