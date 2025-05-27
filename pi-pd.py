@@ -955,7 +955,7 @@ elif (inp == 'l'):
             'region': pd.Series([new_region_map[i] for i in filenames], index=filenames),
             'Ice Core': pd.Series(ratios, index=filenames),
             }, index=filenames)
-        anth_df = pd.read_csv(os.path.join('data', 'model-ice-depo', 'anthro-ratios.csv'))
+        anth_df = pd.read_csv(os.path.join('data', 'model-ice-depo', 'anthro-ratios-new.csv'))
         anth_df['Method'] = anth_df['Unnamed: 0'].apply(lambda s: s.split(':')[0])
         anth_df = anth_df.set_index('Unnamed: 0').rename(columns={'USA': 'North America'})
         #reformat data

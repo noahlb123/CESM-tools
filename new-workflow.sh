@@ -30,3 +30,4 @@ python3 nco-timeseries.py loadbc /glade/derecho/scratch/nlbills/cmip-atmos
 
 #anthro emissions
 python3 anthro-emissions.py r
+python3 div-var-robinsons.py a
