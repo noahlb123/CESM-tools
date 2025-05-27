@@ -100,7 +100,7 @@ if step == '2' or step == 'a': #plot
 
     for op in ['D', 'X']:
         fig, ax = plt.subplots(len(columns), len(index), subplot_kw={'projection': cartopy.crs.Robinson()})
-        fig.tight_layout()
+        fig.tight_layout(rect=(0.2, 0, 1, 1))
         for numo_i in range(len(columns)):
             numo = columns[numo_i]
             print(numo)
