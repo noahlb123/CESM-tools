@@ -170,7 +170,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     #setup
     col_n, row_n = (2, 2)
     fig, axes = plt.subplots(row_n, col_n, dpi=400, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
-    plt.tight_layout(h_pad=5)
+    plt.tight_layout(h_pad=8)
     i_d_map = {i: list(final_mats.keys())[i] for i in range(len(final_mats.keys()))}
 
     #color
@@ -221,7 +221,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     lon_max = T.nearest_search(ncdf_dict['hoesly-pd']['lons'], box[3])
     print('median non-zero North American PI vals (hoesly, marle, marle-converted):', [np.median(arr[lat_min:lat_max, lon_min:lon_max]) for arr in (ncdf_dict['hoesly-pi']['arr'], ncdf_dict['marle-pi']['arr'], convert_marle_units(ncdf_dict['marle-pi']['arr']))])
     
-    plt.savefig(os.path.join(os.getcwd(), 'anthro-fig.png'), dpi=200)
+    plt.savefig(os.path.join(os.getcwd(), 'anthro-fig.png'), dpi=200, bbox_inches='tight')
     print('saved to ' + os.path.join(os.getcwd(), 'anthro-fig.png'))
     print('saved to ' + os.path.join(os.getcwd(), 'anthro-ratios.csv'))
 
