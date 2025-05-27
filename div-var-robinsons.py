@@ -100,7 +100,7 @@ if step == '2' or step == 'a': #plot
 
     for op in ['D', 'X']:
         fig, ax = plt.subplots(len(columns), len(index), subplot_kw={'projection': cartopy.crs.Robinson()})
-        fig.tight_layout(rect=(0.2, 0, 1, 1))
+        fig.tight_layout(rect=(0, 0, 1, 1))
         for numo_i in range(len(columns)):
             numo = columns[numo_i]
             print(numo)
@@ -155,7 +155,7 @@ if step == '2' or step == 'a': #plot
         label = 'X1 (PD/PI) ' + op_s + ' X2 (PD/PI)'
         plt.colorbar(mappable=sm, label=label, orientation="horizontal", ax=ax, extend='both')
         labels = ('1/Max', '1', 'Max') if op == 'D' else ('0.1', '', 'Max')
-        plt.savefig(os.path.join(os.getcwd(), op + '.png'), dpi=200)
+        plt.savefig(os.path.join(os.getcwd(), op + '.png'), dpi=200, bbox_inches='tight')
         print('saved to ' + os.path.join(os.getcwd(), op + '.png'))
 
 print('done.')
