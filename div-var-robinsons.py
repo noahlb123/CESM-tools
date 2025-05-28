@@ -114,7 +114,7 @@ if step == '2' or step == 'a': #plot
                     ax[numo_i, deno_i].text(-0.2, 0.5, numo, size=12, verticalalignment='center', rotation=90, transform=ax[numo_i, deno_i].transAxes)
                 
                 #setup cartopy
-                ax[numo_i, deno_i].add_feature(cartopy.feature.COASTLINE, edgecolor='black')
+                ax[numo_i, deno_i].add_feature(cartopy.feature.COASTLINE, edgecolor='black', linewidth=0.5)
 
                 #get data
                 if numo == deno:
