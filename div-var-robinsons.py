@@ -143,7 +143,7 @@ if step == '2' or step == 'a': #plot
                     cmaplist = [cmap(i) for i in range(cmap.N)]
                     cmap2 = T.custom_cmap([(0.3254901960784314, 0.19215686274509805, 0.01568627450980392), to_rgb('#da00db')])
                     cmaplist2 = [cmap2(i) for i in range(cmap.N)]
-                    n_extra_colors = 4
+                    n_extra_colors = 6
                     extra_colors = [cmaplist2[i * int(np.floor(len(cmaplist2) / (n_extra_colors + 1)))] for i in range(n_extra_colors + 1)]
                     custom_list = ['#003c30', '#0c7169', '#59b0a7', '#b4e1da', '#ffffff', '#f1deb3', '#d0a255', '#995d14', '#533104'] + extra_colors[1:len(extra_colors)]
                     cmap = LinearSegmentedColormap.from_list('Custom cmap', custom_list, cmap.N)
