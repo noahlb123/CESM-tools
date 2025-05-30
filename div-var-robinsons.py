@@ -140,10 +140,10 @@ if step == '2' or step == 'a': #plot
                 cmap = colormaps['BrBG_r'] if op == 'D' else colormaps['viridis']
                 if op == 'D':
                     cmaplist = [cmap(i) for i in range(cmap.N)]
-                    custom_list = ['#01655d', '#35978f', '#7fccc0', '#c7eae5', '#ffffff', '#f6e8c3', '#dfc37e', '#bf812d', '#8d520b']
+                    custom_list = ['#003c30', '#0c7169', '#59b0a7', '#b4e1da', '#ffffff', '#f1deb3', '#d0a255', '#995d14', '#533104'] + ['#00224e', '#18376f', '#424e6c', '#60646f', '#7c7b78', '#9a9376', '#bbad6d', '#ddc858', '#fee838']
                     cmap = LinearSegmentedColormap.from_list('Custom cmap', custom_list, cmap.N)
-                    cmap.set_extremes(under=cmaplist[0], over=cmaplist[-1])
-                    bounds = [0.1, 0.2, 0.4, 0.7, 0.9, 1.1, 1.3, 1.6, 2, 3]
+                    cmap.set_extremes(over='#ff0000')
+                    bounds = [round(x, 1) for x in np.linspace(0, 2, 10)] + [3, 4, 5, 6, 7, 8, 9]
                     c_norm = BoundaryNorm(bounds, cmap.N)
                 else:
                     c_norm = LogNorm(vmin=1, vmax=10)
