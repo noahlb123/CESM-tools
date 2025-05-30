@@ -147,7 +147,7 @@ if step == '2' or step == 'a': #plot
                     custom_list = ['#003c30', '#0c7169', '#59b0a7', '#b4e1da', '#ffffff', '#f1deb3', '#d0a255', '#995d14', '#533104'] + extra_colors[1:len(extra_colors)]
                     cmap = LinearSegmentedColormap.from_list('Custom cmap', custom_list, cmap.N)
                     #cmap.set_extremes(over='#ff0000')
-                    bounds = [round(x, 1) for x in np.linspace(0, 2, 10)] + [2 + i * (6 - 2) / n_extra_colors for i in range(n_extra_colors)]
+                    bounds = [round(x, 1) for x in np.linspace(0, 2, 10)] + [2 + i * (6 - 2) / (n_extra_colors + 1) for i in range((n_extra_colors + 1))][1:-1]
                     print(len(['#003c30', '#0c7169', '#59b0a7', '#b4e1da', '#ffffff', '#f1deb3', '#d0a255', '#995d14', '#533104']), len([round(x, 1) for x in np.linspace(0, 2, 10)]))
                     print(len(custom_list), len(bounds))
                     c_norm = BoundaryNorm(bounds, cmap.N)
