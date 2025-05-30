@@ -141,7 +141,7 @@ if step == '2' or step == 'a': #plot
                 if op == 'D':
                     cmaplist = [cmap(i) for i in range(cmap.N)]
                     cmap2 = T.custom_cmap([(0.3254901960784314, 0.19215686274509805, 0.01568627450980392), (0.996078431372549, 0.9098039215686274, 0.2196078431372549)])
-                    cmaplist2 = [cmap(i) for i in range(cmap.N)]
+                    cmaplist2 = [cmap2(i) for i in range(cmap.N)]
                     custom_list = ['#003c30', '#0c7169', '#59b0a7', '#b4e1da', '#ffffff', '#f1deb3', '#d0a255', '#995d14', '#533104'] + [cmaplist2[i * int(np.floor(len(cmaplist2) / 9))] for i in range(9)]
                     cmap = LinearSegmentedColormap.from_list('Custom cmap', custom_list, cmap.N)
                     cmap.set_extremes(over='#ff0000')
