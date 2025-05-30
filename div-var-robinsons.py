@@ -143,7 +143,7 @@ if step == '2' or step == 'a': #plot
                     custom_list = ['#003c30', '#0c7169', '#59b0a7', '#b4e1da', '#ffffff', '#f1deb3', '#d0a255', '#995d14', '#533104'] + ['#00224e', '#18376f', '#424e6c', '#60646f', '#7c7b78', '#9a9376', '#bbad6d', '#ddc858', '#fee838']
                     cmap = LinearSegmentedColormap.from_list('Custom cmap', custom_list, cmap.N)
                     cmap.set_extremes(over='#ff0000')
-                    bounds = [round(x, 1) for x in np.linspace(0, 2, 10)] + [3, 4, 5, 6, 7, 8, 9]
+                    bounds = [round(x, 1) for x in np.linspace(0, 2, 10)] + [3, 4, 5, 6, 7, 8, 9, 10, 11]
                     c_norm = BoundaryNorm(bounds, cmap.N)
                 else:
                     c_norm = LogNorm(vmin=1, vmax=10)
