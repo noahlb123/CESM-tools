@@ -81,6 +81,7 @@ if step == '2' or step == 'a': #plot
     import matplotlib.pyplot as plt
     from matplotlib.cm import ScalarMappable
     from matplotlib.colors import LogNorm
+    from matplotlib.colors import to_rgb
     #from matplotlib.colors import Normalize
     from matplotlib.colors import LinearSegmentedColormap
     from matplotlib.colors import BoundaryNorm
@@ -140,7 +141,7 @@ if step == '2' or step == 'a': #plot
                 cmap = colormaps['BrBG_r'] if op == 'D' else colormaps['viridis']
                 if op == 'D':
                     cmaplist = [cmap(i) for i in range(cmap.N)]
-                    cmap2 = T.custom_cmap([(0.3254901960784314, 0.19215686274509805, 0.01568627450980392), (0, 0, 0)])
+                    cmap2 = T.custom_cmap([(0.3254901960784314, 0.19215686274509805, 0.01568627450980392), to_rgb('#da00db')])
                     cmaplist2 = [cmap2(i) for i in range(cmap.N)]
                     n_extra_colors = 4
                     extra_colors = [cmaplist2[i * int(np.floor(len(cmaplist2) / (n_extra_colors + 1)))] for i in range(n_extra_colors + 1)]
