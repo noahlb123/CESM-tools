@@ -112,7 +112,7 @@ def divide_pd_pi(p_d, p_i):
 
 def plot_timeseries_decomp(x, y, name):
     plt.rc('font', size=10)
-    timeseries_windows = [3, 10, 25, 33, 50]
+    timeseries_windows = [10, 25, 33]
     for i in timeseries_windows:
         if len(x) < 2 * i:
             print('length too short for p=', i)
@@ -360,11 +360,12 @@ elif (inp == 'big-table'): #make table comparing individual models
     cmip_binned.columns = cmip_binned.loc['model']
     cmip_binned = cmip_binned.drop(['model'])
     cmip_binned = cmip_binned.join(cmip_binned.mean(axis=1).rename('CMIP6'))
+    cesm = pd.read_csv('data/model-ice-depo/cesm-wetdry/cesm.csv').drop(['Unnamed: 0', 'model'], axis=1).T.mean(axis=1).rename('CESM2')
     lens = pd.read_csv('data/model-ice-depo/lens/lens.csv')
     lens = lens.rename(columns={"Unnamed: 0": "Restart"}).T
     lens.columns = lens.loc['Restart']
     lens = lens.drop(['Restart'])
-    lens = lens.join(lens.mean(axis=1).rename('LENS'))
+    lens = lens.join(lens.mean(axis=1).rename('LENS')).drop(['pi'], axis=1)
     min_restart = 9999999
     min_name = ''
     for column in lens.columns:
@@ -374,24 +375,39 @@ elif (inp == 'big-table'): #make table comparing individual models
             min_restart = diff
             min_name = column
     #print(min_restart, min_name)
-    df = df.join(cmip_binned, how='outer')
+    #df = df.join(cmip_binned, how='outer')
+    df = df.join(cesm, how='outer')
     df = df.join(lens, how='outer')
     df = df[df['Index'].notna()]
     df = df.sort_values('Index')
+    #calcualte n within
+    within_cesm = pd.Series()
+    within_ice = pd.Series()
+    for c_name in df.columns:
+        column = df[c_name]
+        if c_name == 'Index':
+            within_cesm.at[c_name] = -1
+            within_ice.at[c_name] = -1
+        else:
+            within_cesm.at[c_name] = (np.abs(df['CESM2'] - column) < 0.5).sum()
+            within_ice.at[c_name] = (np.abs(df['Ice Core'] - column) < 0.5).sum()
+    df.loc['n near ice core'] = within_ice
+    df.loc['n near CESM2'] = within_cesm
     #setup color scale
     cmap = colormaps['BrBG_r']
     c_norm = Normalize(vmin=0, vmax=2)
-    #plot with color
+    #calcuate red cells and setup colors
     vals = np.vectorize(lambda a : round(a, 3))(df.to_numpy())
     red_mask = np.zeros(np.shape(df))
-    for column in [n + 18 for n in range(18)] + ['LENS']:
-        for i in range(len(df[column])):
+    for column in [str(n + 18) for n in range(18)] + ['LENS']:
+        for i in range(len(df[column]) - 2):
             if np.abs(df['Ice Core'].iloc[i] - df[column].iloc[i]) < 0.1:
                 red_mask[i][df.columns.get_loc(column)] = 1
     fix, ax = plt.subplots(figsize=(4, 2), dpi=300)
     ax.axis('off')
     colors = cmap(c_norm(vals))
     colors[:,0,:] = [1, 1, 1, 1] #make first column white
+    colors[-2:,:,:] = [1, 1, 1, 1] #make last 2 rows white
     for il in range(len(colors)):
         for ic in range(len(colors[il])):
             if red_mask[il][ic]:
@@ -399,6 +415,8 @@ elif (inp == 'big-table'): #make table comparing individual models
     table = plt.table(cellText=vals, colLabels=df.columns, loc='center', cellColours=colors, colWidths=[0.1] * len(df.columns))
     table.auto_set_font_size(False)
     table.set_fontsize(5)
+    df = df[df['Index'] < 0]
+    df.reindex(sorted(df.columns), axis=1).to_csv('data/big-table-within.csv')
     plt.savefig('figures/ice-cores/test-big-table-cmip-models.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
 elif (inp == 'p'): #Plotly
     fig = px.scatter_geo(final_pd, lat='lat', lon='lon', hover_name='filename', title='PD/PI Ratios')
@@ -685,7 +703,6 @@ elif (inp == 'l'):
                 if '+' in model_key:
                     multiplier += 1
                     continue
-                measurement = bar_means[model_key]
                 color = models_colors[model_key]
                 #plot mean bars
                 row = {'Model': model_key}
@@ -907,12 +924,15 @@ elif (inp == 'l'):
         bar_colors = [patches[region2region[s]][-1] + '30' for s in bar_labels]
         bar_width = 1
         box_heights = []
+        for_json = {}
         for model in data.keys():
+            for_json[model] = []
             c = model_colors[model]
             ca = c + '90'
             offset = width * multiplier
             bplot = ax.boxplot(data[model], widths=width, positions=x + offset - width / 2, patch_artist=True, boxprops=dict(facecolor=ca, color=c), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False, showcaps=False, showmeans=False, showbox=True)
             for i in range(len(data[model])):
+                for_json[model].append(np.median(data[model][i]))
                 plt.scatter(len(data[model][i]) * [x[i] + offset - width / 2], data[model][i], c=c, s=8)
                 x_color = 'black'
                 plt.scatter(x[i] + offset - width / 2, np.mean(data[model][i]), c=x_color, s=30, marker='x', zorder=2.5)
@@ -943,6 +963,9 @@ elif (inp == 'l'):
         for i in range(len(bar_labels)):
             color = patches[region2region[bar_labels[i]]][-1]
             ax.get_xticklabels()[i].set_color(color)
+        for_json['regions'] = bar_labels
+        with open('data/var-medians.json', 'w') as f:
+            json.dump(for_json, f)
         plt.savefig('figures/ice-cores/test-var.png', bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close()
     #plot nh anthro emissions
@@ -1052,6 +1075,7 @@ elif (inp == 'l'):
         max_box_height = np.max([max_box_height + 0.1] + y_ticks)
         bars = ax.bar(x + spacing, max_box_height, bar_width, color=bar_colors, zorder=0)
         bar_labels[bar_labels.index('South ZAmerica')] = 'South America'
+        for_json['regions'] = bar_labels
         plt.xticks(rotation=90)
         ax.set_yscale('log')
         ax.set_xticks(x + spacing, bar_labels)
@@ -1558,7 +1582,7 @@ elif (inp == 'yawc'): #year avergeing window comparison
         item["fliers"] = []
         return item
     stats = [
-        bxp_data('5 Year', 2.30, 2.25),
+        bxp_data('5 Year',  2.30, 2.25),
         bxp_data('10 Year', 2.07, 2.38),
         bxp_data('15 Year', 1.88, 1.90),
         bxp_data('20 Year', 1.76, 1.56),
@@ -1573,12 +1597,69 @@ elif (inp == 'yawc'): #year avergeing window comparison
     plt.title('Comparison of Averaging Techniques for PD and PI')
     plt.savefig('figures/ice-cores/test-yawc.png', dpi=300)
 elif (inp == 'tdc'):#timeseries decomposition
-    dta = sm.datasets.co2.load_pandas().data
-    for file in main_dict.keys():
-        print(file)
-        df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', file))
-        df.interpolate(inplace=True)
-        plot_timeseries_decomp(df['Yr'], df['BC'], file)
+    region2region = {'North Pole': 'Arctic', 'South Pole': 'Antarctica', 'Rest': 'Africa'}
+    three_regions = {
+            'North Pole': ['North Greenland', 'South Greenland', 'Arctic'],
+            'South Pole': ['Antarctica'],
+            'Rest': ['Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica'],
+            }
+    periods = [10, 33]#[10, 25, 33]
+    for region, subs in three_regions.items():
+        color = patches[region2region[region]][-1] + '30'
+        index_ex = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', 'zhang-2024-12.csv')).interpolate()['Yr']
+        df_means = pd.DataFrame(index=[i for i in range(len(index_ex))], columns=['Yr'], data=index_ex)
+        for i in periods:
+            df_count = 0
+            fig, ax = plt.subplots(1 + 2 * len(periods), 1, sharex=True)
+            fig.tight_layout(rect=(0.05, 0, 0.95, 1))
+            fig.set_figheight(10)
+            fig.set_figwidth(5)
+            plt.rc('font', size=10)
+            for ax_i in range(2 * len(periods)):
+                if ax_i % 2 == 0:
+                    ax[ax_i].set_title("Seasonal, period=" + str(periods[ax_i // 2]))
+                else:
+                    ax[ax_i].set_title("Trend, period=" + str(periods[ax_i // 2]))
+            ax[-1].set_title("Observation")
+            for ax_i in range(1 + 2 * len(periods)):
+                    ax[ax_i].set_xlim([1850, 1980])
+            for file in main_dict.keys():
+                if (not filename_region[file] in subs):#or (file in ('ruppel-2014-1.csv', 'thompson-2002-1.csv', 'zhang-2024-12.csv', 'eichler-2023-1.csv', 'legrand-2023-1.csv')):
+                    continue
+                df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', file))
+                df.interpolate(inplace=True)
+                x = df['Yr']
+                y = df['BC']
+                if filename_region[file] in three_regions['Rest']:
+                    print(x[len(x)- 1], file)
+                if len(x) < 2 * i:
+                    continue
+                res = sm.tsa.seasonal_decompose(y, period=i)
+                for key, l in {'Seasonal-' + str(i): res.seasonal, 'Trend-' + str(i): res.trend, 'Observation': y}.items():
+                    if df_count == 0:
+                        df_means[key] = l
+                    else:
+                        df_means[key] = np.average([df_means[key], pd.Series(index=df_means.index, data=l)], axis=0, weights=[df_count, 1])
+                df_count += 1
+                for ax_i in range(2 * len(periods)):
+                    if ax_i % 2 == 0:
+                        ax[ax_i].plot(x, res.seasonal, label='seasonal', color=color)
+                    else:
+                        ax[ax_i].plot(x, res.trend, label='trend', color=color)
+                ax[-1].plot(x, y, label='obs', color=color)
+        for ax_i in range(2 * len(periods)):
+            observation = 'Seasonal' if ax_i % 2 == 0 else 'Trend'
+            period = str(periods[ax_i // 2])
+            key = observation + '-' + period
+            ax[ax_i].plot(df_means['Yr'], df_means[key], color='black')#color[0:-2])
+            if observation == 'Seasonal':
+                ax[ax_i].set_ylim((-1.5 * np.max(df_means[key]), 1.5 * np.max(df_means[key])))
+            else:
+                ax[ax_i].set_ylim((0, 1.5 * np.max(df_means[key])))
+        ax[-1].plot(df_means['Yr'], df_means['Observation'], color='black')
+        ax[-1].set_ylim((0, 1.5 * np.max(df_means['Observation'])))
+        plt.savefig('figures/ice-cores/decomposition/' + region + '.png', dpi=200)
+        plt.close()
 elif (inp == 'lat-plt'):#lat vs ratio greenland plot
     lats = []
     ratios = []
@@ -1632,6 +1713,15 @@ elif (inp == 'quick-lens-bias-boxplot'):
     plt.title('LENS var bias')
     plt.savefig('figures/ice-cores/quick-lens-bias-boxplot.png', dpi=200)
 elif (inp == 'z'):#testing
-    print()
+    for file in main_dict.keys():
+        df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', file))
+        df.interpolate(inplace=True)
+        x = df['Yr']
+        y = df['BC']
+        plt.plot(x, y)
+        plt.title(file)
+        plt.show()
+        plt.close()
+
 
 print("n=" + str(len(main_dict)))
