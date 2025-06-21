@@ -77,7 +77,7 @@ patches = { #Okabe and Ito colorblind pallet
     'East Antarctica': (-180, -60, 180, -30, '#000000'),
     'West Antarctica': (0, -60, 180, -30, '#6CB3E4'),'''
 #IBM Design Library colorblind pallet https://www.nceas.ucsb.edu/sites/default/files/2022-06/Colorblind%20Safe%20Color%20Schemes.pdf
-model_colors = {'CESM': '#EE692C', 'CMIP6': '#CC397C', 'Ice Core': '#6C62E7', 'CESM-SOOTSN': '#638FF6', 'LENS': '#F5B341', 'LENS-Bias': '#CC397C', 'loadbc': '#CC397C', 'mmrbc': '#F5B341', 'Anthro Emissions': '#638FF6'}
+model_colors = {'CESM': '#EE692C', 'CMIP6': '#CC397C', 'Ice Core': '#6C62E7', 'CESM-SOOTSN': '#638FF6', 'LENS': '#F5B341', 'LENS-Bias': '#CC397C', 'loadbc': '#CC397C', 'mmrbc': '#F5B341', 'Anthro Emissions': '#638FF6', 'LENS-18': '#EE692C', 'LENS-25': '#F5B341'}
 
 def within_patch(lat, lon, patch, name):
     lat_min, lat_max, lon_min, lon_max = t.patch_min_max(patch)
@@ -176,7 +176,8 @@ for index, row in p.iterrows():
         if len(sys.argv) >= 2 and sys.argv[1] == 'n':
             big_table_years = {'1750': None, '1800': None, '1850': None, '1900': None, '1950': None, '1980': None}
             for key in big_table_years.keys():
-                a_temp, y_temp, temp, temp = t.simplified_avg(Yr, BC, int(key), windows)
+                mod_year = int(key) - (windows[0] / 2) if int(key) > 1900 else int(key) + (windows[0] / 2)
+                a_temp, y_temp, temp, temp = t.simplified_avg(Yr, BC, mod_year, windows)
                 big_table_years[key] = a_temp[windows[0]]
         #add data to datasets
         if (y1 != None and y3 != None and abs(y1 - y3) >= 85):
@@ -262,10 +263,11 @@ elif (inp == 'd'): #pd hists
     plt.savefig('figures/ice-cores/pd-recent.png', dpi=200)
     plt.close()
 elif (inp == 'n'): #table of ice core numbers and filenames
+    bins = [0.5 * i for i in range(11)] + [99]
     def plot_pdf(data, plt, color):
         kde = gaussian_kde(data)
-        dist_space = np.linspace(0, 2, 100)
-        plt.plot(dist_space, kde(dist_space), color=color)
+        hist = np.histogram(data, bins=bins)[0]
+        plt.plot(t.bins2labels(bins), hist / np.sum(hist), color=color)
     diff_mode = False
     #setup data
     filenames = [x['filename'] for x in main_dict.values()]
@@ -280,8 +282,7 @@ elif (inp == 'n'): #table of ice core numbers and filenames
         cmap = colormaps['Greys']
         color_list = list(reversed([cmap(i) for i in range(cmap.N)][51::64]))
         fix, ax = plt.subplots(figsize=(4, 2), dpi=300)
-        bins = [2/5 * x for x in range(6)]
-        plt.xticks(ticks=bins)
+        #plt.xticks(ticks=bins)
         if era == 'pi':
             i = 0
             plot_pdf(ratios, plt, color_list[2])
@@ -307,6 +308,7 @@ elif (inp == 'n'): #table of ice core numbers and filenames
                         i += 1
         legend_elements = legend_elements.sort_index()
         ax.legend(handles=list(legend_elements), loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.xticks(rotation=-60)
         plt.xlabel('PD/PI')
         plt.ylabel("Probability")
         plt.savefig('figures/ice-cores/test-' + era + '-pdfs.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
@@ -549,7 +551,17 @@ elif (inp == 'l'):
     #setup data:
     models = {
         'LENS': {
-            'dataset': pd.read_csv('data/model-ice-depo/lens/lens.csv'),
+            'dataset': pd.read_csv('data/model-ice-depo/lens/lens.csv').loc[pd.read_csv('data/model-ice-depo/lens/lens.csv')['Unnamed: 0'] != 'pi'],
+            'data': {'ratios': None, 'means': None, 'stds': None},
+            'color': model_colors['LENS'],#IBM Design library's colorblind pallete
+            },
+        'LENS-18': {
+            'dataset': pd.read_csv('data/model-ice-depo/lens/lens.csv').loc[pd.read_csv('data/model-ice-depo/lens/lens.csv')['Unnamed: 0'] == '18'],
+            'data': {'ratios': None, 'means': None, 'stds': None},
+            'color': model_colors['LENS'],#IBM Design library's colorblind pallete
+            },
+        'LENS-25': {
+            'dataset': pd.read_csv('data/model-ice-depo/lens/lens.csv').loc[pd.read_csv('data/model-ice-depo/lens/lens.csv')['Unnamed: 0'] == '25'],
             'data': {'ratios': None, 'means': None, 'stds': None},
             'color': model_colors['LENS'],#IBM Design library's colorblind pallete
             },
@@ -807,7 +819,9 @@ elif (inp == 'l'):
             'CESM': pd.Series(bar_means['CESM'], index=order_of_columns),
             #'CESM-SOOTSN': pd.Series(bar_means['CESM-SOOTSN'], index=order_of_columns),
             'CMIP6': pd.Series(bar_means['CMIP6'], index=order_of_columns),
-            'LENS': pd.Series(bar_means['LENS'], index=order_of_columns),
+            #'LENS': pd.Series(bar_means['LENS'], index=order_of_columns),
+            #'LENS-18': pd.Series(bar_means['LENS-18'], index=order_of_columns),
+            'LENS-25': pd.Series(bar_means['LENS-25'], index=order_of_columns),
             #'LENS-Bias': pd.Series(bar_means['LENS-Bias'], index=order_of_columns)
             }, index=filenames)
         #reformat data
@@ -876,7 +890,7 @@ elif (inp == 'l'):
         ax.get_yaxis().set_major_formatter(ScalarFormatter())
         #manually setup legend
         legend_handels = []
-        legend_names = {'CMIP6': 'CMIP6 (8 models)', 'CESM': 'CESM (1 model)', 'LENS': 'LENS (1 model)', 'LENS-Bias': 'LENS-Bias', 'Ice Core': 'Ice Core', 'mmrbc': 'mmrbc'}
+        legend_names = {'CMIP6': 'CMIP6 (8 models)', 'CESM': 'CESM (1 model)', 'LENS': 'LENS (1 model)', 'LENS-Bias': 'LENS-Bias', 'Ice Core': 'Ice Core', 'mmrbc': 'mmrbc', 'LENS-18': 'LENS-18', 'LENS-25': 'LENS-25'}
         for model in data.keys():
             legend_handels.append(Patch(label=legend_names[model], facecolor=model_colors[model]))
         ax.legend(handles=legend_handels, loc=9, bbox_to_anchor=(-0.05, -0.15))
