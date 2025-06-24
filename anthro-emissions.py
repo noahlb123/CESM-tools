@@ -171,7 +171,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     col_n, row_n = (2, 2)
     fig, axes = plt.subplots(row_n, col_n, dpi=400, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
     plt.tight_layout(h_pad=8)
-    i_d_map = {i: list(final_mats.keys())[i] for i in range(len(final_mats.keys()))}
+    i_d_map = np.array([['Hoesly', 'Hoesly+MarlePI'], ['Marle', 'Hoesly+Marle']])
     title_key_map = {'Hoesly': 'Anthropogenic', 'Marle': 'Biomass', 'Hoesly+MarlePI': 'Anthropogenic+Biomass$\mathregular{PI}$', 'Hoesly+Marle': 'Anthropogenic+Biomass$\mathregular{PD/PI}$'}
 
     #color
@@ -187,27 +187,11 @@ elif mode == 'r': #ratios plotted on robinson globe
         for row_i in range(row_n):
             ax = axes[row_i, col_i]
             if col_i * 2 + row_i < 3:
-                key = i_d_map[col_i * 2 + row_i]
+                key = i_d_map[row_i, col_i]
                 arr = final_mats[key]
                 lat = ncdf_dict[key.split('+')[0].lower() + '-pd']['lats']
                 lon = ncdf_dict[key.split('+')[0].lower() + '-pd']['lons']
-            else:
-                key = 'Emissions Regions'
-                arr = np.ones(np.shape(final_mats[i_d_map[0]]))
-                lat = ncdf_dict['hoesly-pd']['lats']
-                lon = ncdf_dict['hoesly-pd']['lons']
 
-                #patches
-                colors = {k: l[-2] for k, l in patches.items()}
-                colors['South America'] = colors['South ZAmerica']
-                colors['USA'] = colors['North America']
-                colors['Alaska'] = colors['Arctic']
-                colors['Greenland'] = colors['North Greenland']
-                anthro_boxes = json.load(open('data/emission-boxes.json'))
-                for region, boxes in anthro_boxes.items():
-                    for box in boxes:
-                        ax.add_patch(Rectangle(xy=[box[2], box[0]], width=np.abs(box[3]-box[2]), height=np.abs(box[1]-box[0]), edgecolor=colors[region], facecolor='#00000000', zorder=10, transform=cartopy.crs.PlateCarree()))
-                        
             #plot
             ax.set_title(title_key_map[key])
             ax.add_feature(cartopy.feature.OCEAN, zorder=9, facecolor='white', edgecolor='black', linewidth=0.5)
