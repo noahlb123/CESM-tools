@@ -186,11 +186,10 @@ elif mode == 'r': #ratios plotted on robinson globe
     for col_i in range(col_n):
         for row_i in range(row_n):
             ax = axes[row_i, col_i]
-            if col_i * 2 + row_i < 3:
-                key = i_d_map[row_i, col_i]
-                arr = final_mats[key]
-                lat = ncdf_dict[key.split('+')[0].lower() + '-pd']['lats']
-                lon = ncdf_dict[key.split('+')[0].lower() + '-pd']['lons']
+            key = i_d_map[row_i, col_i]
+            arr = final_mats[key]
+            lat = ncdf_dict[key.split('+')[0].lower() + '-pd']['lats']
+            lon = ncdf_dict[key.split('+')[0].lower() + '-pd']['lons']
 
             #plot
             ax.set_title(title_key_map[key])
