@@ -172,7 +172,8 @@ elif mode == 'r': #ratios plotted on robinson globe
     fig, axes = plt.subplots(row_n, col_n, dpi=400, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
     plt.tight_layout(h_pad=8)
     i_d_map = np.array([['Hoesly', 'Hoesly+MarlePI'], ['Marle', 'Hoesly+Marle']])
-    title_key_map = {'Hoesly': 'Anthropogenic', 'Marle': 'Biomass', 'Hoesly+MarlePI': 'Anthropogenic+Biomass$\mathregular{PI}$', 'Hoesly+Marle': 'Anthropogenic+Biomass$\mathregular{PD/PI}$'}
+    plt.rcParams.update({'mathtext.default': 'regular'})
+    title_key_map = {'Hoesly': 'Anthropogenic', 'Marle': 'Biomass', 'Hoesly+MarlePI': 'Anthropogenic+$Biomass_{PI}$', 'Hoesly+Marle': 'Anthropogenic+$Biomass_{PD/PI}$'}
 
     #color
     cmap = colormaps['BrBG_r']
