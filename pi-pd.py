@@ -7,6 +7,7 @@ from matplotlib.colors import LinearSegmentedColormap
 from statsmodels.nonparametric.smoothers_lowess import lowess
 from itertools import chain, combinations
 from matplotlib.patches import Rectangle
+from matplotlib.patches import Polygon
 from matplotlib.ticker import ScalarFormatter
 from matplotlib.patches import Wedge
 from matplotlib.patches import Patch
@@ -61,7 +62,7 @@ m_g = 71.5 #midpoint between lowest greenland (60) and highest (83)
 s_g = 60
 patches = { #Okabe and Ito colorblind pallet
     'Arctic': (-15, a_p, 315, 90 - a_p, '#6CB3E4', '#6CB3E4'),
-    'South Greenland': (-55, s_g, 35, m_g - s_g, '#880D1E', '#6CB3E4'), #'#880D1E'),
+    'South Greenland': (-60, s_g, 45, m_g - s_g, '#880D1E', '#6CB3E4'), #'#880D1E'),
     'North Greenland': (-60, m_g, 45, 90 - m_g, '#DDA138', '#6CB3E4'), #'#DDA138'),
     'Antarctica': (-180, -60, 360, -30, '#2C72AD', '#2C72AD'),
     'South ZAmerica': (-90, 15, 70, -71, '#EFE362', '#000000'), #'#EFE362'),
@@ -70,7 +71,7 @@ patches = { #Okabe and Ito colorblind pallet
     #'Middle east': (30, 23.5, 30, s_g - 23.5, '#DDA138'),
     'Africa': (-20, 23.5, 80, -58.5, '#000000', '#000000'),
     'Asia': (60, 5, 90, a_p - 5, '#459B76', '#000000'), #'#459B76')
-    'Alaska': (0, 0, 0, 0, 0, '#2C72AD', '#000000'),
+    'Alaska': (0, 0, 0, 0, '#2C72AD', '#000000'),
 }
 '''
     'Greenland': (-55, s_g, 35, 90 - s_g, '#880D1E'),
@@ -453,7 +454,7 @@ elif (inp == 'c'): #Cartopy
         #figsize=(740/dpi, 740/dpi)
         fig, ax = plt.subplots(dpi=dpi, subplot_kw={'projection': params['projection']})
         ax.set_extent(params['extent'], crs=params['crs'])
-        ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
+        ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey', linewidth=0.5)
 
         #elevation
         elev = Dataset('data/elevation-land-only.nc') #from https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2c/netCDF/
@@ -463,7 +464,7 @@ elif (inp == 'c'): #Cartopy
         mesh = plt.pcolormesh(elev_lon, elev_lat, elev_z, cmap=colormaps['Greys'], vmin=0, transform=cartopy.crs.PlateCarree())
 
         #setup color scale
-        cmap = colormaps['cividis']#inferno
+        cmap = colormaps['BrBG']#inferno
         # extract all colors from the map
         cmaplist = [cmap(i) for i in range(cmap.N)]
         #force middle color to be white
@@ -526,7 +527,7 @@ elif (inp == 'c-anthro'):
     #setup
     dpi = 300
     fig, ax = plt.subplots(dpi=dpi, subplot_kw={'projection': cartopy.crs.Robinson()})
-    ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
+    ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey', linewidth=0.5)
     
     #elevation
     elev = Dataset('data/elevation-land-only.nc') #from https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2c/netCDF/
@@ -905,7 +906,7 @@ elif (inp == 'l'):
     #plot variable figure
     if len(sys.argv) >= 3 and sys.argv[2] == 'var':
         print('var comparison boxplot')
-        region2region = {'North Pole': 'Arctic', 'South Pole': 'Antarctica', 'Rest': 'Africa'}
+        region2region = {'North Pole': 'Arctic', 'South Pole': 'Antarctica', 'Alpine': 'Africa'}
         sub = dict(
             [['Ice Core', bar_means['Ice Core']],
                 ['loadbc', bar_means['loadbc']],
@@ -917,7 +918,7 @@ elif (inp == 'l'):
         new_regions = {
             'North Pole': ['North Greenland', 'South Greenland', 'Arctic'],
             'South Pole': ['Antarctica'],
-            'Rest': ['Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica'],
+            'Alpine': ['Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica'],
             }
         old2new = t.invert_dict_list(new_regions)
         rdf = pd.DataFrame(columns=['label'], data=bar_labels)
@@ -1320,7 +1321,7 @@ elif (inp == 'nt'):
     nco_model_colors = {'ice core': '#1177bc', 'CESM2': '#ed292c'} #, 'TaiESM1': '#CC397C'}#{'ice core': '#6C62E7', 'CESM2': '#EE692C'}#, 'TaiESM1': '#CC397C'}# 'sootsn': '#638FF6'}
     valid_keys_set = set(main_dict.keys())
     axis_ticks = [(i + 0.5) for i in range(1850, 1981)]
-    figures = {'North Pole': [a_p, 90], 'South Pole': [-90, -60], 'Rest': [-60, a_p]}
+    figures = {'North Pole': [a_p, 90], 'South Pole': [-90, -60], 'Alpine': [-60, a_p]}
     model_data = {}
     for fig_name, min_max_lat in figures.items():
         plt.rc('font', size=16)
@@ -1611,11 +1612,11 @@ elif (inp == 'yawc'): #year avergeing window comparison
     plt.title('Comparison of Averaging Techniques for PD and PI')
     plt.savefig('figures/ice-cores/test-yawc.png', dpi=300)
 elif (inp == 'tdc'):#timeseries decomposition
-    region2region = {'North Pole': 'Arctic', 'South Pole': 'Antarctica', 'Rest': 'Africa'}
+    region2region = {'North Pole': 'Arctic', 'South Pole': 'Antarctica', 'Alpine': 'Africa'}
     three_regions = {
             'North Pole': ['North Greenland', 'South Greenland', 'Arctic'],
             'South Pole': ['Antarctica'],
-            'Rest': ['Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica'],
+            'Alpine': ['Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica'],
             }
     periods = [10, 33]#[10, 25, 33]
     for region, subs in three_regions.items():
@@ -1644,7 +1645,7 @@ elif (inp == 'tdc'):#timeseries decomposition
                 df.interpolate(inplace=True)
                 x = df['Yr']
                 y = df['BC']
-                if filename_region[file] in three_regions['Rest']:
+                if filename_region[file] in three_regions['Alpine']:
                     print(x[len(x)- 1], file)
                 if len(x) < 2 * i:
                     continue
@@ -1726,16 +1727,115 @@ elif (inp == 'quick-lens-bias-boxplot'):
     plt.tight_layout()
     plt.title('LENS var bias')
     plt.savefig('figures/ice-cores/quick-lens-bias-boxplot.png', dpi=200)
+elif (inp == 'r'): #regions
+    fig, axes = plt.subplots(3, 1, dpi=400, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
+    rcParams.update({'font.size': 9})
+    #plt.tight_layout(h_pad=8)
+
+    #contiental and hemispheric regoins
+    for ax_i in range(2):
+        ax = axes[ax_i]
+        ax.add_feature(cartopy.feature.COASTLINE, edgecolor='black', linewidth=0.5)
+        ax.set_title('Continental Regions' if ax_i == 1 else 'Hemispheric Regions')
+        ax.set_global()
+
+        #patches
+        color_i = 4 if ax_i == 1 else 5
+        oppacity = '90'
+        for region, patch in patches.items():
+            if region in ['Alaska']:
+                continue
+            if region == 'North America':
+                ax.add_patch(Polygon(
+                    np.array([
+                        [patch[0], patch[1]],
+                        [patch[0], patch[1] + patch[3]],
+                        [-60, patch[1] + patch[3]],
+                        [-60, s_g],
+                        [patch[0] + patch[2], s_g],
+                        [patch[0] + patch[2], patch[1]],
+                    ]),
+                    closed=True,
+                    fill=True,
+                    fc=patch[color_i] + oppacity,
+                    transform=cartopy.crs.PlateCarree()))
+            elif region == 'Europe':
+                ax.add_patch(Polygon(
+                    np.array([
+                        [patch[0], patch[1]],
+                        [patch[0], patch[1] + patch[3]],
+                        [-60 + 45, patch[1] + patch[3]],
+                        [-60 + 45, a_p],
+                        [patch[0] + patch[2], a_p],
+                        [patch[0] + patch[2], patch[1]],
+                    ]),
+                    closed=True,
+                    fill=True,
+                    fc=patch[color_i] + oppacity,
+                    transform=cartopy.crs.PlateCarree()))
+            else:
+                ax.add_patch(Rectangle(xy=[patch[0], patch[1]], width=patch[2], height=patch[3], facecolor=patch[color_i] + oppacity, transform=cartopy.crs.PlateCarree()))
+            
+            #setup color scale
+            cmap = colormaps['BrBG']#inferno
+            # extract all colors from the map
+            cmaplist = [cmap(i) for i in range(cmap.N)]
+            #force middle color to be white
+            cmaplist[len(cmaplist) // 2] = (1, 1.0, 1.0, 1.0)
+            # force the last color entry to be red
+            #cmaplist[-1] = (1, 0, 0, 1.0)
+            # create the new map
+            cmap = LinearSegmentedColormap.from_list('Custom cmap', cmaplist, cmap.N)
+            # define the bins and normalize
+            bounds = [round(x, 1) for x in np.linspace(0, 2, 10)]
+            c_norm = BoundaryNorm(bounds, cmap.N)
+            sm = ScalarMappable(cmap=cmap, norm=c_norm)
+
+    #emission regions
+    ax = axes[2]
+    ax.add_feature(cartopy.feature.COASTLINE, edgecolor='black', linewidth=0.5)
+    ax.set_title('Emission Regions')
+    ax.set_global()
+
+    #elevation
+    elev = Dataset('data/elevation-land-only.nc') #from https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2c/netCDF/
+    elev_lon = elev['lon'][:]
+    elev_lat = elev['lat'][:]
+    elev_z = np.transpose(elev['land_elev'][:])
+    mesh = plt.pcolormesh(elev_lon, elev_lat, elev_z, cmap=colormaps['Greys'], vmin=0, transform=cartopy.crs.PlateCarree())
+    
+    #boxes
+    anthro_boxes = json.load(open('data/emission-boxes.json'))
+    colors = {k: l[-2] for k, l in patches.items()}
+    colors['South America'] = colors['South ZAmerica']
+    colors['USA'] = colors['North America']
+    colors['Alaska'] = colors['Arctic']
+    colors['Greenland'] = colors['North Greenland']
+    anthro_boxes = json.load(open('data/emission-boxes.json'))
+    for region, boxes in anthro_boxes.items():
+        for box in boxes:
+            ax.add_patch(Rectangle(xy=[box[2], box[0]], width=np.abs(box[3]-box[2]), height=np.abs(box[1]-box[0]), edgecolor=colors[region], facecolor='#00000000', zorder=10, transform=cartopy.crs.PlateCarree()))
+
+    save_path = 'figures/ice-cores/regions.png'
+    plt.savefig(save_path)
+    print('saved as ' + save_path)
+
 elif (inp == 'z'):#testing
-    for file in main_dict.keys():
-        df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', file))
-        df.interpolate(inplace=True)
-        x = df['Yr']
-        y = df['BC']
-        plt.plot(x, y)
-        plt.title(file)
-        plt.show()
-        plt.close()
+    plt.plot([1], [1])
+    legend_handels = [
+        Patch(label='North Pole', facecolor=patches['Arctic'][4]+ '99'),
+        Patch(label='Alpine', facecolor=patches['Africa'][4]+ '99'),
+        Patch(label='South Pole', facecolor=patches['Antarctica'][4]+ '99'),
+    ]
+    '''for region, patch in patches.items():
+        if region == 'Alaska':
+            continue
+        if region == 'South ZAmerica':
+            region = 'South America'
+        legend_handels.append(Patch(label=region, facecolor=patch[4] + '99'))'''
+    plt.legend(handles=legend_handels)
+    plt.savefig('../test.png', dpi=400)
+
 
 
 print("n=" + str(len(main_dict)))

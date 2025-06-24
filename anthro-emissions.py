@@ -129,7 +129,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     final_mats = {
         'Hoesly': np.divide(ncdf_dict['hoesly-pd']['arr'], ncdf_dict['hoesly-pi']['arr']),
         'Marle': np.divide(ncdf_dict['marle-pd']['arr'], ncdf_dict['marle-pi']['arr']),
-        #'Hoesly+MarlePI': np.divide(ncdf_dict['hoesly-pd']['arr'] + convert_marle_units(ncdf_dict['marle-pi']['arr']), ncdf_dict['hoesly-pi']['arr'] + convert_marle_units(ncdf_dict['marle-pi']['arr'])),
+        'Hoesly+MarlePI': np.divide(ncdf_dict['hoesly-pd']['arr'] + convert_marle_units(ncdf_dict['marle-pi']['arr']), ncdf_dict['hoesly-pi']['arr'] + convert_marle_units(ncdf_dict['marle-pi']['arr'])),
         #'Hoesly+MarlePD': np.divide(ncdf_dict['hoesly-pd']['arr'] + convert_marle_units(ncdf_dict['marle-pd']['arr']), ncdf_dict['hoesly-pi']['arr'] + convert_marle_units(ncdf_dict['marle-pd']['arr'])),
         'Hoesly+Marle': np.divide(ncdf_dict['hoesly-pd']['arr'] + convert_marle_units(ncdf_dict['marle-pd']['arr']), ncdf_dict['hoesly-pi']['arr'] + convert_marle_units(ncdf_dict['marle-pi']['arr'])),
     }
@@ -172,6 +172,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     fig, axes = plt.subplots(row_n, col_n, dpi=400, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
     plt.tight_layout(h_pad=8)
     i_d_map = {i: list(final_mats.keys())[i] for i in range(len(final_mats.keys()))}
+    title_key_map = {'Hoesly': 'Anthropogenic', 'Marle': 'Biomass', 'Hoesly+MarlePI': 'Anthropogenic+Biomass$\mathregular{PI}$', 'Hoesly+Marle': 'Anthropogenic+Biomass$\mathregular{PD/PI}$'}
 
     #color
     cmap = colormaps['BrBG_r']
@@ -208,7 +209,7 @@ elif mode == 'r': #ratios plotted on robinson globe
                         ax.add_patch(Rectangle(xy=[box[2], box[0]], width=np.abs(box[3]-box[2]), height=np.abs(box[1]-box[0]), edgecolor=colors[region], facecolor='#00000000', zorder=10, transform=cartopy.crs.PlateCarree()))
                         
             #plot
-            ax.set_title(key)
+            ax.set_title(title_key_map[key])
             ax.add_feature(cartopy.feature.OCEAN, zorder=9, facecolor='white', edgecolor='black', linewidth=0.5)
             #ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
             ax.pcolormesh(lon, lat, arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
