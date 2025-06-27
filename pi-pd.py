@@ -886,7 +886,7 @@ elif (inp == 'l'):
         ax.set_xlim([x[0] + spacing - bar_width / 2, x[-1] + spacing + bar_width / 2])
         ax.set_ylim([0.2, max_box_height])
         ax.set_yticks(y_ticks)
-        ax.set_ylabel("1980/1850 Ratio")
+        ax.set_ylabel("1980/1850 BC Ratio")
         ax.set_xlabel("Region")
         ax.get_yaxis().set_major_formatter(ScalarFormatter())
         #manually setup legend
@@ -945,7 +945,7 @@ elif (inp == 'l'):
             c = model_colors[model]
             ca = c + '90'
             offset = width * multiplier
-            bplot = ax.boxplot(data[model], widths=width, positions=x + offset - width / 2, patch_artist=True, boxprops=dict(facecolor=ca, color=c), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False, showcaps=False, showmeans=False, showbox=True)
+            bplot = ax.boxplot(data[model], widths=width, positions=x + offset - width / 2, patch_artist=True, boxprops=dict(facecolor=ca, color=c, linewidth=0), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False, showcaps=False, showmeans=False, showbox=True)
             for i in range(len(data[model])):
                 for_json[model].append(np.median(data[model][i]))
                 plt.scatter(len(data[model][i]) * [x[i] + offset - width / 2], data[model][i], c=c, s=8)
@@ -1097,14 +1097,14 @@ elif (inp == 'l'):
         ax.set_xlim([x[0] + spacing - bar_width / 2, x[-1] + spacing + bar_width / 2])
         ax.set_ylim([0.2, 20])
         ax.set_yticks(y_ticks)
-        ax.set_ylabel("1980/1850 Ratio")
+        ax.set_ylabel("1980/1850 BC Ratio")
         ax.set_xlabel("Region")
         ax.get_yaxis().set_major_formatter(ScalarFormatter())
         #manually setup legend
         legend_handels = []
-        legend_names = {'CMIP6': 'CMIP6 (8 models)', 'CESM': 'CESM (1 model)', 'LENS': 'LENS (1 model)', 'LENS-Bias': 'LENS-Bias', 'Ice Core': 'Ice Core', 'mmrbc': 'mmrbc'}
+        legend_names = {'Ice Core': 'Ice Core', 'Hoesly': 'Anthropogenic', 'Marle': 'Biomass', 'Hoesly+MarlePI': 'Anthropogenic+$Biomass_{PI}$', 'Hoesly+MarlePD/PI': 'Anthropogenic+$Biomass_{PD/PI}$'}
         for model in data.keys():
-            legend_handels.append(Patch(label=model, facecolor=model_colors[anth_model_map[model]]))
+            legend_handels.append(Patch(label=legend_names[model], facecolor=model_colors[anth_model_map[model]]))
         ax.legend(handles=legend_handels, loc=9, bbox_to_anchor=(-0.05, -0.15)).set_zorder(0)
         #axis labels colors
         for a in plt.gcf().get_axes():
@@ -1735,15 +1735,31 @@ elif (inp == 'r'): #regions
     #contiental and hemispheric regoins
     for ax_i in range(2):
         ax = axes[ax_i]
-        ax.add_feature(cartopy.feature.COASTLINE, edgecolor='black', linewidth=0.5)
+        ax.add_feature(cartopy.feature.OCEAN, zorder=9, facecolor='white', edgecolor='black', linewidth=0.5)
         ax.set_title('Continental Regions' if ax_i == 1 else 'Hemispheric Regions')
         ax.set_global()
 
         #patches
         color_i = 4 if ax_i == 1 else 5
         oppacity = '90'
+        if ax_i == 0:
+            ax.add_patch(Polygon(
+                np.array([
+                    [-60+45, -60],
+                    [-60+45, -60 + a_p -(-60)],
+                    [-60+45 + 360-45, -60 + a_p -(-60)],
+                    [-60+45 + 360-45, s_g],
+                    [-60+45 + 360-45+45, s_g],
+                    [-60+45 + 360-45+45, -60],
+                ]),
+                closed=True,
+                fill=True,
+                fc=patch[color_i] + oppacity,
+                transform=cartopy.crs.PlateCarree()))
         for region, patch in patches.items():
             if region in ['Alaska']:
+                continue
+            if ax_i == 0 and not region in ['Antarctica', 'Arctic', 'South Greenland', 'North Greenland']:
                 continue
             if region == 'North America':
                 ax.add_patch(Polygon(
@@ -1798,11 +1814,11 @@ elif (inp == 'r'): #regions
     ax.set_global()
 
     #elevation
-    elev = Dataset('data/elevation-land-only.nc') #from https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2c/netCDF/
+    '''elev = Dataset('data/elevation-land-only.nc') #from https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2c/netCDF/
     elev_lon = elev['lon'][:]
     elev_lat = elev['lat'][:]
     elev_z = np.transpose(elev['land_elev'][:])
-    mesh = plt.pcolormesh(elev_lon, elev_lat, elev_z, cmap=colormaps['Greys'], vmin=0, transform=cartopy.crs.PlateCarree())
+    mesh = plt.pcolormesh(elev_lon, elev_lat, elev_z, cmap=colormaps['Greys'], vmin=0, transform=cartopy.crs.PlateCarree())'''
     
     #boxes
     anthro_boxes = json.load(open('data/emission-boxes.json'))
@@ -1822,17 +1838,18 @@ elif (inp == 'r'): #regions
 
 elif (inp == 'z'):#testing
     plt.plot([1], [1])
-    legend_handels = [
+    legend_handels = []
+    '''legend_handels = [
         Patch(label='North Pole', facecolor=patches['Arctic'][4]+ '99'),
         Patch(label='Alpine', facecolor=patches['Africa'][4]+ '99'),
         Patch(label='South Pole', facecolor=patches['Antarctica'][4]+ '99'),
-    ]
-    '''for region, patch in patches.items():
+    ]'''
+    for region, patch in patches.items():
         if region == 'Alaska':
             continue
         if region == 'South ZAmerica':
             region = 'South America'
-        legend_handels.append(Patch(label=region, facecolor=patch[4] + '99'))'''
+        legend_handels.append(Patch(label=region, facecolor=patch[4] + '99'))
     plt.legend(handles=legend_handels)
     plt.savefig('../test.png', dpi=400)
 
