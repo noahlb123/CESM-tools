@@ -12,6 +12,7 @@ from matplotlib.ticker import ScalarFormatter
 from matplotlib.patches import Wedge
 from matplotlib.patches import Patch
 import matplotlib.patheffects as pe
+from matplotlib.pyplot import gca
 from matplotlib import colormaps
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
@@ -996,6 +997,7 @@ elif (inp == 'l'):
             'region': pd.Series([new_region_map[i] for i in filenames], index=filenames),
             'Ice Core': pd.Series(ratios, index=filenames),
             }, index=filenames)
+        ice_core_min_max = (np.min(df['Ice Core']), np.max(df['Ice Core']), np.median(df['Ice Core']))
         anth_df = pd.read_csv(os.path.join('data', 'model-ice-depo', 'anthro-ratios-new.csv'))
         anth_df['Method'] = anth_df['Unnamed: 0'].apply(lambda s: s.split(':')[0])
         anth_df = anth_df.set_index('Unnamed: 0').rename(columns={'USA': 'North America'})
@@ -1023,8 +1025,30 @@ elif (inp == 'l'):
                 for region in region_filename.keys():
                     used_methods.add(method)
                     data[method].append(anth_df[anth_df['Method'] == method][region.replace('ZAmerica', 'America')])
-        #plot top extremes
+        regionless_data = {k: np.mean([x for xs in v for x in xs]) for k, v in data.items()}
+        del regionless_data['Ice Core']
+        #plot regionless
+        legend_names = {'Ice Core': 'Ice Core', 'Hoesly': 'Anthropogenic', 'Marle': 'Biomass', 'Hoesly+MarlePI': 'Anth+$Bio_{PI}$', 'Hoesly+MarlePD/PI': 'Anth+$Bio_{PD/PI}$'}
         anth_model_map = {'Hoesly': 'CESM', 'Marle': 'CMIP6', 'Hoesly+MarlePI': 'LENS', 'Hoesly+MarlePD': 'mmrbc', 'Hoesly+MarlePD/PI': 'CESM-SOOTSN', 'Ice Core': 'Ice Core'}
+        colors = [model_colors[anth_model_map[model]] for model in regionless_data.keys()]
+        fig, ax = plt.subplots()#2, layout='constrained')
+        ax.scatter([legend_names[k] for k in regionless_data.keys()], regionless_data.values(), c=colors, s=60, marker='x')
+        ax.add_patch(plt.Rectangle((-0.2, ice_core_min_max[0]), 3.4, ice_core_min_max[1], color='#1177bc90', zorder=0))
+        ax.plot((-0.2, 3.4), (ice_core_min_max[2], ice_core_min_max[2]), color='#1177bc')
+        ax.text(0, ice_core_min_max[0] * 1.1, 'Min Ice Core')
+        ax.text(0, ice_core_min_max[1] * 1.1, 'Max Ice Core')
+        ax.text(0, ice_core_min_max[2] * 1.1, 'Median Ice Core')
+        ax.set_xlim((-0.2, 3.2))
+        ax.set_yscale('log')
+        #plt.xticks(rotation=90)
+        #ax[0].set_ylim((20, 50000))
+        #ax[1].scatter(regionless_data.keys(), regionless_data.values())
+        #ax[1].set_yscale('log')
+        #ax[1].set_ylim([0.2, 20])
+        print('saved as figures/ice-cores/test-anth-simple.png')
+        plt.savefig('figures/ice-cores/test-anth-simple.png', bbox_inches='tight', pad_inches=0.1, dpi=300)
+        plt.close()
+        #plot top extremes
         x = np.arange(len(region_filename.keys()))
         multiplier = 0
         width = 0.2
@@ -1102,7 +1126,6 @@ elif (inp == 'l'):
         ax.get_yaxis().set_major_formatter(ScalarFormatter())
         #manually setup legend
         legend_handels = []
-        legend_names = {'Ice Core': 'Ice Core', 'Hoesly': 'Anthropogenic', 'Marle': 'Biomass', 'Hoesly+MarlePI': 'Anthropogenic+$Biomass_{PI}$', 'Hoesly+MarlePD/PI': 'Anthropogenic+$Biomass_{PD/PI}$'}
         for model in data.keys():
             legend_handels.append(Patch(label=legend_names[model], facecolor=model_colors[anth_model_map[model]]))
         ax.legend(handles=legend_handels, loc=9, bbox_to_anchor=(-0.05, -0.15)).set_zorder(0)
