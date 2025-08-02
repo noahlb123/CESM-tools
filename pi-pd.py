@@ -360,16 +360,18 @@ elif (inp == 'big-table'): #make table comparing individual models
     index = [i + 1 for i in range(len(filenames))]
     df = pd.DataFrame({'Index': pd.Series(index, index=filenames), 'filename': pd.Series(filenames, index=filenames), 'Ice Core': pd.Series(ratios, index=filenames)}, index=filenames)
     df = df.drop(['filename'], axis=1)
-    cmip_binned = pd.read_csv('data/model-ice-depo/cmip6/cmip6.csv').T
-    cmip_binned.columns = cmip_binned.loc['model']
-    cmip_binned = cmip_binned.drop(['model'])
-    cmip_binned = cmip_binned.join(cmip_binned.mean(axis=1).rename('CMIP6'))
+    cmip_binned = pd.read_csv('data/model-ice-depo/cmip6/drybc-25.csv').drop(['Unnamed: 0', 'model'], axis=1).T.mean(axis=1).rename('CMIP6')
+    #cmip_binned.columns = cmip_binned.loc['model']
+    #cmip_binned = cmip_binned.drop(['model'])
+    #cmip_binned = cmip_binned.join(cmip_binned.mean(axis=1).rename('CMIP6'))
     cesm = pd.read_csv('data/model-ice-depo/cesm-wetdry/cesm.csv').drop(['Unnamed: 0', 'model'], axis=1).T.mean(axis=1).rename('CESM2')
     lens = pd.read_csv('data/model-ice-depo/lens/lens.csv')
     lens = lens.rename(columns={"Unnamed: 0": "Restart"}).T
     lens.columns = lens.loc['Restart']
     lens = lens.drop(['Restart'])
-    lens = lens.join(lens.mean(axis=1).rename('LENS')).drop(['pi'], axis=1)
+    lens = lens.drop(['pi'], axis=1)
+    #sort column names
+    lens = lens.reindex(sorted(lens.columns), axis=1)
     min_restart = 9999999
     min_name = ''
     for column in lens.columns:
@@ -379,8 +381,9 @@ elif (inp == 'big-table'): #make table comparing individual models
             min_restart = diff
             min_name = column
     #print(min_restart, min_name)
-    #df = df.join(cmip_binned, how='outer')
+    df = df.join(cmip_binned, how='outer')
     df = df.join(cesm, how='outer')
+    df = df.join(lens.mean(axis=1).rename('LENS'), how='outer')
     df = df.join(lens, how='outer')
     df = df[df['Index'].notna()]
     df = df.sort_values('Index')
@@ -393,8 +396,8 @@ elif (inp == 'big-table'): #make table comparing individual models
             within_cesm.at[c_name] = -1
             within_ice.at[c_name] = -1
         else:
-            within_cesm.at[c_name] = (np.abs(df['CESM2'] - column) < 0.5).sum()
-            within_ice.at[c_name] = (np.abs(df['Ice Core'] - column) < 0.5).sum()
+            within_cesm.at[c_name] = (np.abs(column - df['CESM2']) < 0.25).sum()
+            within_ice.at[c_name] = (np.abs(column - df['Ice Core']) < 0.25).sum()
     df.loc['n near ice core'] = within_ice
     df.loc['n near CESM2'] = within_cesm
     #setup color scale
@@ -403,9 +406,9 @@ elif (inp == 'big-table'): #make table comparing individual models
     #calcuate red cells and setup colors
     vals = np.vectorize(lambda a : round(a, 3))(df.to_numpy())
     red_mask = np.zeros(np.shape(df))
-    for column in [str(n + 18) for n in range(18)] + ['LENS']:
+    for column in [str(n + 18) for n in range(18)] + ['LENS', 'CESM2', 'CMIP6']:
         for i in range(len(df[column]) - 2):
-            if np.abs(df['Ice Core'].iloc[i] - df[column].iloc[i]) < 0.1:
+            if np.abs(df['Ice Core'].iloc[i] - df[column].iloc[i]) < 0.25:
                 red_mask[i][df.columns.get_loc(column)] = 1
     fix, ax = plt.subplots(figsize=(4, 2), dpi=300)
     ax.axis('off')
@@ -415,8 +418,13 @@ elif (inp == 'big-table'): #make table comparing individual models
     for il in range(len(colors)):
         for ic in range(len(colors[il])):
             if red_mask[il][ic]:
-                colors[il][ic] = [1, 0, 0, 1]
-    table = plt.table(cellText=vals, colLabels=df.columns, loc='center', cellColours=colors, colWidths=[0.1] * len(df.columns))
+                colors[il][ic] = [0.8, 0.2235, 0.486, 1]
+    vals = vals.tolist()
+    vals[37][0] = 'n near Ice Core'
+    vals[38][0] = 'n near CESM2'
+    rename_cols = {str(i): 'LENS' +str(i) for i in range(18,36)}
+    rename_cols['Index'] = 'Ice Core Index'
+    table = plt.table(cellText=vals, colLabels=df.rename(columns=rename_cols).columns, loc='center', cellColours=colors, colWidths=[0.2] + [0.1] * (len(df.columns) - 1))
     table.auto_set_font_size(False)
     table.set_fontsize(5)
     df = df[df['Index'] < 0]
@@ -821,9 +829,9 @@ elif (inp == 'l'):
             'CESM': pd.Series(bar_means['CESM'], index=order_of_columns),
             #'CESM-SOOTSN': pd.Series(bar_means['CESM-SOOTSN'], index=order_of_columns),
             'CMIP6': pd.Series(bar_means['CMIP6'], index=order_of_columns),
-            #'LENS': pd.Series(bar_means['LENS'], index=order_of_columns),
+            'LENS': pd.Series(bar_means['LENS'], index=order_of_columns),
             #'LENS-18': pd.Series(bar_means['LENS-18'], index=order_of_columns),
-            'LENS-25': pd.Series(bar_means['LENS-25'], index=order_of_columns),
+            #'LENS-25': pd.Series(bar_means['LENS-25'], index=order_of_columns),
             #'LENS-Bias': pd.Series(bar_means['LENS-Bias'], index=order_of_columns)
             }, index=filenames)
         #reformat data
@@ -1033,7 +1041,7 @@ elif (inp == 'l'):
         colors = [model_colors[anth_model_map[model]] for model in regionless_data.keys()]
         fig, ax = plt.subplots()#2, layout='constrained')
         ax.scatter([legend_names[k] for k in regionless_data.keys()], regionless_data.values(), c=colors, s=60, marker='x')
-        ax.add_patch(plt.Rectangle((-0.2, ice_core_min_max[0]), 3.4, ice_core_min_max[1], color='#1177bc90', zorder=0))
+        ax.add_patch(plt.Rectangle((-0.2, ice_core_min_max[0]), 3.4, ice_core_min_max[1], color='#1177bc90', linewidth=0, zorder=0))
         ax.plot((-0.2, 3.4), (ice_core_min_max[2], ice_core_min_max[2]), color='#1177bc')
         ax.text(0, ice_core_min_max[0] * 1.1, 'Min Ice Core')
         ax.text(0, ice_core_min_max[1] * 1.1, 'Max Ice Core')
@@ -1641,35 +1649,42 @@ elif (inp == 'tdc'):#timeseries decomposition
             'South Pole': ['Antarctica'],
             'Alpine': ['Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica'],
             }
+    linewidth = 0.5
     periods = [10, 33]#[10, 25, 33]
+    fig, ax = plt.subplots(1 + 2 * len(periods), 3, sharex=True)
+    fig.tight_layout(rect=(0.05, 0.05, 0.95, 0.95))
+    #fig.set_figheight(10)
+    #fig.set_figwidth(5)
+    plt.rc('font', size=5)
+    reg_i = 0
     for region, subs in three_regions.items():
         color = patches[region2region[region]][-1] + '30'
         index_ex = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', 'zhang-2024-12.csv')).interpolate()['Yr']
         df_means = pd.DataFrame(index=[i for i in range(len(index_ex))], columns=['Yr'], data=index_ex)
         for i in periods:
             df_count = 0
-            fig, ax = plt.subplots(1 + 2 * len(periods), 1, sharex=True)
-            fig.tight_layout(rect=(0.05, 0, 0.95, 1))
-            fig.set_figheight(10)
-            fig.set_figwidth(5)
-            plt.rc('font', size=10)
             for ax_i in range(2 * len(periods)):
                 if ax_i % 2 == 0:
-                    ax[ax_i].set_title("Seasonal, period=" + str(periods[ax_i // 2]))
+                    label_s = "Seasonal, period=" + str(periods[ax_i // 2])
+                    if ax_i == 0:
+                        label_s = region + '\n' + label_s
                 else:
-                    ax[ax_i].set_title("Trend, period=" + str(periods[ax_i // 2]))
-            ax[-1].set_title("Observation")
+                    label_s = "Trend, period=" + str(periods[ax_i // 2])
+                ax[ax_i, reg_i].set_title(label_s)
+            ax[-1, reg_i].set_title("Observation")
             for ax_i in range(1 + 2 * len(periods)):
-                    ax[ax_i].set_xlim([1850, 1980])
+                    ax[ax_i, reg_i].set_xlim([1850, 1980])
+                    ax[ax_i, reg_i].tick_params(axis='both', labelsize=5)
             for file in main_dict.keys():
-                if (not filename_region[file] in subs):#or (file in ('ruppel-2014-1.csv', 'thompson-2002-1.csv', 'zhang-2024-12.csv', 'eichler-2023-1.csv', 'legrand-2023-1.csv')):
+                if (not filename_region[file] in subs) or (file in ('ruppel-2014-1.csv', 'thompson-2002-1.csv', 'zhang-2024-12.csv', 'eichler-2023-1.csv', 'legrand-2023-1.csv')):
                     continue
                 df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'standardized-ice-cores', file))
                 df.interpolate(inplace=True)
                 x = df['Yr']
                 y = df['BC']
                 if filename_region[file] in three_regions['Alpine']:
-                    print(x[len(x)- 1], file)
+                    #print(x[len(x)- 1], file)
+                    pass
                 if len(x) < 2 * i:
                     continue
                 res = sm.tsa.seasonal_decompose(y, period=i)
@@ -1681,23 +1696,26 @@ elif (inp == 'tdc'):#timeseries decomposition
                 df_count += 1
                 for ax_i in range(2 * len(periods)):
                     if ax_i % 2 == 0:
-                        ax[ax_i].plot(x, res.seasonal, label='seasonal', color=color)
+                        ax[ax_i, reg_i].plot(x, res.seasonal, label='seasonal', color=color, linewidth=linewidth)
                     else:
-                        ax[ax_i].plot(x, res.trend, label='trend', color=color)
-                ax[-1].plot(x, y, label='obs', color=color)
+                        ax[ax_i, reg_i].plot(x, res.trend, label='trend', color=color, linewidth=linewidth)
+                ax[-1, reg_i].plot(x, y, label='obs', color=color, linewidth=linewidth)
         for ax_i in range(2 * len(periods)):
             observation = 'Seasonal' if ax_i % 2 == 0 else 'Trend'
             period = str(periods[ax_i // 2])
             key = observation + '-' + period
-            ax[ax_i].plot(df_means['Yr'], df_means[key], color='black')#color[0:-2])
+            ax[ax_i, reg_i].plot(df_means['Yr'], df_means[key], color='black', linewidth=linewidth)#color[0:-2])
             if observation == 'Seasonal':
-                ax[ax_i].set_ylim((-1.5 * np.max(df_means[key]), 1.5 * np.max(df_means[key])))
+                ax[ax_i, reg_i].set_ylim((-1.5 * np.max(df_means[key]), 1.5 * np.max(df_means[key])))
             else:
-                ax[ax_i].set_ylim((0, 1.5 * np.max(df_means[key])))
-        ax[-1].plot(df_means['Yr'], df_means['Observation'], color='black')
-        ax[-1].set_ylim((0, 1.5 * np.max(df_means['Observation'])))
-        plt.savefig('figures/ice-cores/decomposition/' + region + '.png', dpi=200)
-        plt.close()
+                ax[ax_i, reg_i].set_ylim((0, 1.5 * np.max(df_means[key])))
+        ax[-1, reg_i].plot(df_means['Yr'], df_means['Observation'], color='black', linewidth=linewidth)
+        ax[-1, reg_i].set_ylim((0, 1.5 * np.max(df_means['Observation'])))
+        reg_i += 1
+    path = 'figures/ice-cores/decomposition/Combined-decomp.png'
+    print('saved to ' + path)
+    plt.savefig(path, dpi=200)
+    plt.close()
 elif (inp == 'lat-plt'):#lat vs ratio greenland plot
     lats = []
     ratios = []
