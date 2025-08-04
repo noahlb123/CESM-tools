@@ -173,13 +173,13 @@ elif mode == 'r': #ratios plotted on robinson globe
     plt.tight_layout(h_pad=8)
     i_d_map = np.array([['Hoesly', 'Hoesly+MarlePI'], ['Marle', 'Hoesly+Marle']])
     plt.rcParams.update({'mathtext.default': 'regular'})
+    plt.rc('font', size=9)
     title_key_map = {
         'Hoesly': 'Anthropogenic\n($Anth_{1980}/Anth_{1850}$)',
-        'Marle': 'Biomass\n($Biomass_{1980}/Biomass_{1850}$)',
-        'Hoesly+MarlePI': 'Anthropogenic+$Biomass_{PI}$\n($Anth_{1980}+Biomass_{1850}/Anth_{1850}+Biomass_{1850}$)',
-        'Hoesly+Marle': 'Anthropogenic+$Biomass_{PD/PI}$\n($Anth_{1980}+Biomass_{1850}/Anth_{1850}+Biomass_{1850}$)'
+        'Marle': 'Biomass\n($Bio{1980}/Bio{1850}$)',
+        'Hoesly+MarlePI': 'Anthropogenic+$Biomass_{PI}$\n($Anth_{1980}+Bio{1850}/Anth_{1850}+Bio{1850}$)',
+        'Hoesly+Marle': 'Anthropogenic+$Biomass_{PD/PI}$\n($Anth_{1980}+Bio{1850}/Anth_{1850}+Bio{1850}$)'
         }
-
     #color
     cmap = colormaps['BrBG_r']
     cmaplist = [cmap(i) for i in range(cmap.N)]
