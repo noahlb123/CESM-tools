@@ -864,6 +864,8 @@ elif (inp == 'l'):
             offset = (width) * multiplier
             for i in range(len(data[model])):
                 pos = x[i] + offset
+                if i in (4, 5, 6, 7, 8) and model == 'CMIP6':
+                    print(np.min(data[model][i]), np.max(data[model][i]))
                 if len(data[model][i]) != 2:
                     bplot = ax.boxplot(data[model][i], widths=width, positions=[pos], patch_artist=True, boxprops=dict(facecolor=ca, color=c, linewidth=0), capprops=dict(color=c), medianprops=dict(color='black', linewidth=0), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False, showcaps=False, showmeans=False, showbox=True)
                     for median in bplot['medians']:
@@ -973,7 +975,7 @@ elif (inp == 'l'):
         ax.set_ylim([0, rdf['Ice Core'].max() + 0.1])
         #manually setup legend
         legend_handels = []
-        leg_dict = {'Ice Core': 'Ice Core', 'loadbc': 'BC in air column', 'CESM': 'BC deposition to snow', 'CESM-SOOTSN': 'BC in snow', 'mmrbc': 'BC in surface air'}
+        leg_dict = {'Ice Core': 'Ice Core', 'loadbc': 'BC in air column', 'CESM': 'BC deposition to snow', 'CESM-SOOTSN': 'BC in snow', 'mmrbc': 'BC in surface air', 'CMIP6': 'CMIP6'}
         for label in sub.keys():
             if '+' not in label:
                 legend_handels.append(Patch(label=leg_dict[label]))
@@ -1851,7 +1853,7 @@ elif (inp == 'r'): #regions
     #emission regions
     ax = axes[2]
     ax.add_feature(cartopy.feature.COASTLINE, edgecolor='black', linewidth=0.5)
-    ax.set_title('Emission Regions')
+    ax.set_title('Local Regions')
     ax.set_global()
 
     #elevation
