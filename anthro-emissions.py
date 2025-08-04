@@ -174,11 +174,12 @@ elif mode == 'r': #ratios plotted on robinson globe
     i_d_map = np.array([['Hoesly', 'Hoesly+MarlePI'], ['Marle', 'Hoesly+Marle']])
     plt.rcParams.update({'mathtext.default': 'regular'})
     plt.rc('font', size=9)
+    fig.subplots_adjust(hspace=0.1)
     title_key_map = {
         'Hoesly': 'Anthropogenic\n($Anth_{1980}/Anth_{1850}$)',
         'Marle': 'Biomass\n($Bio{1980}/Bio{1850}$)',
-        'Hoesly+MarlePI': 'Anthropogenic+$Biomass_{PI}$\n($Anth_{1980}+Bio{1850}/Anth_{1850}+Bio{1850}$)',
-        'Hoesly+Marle': 'Anthropogenic+$Biomass_{PD/PI}$\n($Anth_{1980}+Bio{1850}/Anth_{1850}+Bio{1850}$)'
+        'Hoesly+MarlePI': 'Anthropogenic+$Biomass_{PI}$\n($Anth_{1980}+Bio_{1850}/Anth_{1850}+Bio_{1850}$)',
+        'Hoesly+Marle': 'Anthropogenic+$Biomass_{PD/PI}$\n($Anth_{1980}+Bio_{1850}/Anth_{1850}+Bio_{1850}$)'
         }
     #color
     cmap = colormaps['BrBG_r']
