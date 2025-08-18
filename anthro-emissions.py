@@ -173,13 +173,13 @@ elif mode == 'r': #ratios plotted on robinson globe
     plt.tight_layout(h_pad=8)
     i_d_map = np.array([['Hoesly', 'Hoesly+MarlePI'], ['Marle', 'Hoesly+Marle']])
     plt.rcParams.update({'mathtext.default': 'regular'})
-    plt.rc('font', size=9)
+    plt.rc('font', size=7)
     fig.subplots_adjust(hspace=0.4)
     title_key_map = {
         'Hoesly': 'Anthropogenic\n($Anth_{1980}/Anth_{1850}$)',
-        'Marle': 'Biomass\n($Bio_{1980}/Bio_{1850}$)',
-        'Hoesly+MarlePI': 'Anthropogenic+$Biomass_{PI}$\n($Anth_{1980}+Bio_{1850}/Anth_{1850}+Bio_{1850}$)',
-        'Hoesly+Marle': 'Anthropogenic+$Biomass_{PD/PI}$\n($Anth_{1980}+Bio_{1850}/Anth_{1850}+Bio_{1850}$)'
+        'Marle': 'Biomass Burning\n($Bio_{1980}/Bio_{1850}$)',
+        'Hoesly+MarlePI': 'Anthropogenic+$Biomass Burning_{PI}$\n($Anth_{1980}+Bio_{1850}/Anth_{1850}+Bio_{1850}$)',
+        'Hoesly+Marle': 'Anthropogenic+$Biomass Burning_{PD/PI}$\n($Anth_{1980}+Bio_{1850}/Anth_{1850}+Bio_{1850}$)'
         }
     #color
     cmap = colormaps['BrBG_r']
@@ -188,7 +188,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     bounds = [round(x, 1) for x in np.linspace(0, 2, 10)]
     c_norm = BoundaryNorm(bounds, cmap.N)
     sm = ScalarMappable(cmap=cmap, norm=c_norm)
-    plt.colorbar(mappable=sm, label='BC Emission Ratio', orientation="horizontal", ax=axes, extend='both')
+    plt.colorbar(mappable=sm, label='BC Emission Ratio', orientation="horizontal", ax=axes, extend='both', fraction=0.046, pad=0.04)
     
     for col_i in range(col_n):
         for row_i in range(row_n):

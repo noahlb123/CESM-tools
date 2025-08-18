@@ -431,7 +431,7 @@ elif (inp == 'big-table'): #make table comparing individual models
     df.reindex(sorted(df.columns), axis=1).to_csv('data/big-table-within.csv')
     plt.savefig('figures/ice-cores/test-big-table-cmip-models.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
 elif (inp == 'p'): #Plotly
-    fig = px.scatter_geo(final_pd, lat='lat', lon='lon', hover_name='filename', title='PD/PI Ratios')
+    fig = px.scatter_geo(final_pd, lat='lat', lon='lon', hover_name='ratio', title='PD/PI Ratios')
     fig.show()
 elif (inp == 'c'): #Cartopy
     projections = {
@@ -514,7 +514,7 @@ elif (inp == 'c'): #Cartopy
         if not projection in ('antartica', 'north-pole'):
             pass
             #rcParams.update({'font.size': 10})
-            #plt.colorbar(mappable=sm, label="1980/1850 BC Conc.", orientation="horizontal", ax=ax)
+            plt.colorbar(mappable=sm, label="1980/1850 BC Concentration", orientation="horizontal", ax=ax)
             #rcParams.update({'font.size': 7})
             #plt.colorbar(mappable=mesh.colorbar, label="Elevation (m)", orientation="vertical")
         
@@ -864,8 +864,6 @@ elif (inp == 'l'):
             offset = (width) * multiplier
             for i in range(len(data[model])):
                 pos = x[i] + offset
-                if i in (4, 5, 6, 7, 8) and model == 'CMIP6':
-                    print(np.min(data[model][i]), np.max(data[model][i]))
                 if len(data[model][i]) != 2:
                     bplot = ax.boxplot(data[model][i], widths=width, positions=[pos], patch_artist=True, boxprops=dict(facecolor=ca, color=c, linewidth=0), capprops=dict(color=c), medianprops=dict(color='black', linewidth=0), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False, showcaps=False, showmeans=False, showbox=True)
                     for median in bplot['medians']:
@@ -902,7 +900,7 @@ elif (inp == 'l'):
         ax.get_yaxis().set_major_formatter(ScalarFormatter())
         #manually setup legend
         legend_handels = []
-        legend_names = {'CMIP6': 'CMIP6 (8 models)', 'CESM': 'CESM (1 model)', 'LENS': 'LENS (1 model)', 'LENS-Bias': 'LENS-Bias', 'Ice Core': 'Ice Core', 'mmrbc': 'mmrbc', 'LENS-18': 'LENS-18', 'LENS-25': 'LENS-25'}
+        legend_names = {'CMIP6': 'CMIP6 (n=8)', 'CESM': 'CESM (n=1)', 'LENS': 'LENS (n=18)', 'LENS-Bias': 'LENS-Bias', 'Ice Core': 'Ice Core', 'mmrbc': 'mmrbc', 'LENS-18': 'LENS-18', 'LENS-25': 'LENS-25'}
         for model in data.keys():
             legend_handels.append(Patch(label=legend_names[model], facecolor=model_colors[model]))
         ax.legend(handles=legend_handels, loc=9, bbox_to_anchor=(-0.05, -0.15))
@@ -975,7 +973,11 @@ elif (inp == 'l'):
         ax.set_ylim([0, rdf['Ice Core'].max() + 0.1])
         #manually setup legend
         legend_handels = []
-        leg_dict = {'Ice Core': 'Ice Core', 'loadbc': 'BC in air column', 'CESM': 'BC deposition to snow', 'CESM-SOOTSN': 'BC in snow', 'mmrbc': 'BC in surface air', 'CMIP6': 'CMIP6'}
+        leg_dict = {'Ice Core': 'Ice Core',
+                    'loadbc': 'CESM2 BC in air column',
+                    'CESM': 'CESM2 BC deposition to snow',
+                    'CESM-SOOTSN': 'CESM2 BC in snow',
+                    'mmrbc': 'CESM2 BC in surface air'}
         for label in sub.keys():
             if '+' not in label:
                 legend_handels.append(Patch(label=leg_dict[label]))
@@ -1007,7 +1009,6 @@ elif (inp == 'l'):
             'region': pd.Series([new_region_map[i] for i in filenames], index=filenames),
             'Ice Core': pd.Series(ratios, index=filenames),
             }, index=filenames)
-        ice_core_min_max = (np.min(df['Ice Core']), np.max(df['Ice Core']), np.median(df['Ice Core']))
         anth_df = pd.read_csv(os.path.join('data', 'model-ice-depo', 'anthro-ratios-new.csv'))
         anth_df['Method'] = anth_df['Unnamed: 0'].apply(lambda s: s.split(':')[0])
         anth_df = anth_df.set_index('Unnamed: 0').rename(columns={'USA': 'North America'})
@@ -1023,7 +1024,7 @@ elif (inp == 'l'):
             for model in data.keys():
                 data[model].append(df[df['region'] == region][model])
         #add anth methods
-        bad_methods = {'Hoesly+MarlePD'}
+        bad_methods = {'Hoesly+MarlePD', 'Hoesly+MarlePI'}
         for method in anth_df['Method']:
             if method not in bad_methods:
                 data[method] = []
@@ -1037,18 +1038,21 @@ elif (inp == 'l'):
                     data[method].append(anth_df[anth_df['Method'] == method][region.replace('ZAmerica', 'America')])
         regionless_data = {k: np.mean([x for xs in v for x in xs]) for k, v in data.items()}
         del regionless_data['Ice Core']
-        #plot regionless
-        legend_names = {'Ice Core': 'Ice Core', 'Hoesly': 'Anthropogenic', 'Marle': 'Biomass', 'Hoesly+MarlePI': 'Anth+$Bio_{PI}$', 'Hoesly+MarlePD/PI': 'Anth+$Bio_{PD/PI}$'}
+        #plot simplified regionless
+        red_ice_df = df.loc[df['core index'].isin({33, 36, 37, 31, 5, 29, 1, 35, 32, 15})]
+        ice_core_min_max = (np.min(red_ice_df['Ice Core']), np.max(red_ice_df['Ice Core']), np.median(red_ice_df['Ice Core']))
+        legend_names = {'Ice Core': 'Ice Core', 'Hoesly': 'Anthropogenic', 'Marle': 'Biomass Burning', 'Hoesly+MarlePI': 'Anth+$Bio_{PI}$', 'Hoesly+MarlePD/PI': 'Anth+$Bio_{PD/PI}$'}
         anth_model_map = {'Hoesly': 'CESM', 'Marle': 'CMIP6', 'Hoesly+MarlePI': 'LENS', 'Hoesly+MarlePD': 'mmrbc', 'Hoesly+MarlePD/PI': 'CESM-SOOTSN', 'Ice Core': 'Ice Core'}
         colors = [model_colors[anth_model_map[model]] for model in regionless_data.keys()]
         fig, ax = plt.subplots()#2, layout='constrained')
         ax.scatter([legend_names[k] for k in regionless_data.keys()], regionless_data.values(), c=colors, s=60, marker='x')
-        ax.add_patch(plt.Rectangle((-0.2, ice_core_min_max[0]), 3.4, ice_core_min_max[1], color='#1177bc90', linewidth=0, zorder=0))
-        ax.plot((-0.2, 3.4), (ice_core_min_max[2], ice_core_min_max[2]), color='#1177bc')
+        #ax.add_patch(plt.Rectangle((-0.2, ice_core_min_max[0]), 3.4, ice_core_min_max[1], color='#1177bc90', linewidth=0, zorder=0))
+        for index, row in red_ice_df.iterrows():
+            ax.plot((-0.2, 3.4), (row['Ice Core'], row['Ice Core']), color='#1177bc90')
         ax.text(0, ice_core_min_max[0] * 1.1, 'Min Ice Core')
         ax.text(0, ice_core_min_max[1] * 1.1, 'Max Ice Core')
-        ax.text(0, ice_core_min_max[2] * 1.1, 'Median Ice Core')
-        ax.set_xlim((-0.2, 3.2))
+        #ax.text(0, ice_core_min_max[2] * 1.1, 'Median Ice Core')
+        ax.set_xlim((-0.2, 2.2))
         ax.set_yscale('log')
         #plt.xticks(rotation=90)
         #ax[0].set_ylim((20, 50000))
@@ -1480,6 +1484,7 @@ elif (inp == 'ets'): #breakdown of how timeseries become pd/pi
         #plot
         p_i, pi_center = plot_from_avg(t.simplified_avg(Yr, BC, 1850.49 + 25/2, windows), 'black', 'PI')
         p_d, pd_center = plot_from_avg(t.simplified_avg(Yr, BC, 1967.5, windows), 'black', 'PD')
+        print(p_i, p_d)
         plt.bar(pi_center, t_series_max, width=windows[0], color='#CC397C50')
         plt.bar(pd_center, t_series_max, width=windows[0], color='#6C62E750')
         plt.plot([1850.49, 1850.49], [0, t_series_max], linewidth=3, color='#CC397C')
@@ -1495,7 +1500,7 @@ elif (inp == 'ets'): #breakdown of how timeseries become pd/pi
             Patch(label='PI', facecolor='#CC397C'),
             Patch(label='PD', facecolor='#6C62E7')
         ]
-        plt.legend(handles=legend_handels, loc='upper center', bbox_to_anchor=(0.42, 1))
+        #plt.legend(handles=legend_handels, loc='upper center', bbox_to_anchor=(0.42, 1))
         #plt.show()
         plt.savefig('figures/ice-cores/test-explain-tseries.png', dpi=300)
         plt.close()
@@ -1772,7 +1777,7 @@ elif (inp == 'quick-lens-bias-boxplot'):
     plt.savefig('figures/ice-cores/quick-lens-bias-boxplot.png', dpi=200)
 elif (inp == 'r'): #regions
     fig, axes = plt.subplots(3, 1, dpi=400, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
-    rcParams.update({'font.size': 9})
+    rcParams.update({'font.size': 7})
     #plt.tight_layout(h_pad=8)
 
     #contiental and hemispheric regoins
@@ -1850,7 +1855,7 @@ elif (inp == 'r'): #regions
             c_norm = BoundaryNorm(bounds, cmap.N)
             sm = ScalarMappable(cmap=cmap, norm=c_norm)
 
-    #emission regions
+    #local emission regions
     ax = axes[2]
     ax.add_feature(cartopy.feature.COASTLINE, edgecolor='black', linewidth=0.5)
     ax.set_title('Local Regions')
@@ -1863,7 +1868,7 @@ elif (inp == 'r'): #regions
     elev_z = np.transpose(elev['land_elev'][:])
     mesh = plt.pcolormesh(elev_lon, elev_lat, elev_z, cmap=colormaps['Greys'], vmin=0, transform=cartopy.crs.PlateCarree())'''
     
-    #boxes
+    #local boxes
     anthro_boxes = json.load(open('data/emission-boxes.json'))
     colors = {k: l[-2] for k, l in patches.items()}
     colors['South America'] = colors['South ZAmerica']
@@ -1872,8 +1877,9 @@ elif (inp == 'r'): #regions
     colors['Greenland'] = colors['North Greenland']
     anthro_boxes = json.load(open('data/emission-boxes.json'))
     for region, boxes in anthro_boxes.items():
-        for box in boxes:
-            ax.add_patch(Rectangle(xy=[box[2], box[0]], width=np.abs(box[3]-box[2]), height=np.abs(box[1]-box[0]), edgecolor=colors[region], facecolor='#00000000', zorder=10, transform=cartopy.crs.PlateCarree()))
+        box = boxes[-1]
+        #for box in boxes:
+        ax.add_patch(Rectangle(xy=[box[2], box[0]], width=np.abs(box[3]-box[2]), height=np.abs(box[1]-box[0]), edgecolor=colors[region], facecolor=colors[region] + '90', zorder=10, transform=cartopy.crs.PlateCarree()))
 
     save_path = 'figures/ice-cores/regions.png'
     plt.savefig(save_path)
