@@ -15,10 +15,12 @@ if len(sys.argv) < 2:
 target_v = sys.argv[1]
 root = sys.argv[2]
 cesm_mode = sys.argv[3].lower() == 'cesm' if len(sys.argv) >= 4 else False
+raw_wet_dry = sys.argv[4].lower() == 'raw' if len(sys.argv) >= 5 else False
+partner_mode = target_v == 'drybc' and not raw_wet_dry
 avg_window = 25 #sys.argv[4] if len(sys.argv) >= 5 else 10
 #avg_window = [int(x) for x in avg_window.split(',')] if ',' in avg_window else [int(avg_window), int(avg_window)]
 smallest_grid = T.smallest_grid(root, lambda s, p: ('.nc' in s) and (p in s), target_v)
-prefix_map = {'sootsn': 'LImon_', 'drybc': 'AERmon_', 'loadbc': 'Eday_', 'mmrbc': 'AERmon_'}
+prefix_map = {'sootsn': 'LImon_', 'drybc': 'AERmon_', 'wetbc': 'AERmon_', 'loadbc': 'Eday_', 'mmrbc': 'AERmon_'}
 prefix = prefix_map[target_v]
 system = platform.system() #differentiate local and derecho env by sys platform
 partners = {}
@@ -35,22 +37,28 @@ class RunIndexManager:
         self.indexes = []
         self.index = 0
     
+    def wet_in_map(self, run):
+        return (run.replace('wetbc', 'drybc') in self.run_index_map.keys()) and (not raw_wet_dry)
+    
+    def dry_in_map(self, run):
+        return (run.replace('drybc', 'wetbc') in self.run_index_map.keys()) and (not raw_wet_dry)
+
     def add(self, run):
-        if not (run in self.run_index_map.keys() or run.replace('wetbc', 'drybc') in self.run_index_map.keys() or run.replace('drybc', 'wetbc') in self.run_index_map.keys()):
+        if not (run in self.run_index_map.keys() or self.wet_in_map(run) or self.dry_in_map(run)):
             self.run_index_map[run] = self.index
             self.indexes.append(self.index)
             self.index += 1
-        elif run.replace('wetbc', 'drybc') in self.run_index_map.keys():
+        elif self.wet_in_map(run):
             self.run_index_map[run] = self.get_index(run.replace('wetbc', 'drybc'))
-        elif run.replace('drybc', 'wetbc') in self.run_index_map.keys():
+        elif self.dry_in_map(run):
             self.run_index_map[run] = self.get_index(run.replace('drybc', 'wetbc'))
 
     def get_index(self, run):
         if run in self.run_index_map.keys():
             return self.run_index_map[run]
-        elif run.replace('wetbc', 'drybc') in self.run_index_map.keys():
+        elif self.wet_in_map(run):
             return self.run_index_map[run.replace('wetbc', 'drybc')]
-        elif run.replace('drybc', 'wetbc') in self.run_index_map.keys():
+        elif self.dry_in_map(run):
             return self.run_index_map[run.replace('drybc', 'wetbc')]
         else:
             return -1
@@ -114,13 +122,13 @@ def evaluate(s):
 #find start and end files
 for filename in files:
     if target_v in filename and (not cesm_mode or T.any_substrings_in_string(['CanESM', 'CESM'], filename)) and filename != target_v + '.nc':
-        if (target_v == 'drybc'):
+        if (partner_mode):
             partner_name = filename.replace('drybc', 'wetbc')
-        if target_v != 'drybc' or os.path.isfile(os.path.join(root, partner_name)):
-            partners = [filename, partner_name] if target_v == 'drybc' else [filename]
+        if (not partner_mode) or os.path.isfile(os.path.join(root, partner_name)):
+            partners = [filename, partner_name] if partner_mode else [filename]
             for f_name in partners:
                 model_name = get_model_name(f_name)
-                if (target_v == 'drybc'):
+                if partner_mode:
                     model_name += '_b' if target_v == 'drybc' and f_name == partner_name else '_a'
                 run_name = get_run_name(f_name)
                 run_model_map[run_name] = model_name
@@ -161,7 +169,7 @@ for run_name, d in main_dict.items():
             new_filename = run_model_map[run_name] + run_index + file_suffix + '.nc'
             og_new_name_map[filename] = year
             #sort by time
-            if target_v != 'drybc':
+            if not partner_mode:
                 to_eval += "ncap2 -O -s 'time=asort(time);' " + filename + " " + new_filename + " && "
             else:
                 to_eval += "cp " + filename + " " + new_filename + " && "
@@ -190,7 +198,7 @@ for run_name, d in main_dict.items():
 to_eval = evaluate(to_eval)
 
 #comands to combine files with their partners (subtraction)
-if target_v == 'drybc':
+if partner_mode:
     to_eval += 'echo "combining files with partners..." && '
     valid_models = list(set(main_dict.keys()).difference(bads))
     valid_er_models = set()
@@ -317,7 +325,7 @@ for base, files in bins.items():
 to_eval = evaluate(to_eval)
 
 #comand to average files
-if target_v == 'drybc':
+if partner_mode:
     bases.remove('CNRM.nc')
 to_eval += 'echo "averaging..." && '
 to_eval += 'ncra ' + ' '.join(bases) + ' output.nc -O && '
@@ -349,7 +357,7 @@ for file in bases:
     df.loc[len(df)] = row
 
 #save csv data files
-var2subfolder = {'drybc': 'cmip6', 'loadbc': 'loadbc', 'sootsn': 'cesm-sootsn', 'mmrbc': 'mmrbc'}
+var2subfolder = {'drybc': 'cmip6', 'wetbc': 'cmip6', 'loadbc': 'loadbc', 'sootsn': 'cesm-sootsn', 'mmrbc': 'mmrbc'}
 subfolder = var2subfolder[target_v]
 if subfolder == 'cmip' and cesm_mode:
     subfolder = 'cesm-wetdry'

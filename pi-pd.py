@@ -900,7 +900,7 @@ elif (inp == 'l'):
         ax.get_yaxis().set_major_formatter(ScalarFormatter())
         #manually setup legend
         legend_handels = []
-        legend_names = {'CMIP6': 'CMIP6 (n=8)', 'CESM': 'CESM (n=1)', 'LENS': 'LENS (n=18)', 'LENS-Bias': 'LENS-Bias', 'Ice Core': 'Ice Core', 'mmrbc': 'mmrbc', 'LENS-18': 'LENS-18', 'LENS-25': 'LENS-25'}
+        legend_names = {'CMIP6': 'CMIP6 (n=7)', 'CESM': 'CESM (n=1)', 'LENS': 'LENS (n=18)', 'LENS-Bias': 'LENS-Bias', 'Ice Core': 'Ice Core', 'mmrbc': 'mmrbc', 'LENS-18': 'LENS-18', 'LENS-25': 'LENS-25'}
         for model in data.keys():
             legend_handels.append(Patch(label=legend_names[model], facecolor=model_colors[model]))
         ax.legend(handles=legend_handels, loc=9, bbox_to_anchor=(-0.05, -0.15))
