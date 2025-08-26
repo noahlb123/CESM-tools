@@ -25,7 +25,7 @@ def convert_marle_units(m): #molecules/cm^2/s to kg/m^2/s
 if len(sys.argv) < 2:
     raise Exception('1 command line arguments required: <mode (t/r)>')
 mode = sys.argv[1]
-simple = sys.argv[2].lower() == 'simple' if len(sys.argv) < 3 else False
+simple = sys.argv[2].lower() == 'simple' if len(sys.argv) >= 3 else False
 root = '/glade/derecho/scratch/nlbills/ceds-anthro-emissions'
 
 if mode == 't': #timeseries of each component
