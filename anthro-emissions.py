@@ -194,7 +194,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     
     for col_i in range(col_n):
         for row_i in range(row_n):
-            ax = axes[row_i, col_i]
+            ax = axes[row_i, col_i] if not simple else axes[col_i]
             key = i_d_map[row_i, col_i] if not simple else i_d_map[col_i]
             arr = final_mats[key]
             lat = ncdf_dict[key.split('+')[0].lower() + '-pd']['lats']
