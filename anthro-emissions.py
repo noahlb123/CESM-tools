@@ -170,12 +170,11 @@ elif mode == 'r': #ratios plotted on robinson globe
 
     #setup
     col_n, row_n = (2, 2) if not simple else (2, 1)
-    print(col_n, row_n)
     fig, axes = plt.subplots(row_n, col_n, dpi=400, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
     plt.tight_layout(h_pad=8)
     i_d_map = np.array([['Hoesly', 'Hoesly+MarlePI'], ['Marle', 'Hoesly+Marle']]) if not simple else ['Hoesly', 'Marle']
     plt.rcParams.update({'mathtext.default': 'regular'})
-    plt.rc('font', size=7)
+    plt.rc('font', size=12)
     fig.subplots_adjust(hspace=0.4)
     title_key_map = {
         'Hoesly': 'Anthropogenic\n($Anth_{1980}/Anth_{1850}$)',
