@@ -25,6 +25,7 @@ def convert_marle_units(m): #molecules/cm^2/s to kg/m^2/s
 if len(sys.argv) < 2:
     raise Exception('1 command line arguments required: <mode (t/r)>')
 mode = sys.argv[1]
+simple = sys.argv[2].lower() == 'simple' if len(sys.argv) < 3 else False
 root = '/glade/derecho/scratch/nlbills/ceds-anthro-emissions'
 
 if mode == 't': #timeseries of each component
@@ -168,10 +169,10 @@ elif mode == 'r': #ratios plotted on robinson globe
     }
 
     #setup
-    col_n, row_n = (2, 2)
+    col_n, row_n = (2, 2) if not simple else (2, 1)
     fig, axes = plt.subplots(row_n, col_n, dpi=400, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
     plt.tight_layout(h_pad=8)
-    i_d_map = np.array([['Hoesly', 'Hoesly+MarlePI'], ['Marle', 'Hoesly+Marle']])
+    i_d_map = np.array([['Hoesly', 'Hoesly+MarlePI'], ['Marle', 'Hoesly+Marle']]) if not simple else ['Hoesly', 'Marle']
     plt.rcParams.update({'mathtext.default': 'regular'})
     plt.rc('font', size=7)
     fig.subplots_adjust(hspace=0.4)
@@ -193,7 +194,7 @@ elif mode == 'r': #ratios plotted on robinson globe
     for col_i in range(col_n):
         for row_i in range(row_n):
             ax = axes[row_i, col_i]
-            key = i_d_map[row_i, col_i]
+            key = i_d_map[row_i, col_i] if not simple else i_d_map[col_i]
             arr = final_mats[key]
             lat = ncdf_dict[key.split('+')[0].lower() + '-pd']['lats']
             lon = ncdf_dict[key.split('+')[0].lower() + '-pd']['lons']
