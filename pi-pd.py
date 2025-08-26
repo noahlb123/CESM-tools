@@ -79,7 +79,20 @@ patches = { #Okabe and Ito colorblind pallet
     'East Antarctica': (-180, -60, 180, -30, '#000000'),
     'West Antarctica': (0, -60, 180, -30, '#6CB3E4'),'''
 #IBM Design Library colorblind pallet https://www.nceas.ucsb.edu/sites/default/files/2022-06/Colorblind%20Safe%20Color%20Schemes.pdf
-model_colors = {'CESM': '#EE692C', 'CMIP6': '#CC397C', 'Ice Core': '#6C62E7', 'CESM-SOOTSN': '#638FF6', 'LENS': '#F5B341', 'LENS-Bias': '#CC397C', 'loadbc': '#CC397C', 'mmrbc': '#F5B341', 'Anthro Emissions': '#638FF6', 'LENS-18': '#EE692C', 'LENS-25': '#F5B341'}
+model_colors = {
+    'CESM': '#EE692C',
+    'CMIP6': '#CC397C',
+    'Ice Core': '#6C62E7',
+    'CESM-SOOTSN': '#638FF6',
+    'LENS': '#F5B341',
+    'LENS-Bias': '#CC397C',
+    'loadbc': '#CC397C',
+    'mmrbc': '#F5B341',
+    'Anthro Emissions': '#638FF6',
+    'LENS-18': '#EE692C',
+    'LENS-25': '#F5B341',
+    'placeholder': '#FFFFFF'
+    }
 
 def within_patch(lat, lon, patch, name):
     lat_min, lat_max, lon_min, lon_max = t.patch_min_max(patch)
@@ -399,7 +412,6 @@ elif (inp == 'big-table'): #make table comparing individual models
             within_cesm.at[c_name] = (np.abs(column - df['CESM2']) < 0.25).sum()
             within_ice.at[c_name] = (np.abs(column - df['Ice Core']) < 0.25).sum()
     df.loc['n near ice core'] = within_ice
-    df.loc['n near CESM2'] = within_cesm
     #setup color scale
     cmap = colormaps['BrBG_r']
     c_norm = Normalize(vmin=0, vmax=2)
@@ -414,19 +426,25 @@ elif (inp == 'big-table'): #make table comparing individual models
     ax.axis('off')
     colors = cmap(c_norm(vals))
     colors[:,0,:] = [1, 1, 1, 1] #make first column white
-    colors[-2:,:,:] = [1, 1, 1, 1] #make last 2 rows white
+    colors[-1:,:,:] = [1, 1, 1, 1] #make last row white
     for il in range(len(colors)):
         for ic in range(len(colors[il])):
             if red_mask[il][ic]:
                 colors[il][ic] = [0.8, 0.2235, 0.486, 1]
     vals = vals.tolist()
     vals[37][0] = 'n near Ice Core'
-    vals[38][0] = 'n near CESM2'
     rename_cols = {str(i): 'LENS' +str(i) for i in range(18,36)}
     rename_cols['Index'] = 'Ice Core Index'
     table = plt.table(cellText=vals, colLabels=df.rename(columns=rename_cols).columns, loc='center', cellColours=colors, colWidths=[0.2] + [0.1] * (len(df.columns) - 1))
     table.auto_set_font_size(False)
     table.set_fontsize(5)
+    #color text
+    for row_i in range(len(vals) - 1):
+        for col_i in range(1, len(vals[0])):
+            val = vals[row_i][col_i]
+            is_red = red_mask[row_i][col_i]
+            if type(val) == float and (val >= 1.65 or val <= 0.2) and not is_red:
+                table[row_i + 1, col_i].get_text().set_color('white')
     df = df[df['Index'] < 0]
     df.reindex(sorted(df.columns), axis=1).to_csv('data/big-table-within.csv')
     plt.savefig('figures/ice-cores/test-big-table-cmip-models.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
@@ -471,9 +489,9 @@ elif (inp == 'c'): #Cartopy
         elev_lat = elev['lat'][:]
         elev_z = np.transpose(elev['land_elev'][:])
         mesh = plt.pcolormesh(elev_lon, elev_lat, elev_z, cmap=colormaps['Greys'], vmin=0, transform=cartopy.crs.PlateCarree())
-
+        
         #setup color scale
-        cmap = colormaps['BrBG']#inferno
+        cmap = colormaps['BrBG_r']#inferno
         # extract all colors from the map
         cmaplist = [cmap(i) for i in range(cmap.N)]
         #force middle color to be white
@@ -826,7 +844,8 @@ elif (inp == 'l'):
             'Ice Core': pd.Series(ratios, index=filenames),
             #'loadbc': pd.Series(bar_means['loadbc'], index=order_of_columns),
             #'mmrbc': pd.Series(bar_means['mmrbc'], index=order_of_columns),
-            'CESM': pd.Series(bar_means['CESM'], index=order_of_columns),
+            #'CESM': pd.Series(bar_means['CESM'], index=order_of_columns),
+            'placeholder': pd.Series([np.nan for i in range(37)], index=order_of_columns),
             #'CESM-SOOTSN': pd.Series(bar_means['CESM-SOOTSN'], index=order_of_columns),
             'CMIP6': pd.Series(bar_means['CMIP6'], index=order_of_columns),
             'LENS': pd.Series(bar_means['LENS'], index=order_of_columns),
@@ -900,10 +919,12 @@ elif (inp == 'l'):
         ax.get_yaxis().set_major_formatter(ScalarFormatter())
         #manually setup legend
         legend_handels = []
-        legend_names = {'CMIP6': 'CMIP6 (n=7)', 'CESM': 'CESM (n=1)', 'LENS': 'LENS (n=18)', 'LENS-Bias': 'LENS-Bias', 'Ice Core': 'Ice Core', 'mmrbc': 'mmrbc', 'LENS-18': 'LENS-18', 'LENS-25': 'LENS-25'}
+        legend_names = {'CMIP6': 'CMIP6 (n=7)\nDeposition', 'CESM': 'CESM (n=1)', 'LENS': 'LENS (n=18)\nAir Column', 'LENS-Bias': 'LENS-Bias', 'Ice Core': 'Ice Core\nConcentration', 'mmrbc': 'mmrbc', 'LENS-18': 'LENS-18', 'LENS-25': 'LENS-25'}
         for model in data.keys():
+            if model == 'placeholder':
+                continue
             legend_handels.append(Patch(label=legend_names[model], facecolor=model_colors[model]))
-        ax.legend(handles=legend_handels, loc=9, bbox_to_anchor=(-0.05, -0.15))
+        ax.legend(handles=legend_handels, loc=9, bbox_to_anchor=(0, -0.17), labelspacing=0.75)
         #axis labels colors
         for a in plt.gcf().get_axes():
             for i in range(len(bar_labels)):
@@ -944,6 +965,12 @@ elif (inp == 'l'):
         x = np.arange(len(list(new_regions.keys())))
         multiplier = 0
         width = 0.2 * 4 / 5
+        var_colors = {
+            'CESM': '#CC397C',
+            'mmrbc': '#EE692C',
+            'loadbc': '#F5B341',
+            'CESM-SOOTSN': '#638FF6',
+            'Ice Core': '#6C62E7'}
         bar_labels = list(new_regions.keys())
         bar_colors = [patches[region2region[s]][-1] + '30' for s in bar_labels]
         bar_width = 1
@@ -951,7 +978,7 @@ elif (inp == 'l'):
         for_json = {}
         for model in data.keys():
             for_json[model] = []
-            c = model_colors[model]
+            c = var_colors[model]
             ca = c + '90'
             offset = width * multiplier
             bplot = ax.boxplot(data[model], widths=width, positions=x + offset - width / 2, patch_artist=True, boxprops=dict(facecolor=ca, color=c, linewidth=0), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False, showcaps=False, showmeans=False, showbox=True)
@@ -974,17 +1001,17 @@ elif (inp == 'l'):
         #manually setup legend
         legend_handels = []
         leg_dict = {'Ice Core': 'Ice Core',
-                    'loadbc': 'CESM2 BC in air column',
-                    'CESM': 'CESM2 BC deposition to snow',
-                    'CESM-SOOTSN': 'CESM2 BC in snow',
-                    'mmrbc': 'CESM2 BC in surface air'}
+                    'loadbc': 'BC in air column',
+                    'CESM': 'BC deposition to snow',
+                    'CESM-SOOTSN': 'BC in snow',
+                    'mmrbc': 'BC in surface air'}
         for label in sub.keys():
             if '+' not in label:
                 legend_handels.append(Patch(label=leg_dict[label]))
         ax.legend(handles=legend_handels)
         #manualy change legend colors
         leg = ax.get_legend()
-        new_model_colors = {k: models_colors[k] for k in list(sub.keys())}
+        new_model_colors = {k: var_colors[k] for k in list(sub.keys())}
         for i in range(len(list(new_model_colors.items()))):
             key, color = list(new_model_colors.items())[i]
             leg.legend_handles[i].set_color(color)
@@ -1040,20 +1067,25 @@ elif (inp == 'l'):
         del regionless_data['Ice Core']
         #plot simplified regionless
         red_ice_df = df.loc[df['core index'].isin({33, 36, 37, 31, 5, 29, 1, 35, 32, 15})]
-        ice_core_min_max = (np.min(red_ice_df['Ice Core']), np.max(red_ice_df['Ice Core']), np.median(red_ice_df['Ice Core']))
+        ice_core_min_max = (np.min(red_ice_df['Ice Core']), np.max(red_ice_df['Ice Core']), np.mean(red_ice_df['Ice Core']))
         legend_names = {'Ice Core': 'Ice Core', 'Hoesly': 'Anthropogenic', 'Marle': 'Biomass Burning', 'Hoesly+MarlePI': 'Anth+$Bio_{PI}$', 'Hoesly+MarlePD/PI': 'Anth+$Bio_{PD/PI}$'}
         anth_model_map = {'Hoesly': 'CESM', 'Marle': 'CMIP6', 'Hoesly+MarlePI': 'LENS', 'Hoesly+MarlePD': 'mmrbc', 'Hoesly+MarlePD/PI': 'CESM-SOOTSN', 'Ice Core': 'Ice Core'}
         colors = [model_colors[anth_model_map[model]] for model in regionless_data.keys()]
         fig, ax = plt.subplots()#2, layout='constrained')
-        ax.scatter([legend_names[k] for k in regionless_data.keys()], regionless_data.values(), c=colors, s=60, marker='x')
-        #ax.add_patch(plt.Rectangle((-0.2, ice_core_min_max[0]), 3.4, ice_core_min_max[1], color='#1177bc90', linewidth=0, zorder=0))
+        ax.scatter([legend_names[k] for k in regionless_data.keys()], regionless_data.values(), c='black', s=60, marker='x')
+        ax.add_patch(plt.Rectangle((-0.2, ice_core_min_max[0]), 3.4, ice_core_min_max[1], color='#1177bc30', linewidth=0, zorder=0))
         for index, row in red_ice_df.iterrows():
-            ax.plot((-0.2, 3.4), (row['Ice Core'], row['Ice Core']), color='#1177bc90')
-        ax.text(0, ice_core_min_max[0] * 1.1, 'Min Ice Core')
-        ax.text(0, ice_core_min_max[1] * 1.1, 'Max Ice Core')
+            color = patches[row['region']][4]
+            ax.plot((-0.2, 3.4), (row['Ice Core'], row['Ice Core']), color=color)
+        ax.text(2.25, ice_core_min_max[0], 'Min Ice Core')
+        ax.text(2.25, ice_core_min_max[1], 'Max Ice Core')
+        ax.text(2.25, ice_core_min_max[2], 'Mean Ice Core')
+        ax.plot((-0.2, 3.4), [ice_core_min_max[2] for i in range(2)], color='black', linestyle='--')
         #ax.text(0, ice_core_min_max[2] * 1.1, 'Median Ice Core')
         ax.set_xlim((-0.2, 2.2))
         ax.set_yscale('log')
+        ax.set_xlabel('CMIP6 BC Emission Dataset')
+        ax.set_ylabel('1980/1850 BC Emission Ratio')
         #plt.xticks(rotation=90)
         #ax[0].set_ylim((20, 50000))
         #ax[1].scatter(regionless_data.keys(), regionless_data.values())
