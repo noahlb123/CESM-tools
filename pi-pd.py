@@ -17,6 +17,7 @@ from matplotlib import colormaps
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from scipy.stats import gaussian_kde
+from scipy.stats import ttest_rel
 from scipy.stats import norm
 import statsmodels.api as sm
 from scipy.stats import iqr
@@ -73,6 +74,7 @@ patches = { #Okabe and Ito colorblind pallet
     'Africa': (-20, 23.5, 80, -58.5, '#000000', '#000000'),
     'Asia': (60, 5, 90, a_p - 5, '#459B76', '#000000'), #'#459B76')
     'Alaska': (0, 0, 0, 0, '#2C72AD', '#000000'),
+    'World': (0, 0, 0, 0, '#FFFFFF', '#FFFFFF')
 }
 '''
     'Greenland': (-55, s_g, 35, 90 - s_g, '#880D1E'),
@@ -277,7 +279,7 @@ elif (inp == 'd'): #pd hists
     plt.title('PD = Most Recent Value')
     plt.savefig('figures/ice-cores/pd-recent.png', dpi=200)
     plt.close()
-elif (inp == 'n'): #table of ice core numbers and filenames
+elif (inp == 'n'): #table of ice core numbers and filenames and pdf figure
     bins = [0.5 * i for i in range(11)] + [99]
     def plot_pdf(data, plt, color):
         kde = gaussian_kde(data)
@@ -324,7 +326,7 @@ elif (inp == 'n'): #table of ice core numbers and filenames
         legend_elements = legend_elements.sort_index()
         ax.legend(handles=list(legend_elements), loc='center left', bbox_to_anchor=(1, 0.5))
         plt.xticks(rotation=-60)
-        plt.xlabel('PD/PI')
+        plt.xlabel('PD/PI Ice Core Ratio (See legend for dates)')
         plt.ylabel("Probability")
         plt.savefig('figures/ice-cores/test-' + era + '-pdfs.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
         plt.close()
@@ -532,7 +534,7 @@ elif (inp == 'c'): #Cartopy
         if not projection in ('antartica', 'north-pole'):
             pass
             #rcParams.update({'font.size': 10})
-            plt.colorbar(mappable=sm, label="1980/1850 BC Concentration", orientation="horizontal", ax=ax)
+            plt.colorbar(mappable=sm, label="1980/1850 Ice Core BC Concentration", orientation="horizontal", ax=ax)
             #rcParams.update({'font.size': 7})
             #plt.colorbar(mappable=mesh.colorbar, label="Elevation (m)", orientation="vertical")
         
@@ -859,22 +861,42 @@ elif (inp == 'l'):
         #sorted_regions.sort()
         sorted_regions = ['Arctic', 'North Greenland', 'South Greenland', 'Antarctica', 'Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica']
         region_filename = {i: region_filename[i] for i in sorted_regions}
+        region_filename['World'] = filenames
         data = {model: [] for model in df.columns}
         del data['core index'], data['region']
         for model in data.keys():
             for region in region_filename.keys():
-                data[model].append(df[df['region'] == region][model])
+                if region == 'World':
+                    data[model].append(df[model])
+                else:
+                    data[model].append(df[df['region'] == region][model])
         #plot
         fig, ax = plt.subplots(layout='constrained')
         x = np.arange(len(region_filename.keys()))
         multiplier = 0
         width = 0.2
         #bar_labels = list(region_filename.keys())
-        bar_labels = ['Arctic', 'North Greenland', 'South Greenland', 'Antarctica', 'Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica']
+        bar_labels = ['Arctic', 'North Greenland', 'South Greenland', 'Antarctica', 'Africa', 'Asia', 'Europe', 'North America', 'South ZAmerica', 'World']
         bar_colors = [patches[s][-1] + '30' for s in bar_labels]
         bar_width = 1
         max_box_height = df.drop('core index', axis=1).max(numeric_only=True).max()
         box_heights = []
+        #do t tests
+        signifigance = {}
+        for i in range(len(data['Ice Core'])):
+            for model in df.keys():
+                if model in ['core index', 'region']:
+                    continue
+                if len(data[model][i]) <= 1:
+                    signifigance[model + "-" + str(i)] = model_colors[model]
+                    continue
+                if model in ('Ice Core', 'placeholder'):
+                    signifigance[model + "-" + str(i)] = '#000000'
+                    continue
+                region = bar_labels[i]
+                res, p = ttest_rel(data['Ice Core'][i], data[model][i], alternative='less')
+                signifigance[model + "-" + str(i)] = '#008800' if p < 0.05 else '#000000'
+        #plot
         for model in df.keys():
             if model in ['core index', 'region']:
                 continue
@@ -897,10 +919,8 @@ elif (inp == 'l'):
             for i in range(len(data[model])):
                 if len(data[model][i]) > 1:
                     plt.scatter(len(data[model][i]) * [x[i] + offset], data[model][i], c=c, s=8)
-                    x_color = 'black'
-                else:
-                    x_color = c
-                plt.scatter(x[i] + offset, np.mean(data[model][i]), c=x_color, s=30, marker='x', zorder=2.5)
+                x_color = signifigance[model + "-" + str(i)]
+                plt.scatter(x[i] + offset, np.mean(data[model][i]), c=x_color, s=30, marker='x', zorder=4.1)
             multiplier += 1
         #bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors, zorder=0)
         y_ticks = [0.3, 0.5, 1, 2, 4, 7, 10, 20]
@@ -929,7 +949,7 @@ elif (inp == 'l'):
         for a in plt.gcf().get_axes():
             for i in range(len(bar_labels)):
                 label = bar_labels[i].replace('South America', 'South ZAmerica')
-                color = patches[label][-1]
+                color = patches[label][-1] if i != len(bar_labels) - 1 else 'black'
                 a.get_xticklabels()[i].set_color(color)
         plt.savefig('figures/ice-cores/test-new-main.png', bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close()
@@ -994,7 +1014,7 @@ elif (inp == 'l'):
         ax.set_xticks(x + width * 1.5, bar_labels)
         ax.set_xlim([x[0] + width * 1.5 - bar_width / 2, x[-1] + width * 1.5 + bar_width / 2])
         ax.set_yticks([x for x in range(1, 11)])
-        ax.set_ylabel("1980/1850 Ratio")
+        ax.set_ylabel("1980/1850 Ratio for CESM2 BC Variables")
         ax.set_xlabel("Region")
         ax.get_yaxis().set_major_formatter(ScalarFormatter())
         ax.set_ylim([0, rdf['Ice Core'].max() + 0.1])
@@ -1916,6 +1936,31 @@ elif (inp == 'r'): #regions
     save_path = 'figures/ice-cores/regions.png'
     plt.savefig(save_path)
     print('saved as ' + save_path)
+    plt.close()
+
+    #make hemispheric legend
+    #todo: add back 99 opacity in legend colors
+    for i in range(2):
+        plt.plot([1], [1])
+        if i == 1:
+            title = 'Hemispheric Regions'
+            legend_handels = [
+                Patch(label='North Pole', facecolor=patches['Arctic'][4]),
+                Patch(label='Alpine', facecolor=patches['Africa'][4]),
+                Patch(label='South Pole', facecolor=patches['Antarctica'][4]),
+            ]
+        else:
+            title = 'Continental and Local Regions'
+            legend_handels = []
+            for region, patch in patches.items():
+                if region == 'Alaska':
+                    continue
+                if region == 'South ZAmerica':
+                    region = 'South America'
+                legend_handels.append(Patch(label=region, facecolor=patch[4]))
+        plt.legend(handles=legend_handels, title=title)
+        plt.savefig('figures/ice-cores/region-legend-' + str(i) + '.png', dpi=400)
+        plt.close()
 
 elif (inp == 'z'):#testing
     plt.plot([1], [1])
