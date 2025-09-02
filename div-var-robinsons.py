@@ -141,14 +141,17 @@ if step == '2' or step == 'a': #plot
                 cmap = colormaps['BrBG_r'] if op == 'D' else colormaps['viridis']
                 if op == 'D':
                     cmaplist = [cmap(i) for i in range(cmap.N)]
-                    cmap2 = T.custom_cmap([(0.3254901960784314, 0.19215686274509805, 0.01568627450980392), to_rgb('#da00db')])
-                    cmaplist2 = [cmap2(i) for i in range(cmap.N)]
-                    n_extra_colors = 6
-                    extra_colors = [cmaplist2[i * int(np.floor(len(cmaplist2) / (n_extra_colors + 1)))] for i in range(n_extra_colors + 1)]
-                    custom_list = ['#003c30', '#0c7169', '#59b0a7', '#b4e1da', '#ffffff', '#f1deb3', '#d0a255', '#995d14', '#533104'] + extra_colors[1:len(extra_colors)]
-                    cmap = LinearSegmentedColormap.from_list('Custom cmap', custom_list, cmap.N)
+                    cmaplist[len(cmaplist) // 2] = (1, 1.0, 1.0, 1.0)
+                    #cmap2 = T.custom_cmap([(0.3254901960784314, 0.19215686274509805, 0.01568627450980392), to_rgb('#da00db')])
+                    #cmaplist2 = [cmap2(i) for i in range(cmap.N)]
+                    #n_extra_colors = 6
+                    #extra_colors = [cmaplist2[i * int(np.floor(len(cmaplist2) / (n_extra_colors + 1)))] for i in range(n_extra_colors + 1)]
+                    #custom_list = ['#003c30', '#0c7169', '#59b0a7', '#b4e1da', '#ffffff', '#f1deb3', '#d0a255', '#995d14', '#533104'] + extra_colors[1:len(extra_colors)]
+                    #cmap = LinearSegmentedColormap.from_list('Custom cmap', custom_list, cmap.N)
                     #cmap.set_extremes(over='#ff0000')
-                    bounds = [round(x, 1) for x in np.linspace(0, 2, 10)] + [2 + i * (6 - 2) / (n_extra_colors + 1) for i in range((n_extra_colors + 1))][1:-1]
+                    cmap = LinearSegmentedColormap.from_list('Custom cmap', cmaplist, cmap.N)
+                    #bounds = [round(x, 1) for x in np.linspace(0, 2, 10)] + [2 + i * (6 - 2) / (n_extra_colors + 1) for i in range((n_extra_colors + 1))][1:-1]
+                    bounds = [round(x, 1) for x in np.linspace(0, 2, 10)]
                     c_norm = BoundaryNorm(bounds, cmap.N)
                 else:
                     c_norm = LogNorm(vmin=1, vmax=10)
