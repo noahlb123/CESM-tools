@@ -980,6 +980,20 @@ elif (inp == 'l'):
         for model in data.keys():
             for region in new_regions.keys():
                 data[model].append(rdf[rdf['region'] == region][model].dropna())
+        #do t tests
+        signifigance = {}
+        for i in range(len(data['Ice Core'])):
+            for model in sub.keys():
+                if model in ['core index', 'region']:
+                    continue
+                if len(data[model][i]) <= 1:
+                    signifigance[model + "-" + str(i)] = model_colors[model]
+                    continue
+                if model in ('Ice Core', 'placeholder'):
+                    signifigance[model + "-" + str(i)] = '#000000'
+                    continue
+                res, p = ttest_rel(pd.Series(data=data['Ice Core'][i], index=data[model][i].index), data[model][i], alternative='less')
+                signifigance[model + "-" + str(i)] = '#008800' if p < 0.05 else '#000000'
         #plot
         fig, ax = plt.subplots(layout='constrained')
         x = np.arange(len(list(new_regions.keys())))
@@ -1005,7 +1019,7 @@ elif (inp == 'l'):
             for i in range(len(data[model])):
                 for_json[model].append(np.median(data[model][i]))
                 plt.scatter(len(data[model][i]) * [x[i] + offset - width / 2], data[model][i], c=c, s=8)
-                x_color = 'black'
+                x_color = signifigance[model + "-" + str(i)]
                 plt.scatter(x[i] + offset - width / 2, np.mean(data[model][i]), c=x_color, s=30, marker='x', zorder=2.5)
             #bplot = ax.boxplot(data[model], widths=width, positions=x+offset, patch_artist=True, boxprops=dict(facecolor=c, color=c), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c))
             box_heights += [item.get_ydata()[1] for item in bplot['whiskers']]
