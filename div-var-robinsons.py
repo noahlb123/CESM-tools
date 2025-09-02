@@ -157,7 +157,7 @@ if step == '2' or step == 'a': #plot
                 #plot
                 ax[numo_i, deno_i].pcolormesh(lons, lats, x, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
         op_s = '*' if op == 'X' else '÷'
-        label = 'X1 (PD/PI) ' + op_s + ' X2 (PD/PI)'
+        label = 'Column Variable PD/PI Ratio ' + op_s + ' Row Variable PD/PI Ratio'
         plt.colorbar(mappable=sm, label=label, orientation="horizontal", ax=ax, extend='both')
         labels = ('1/Max', '1', 'Max') if op == 'D' else ('0.1', '', 'Max')
         plt.savefig(os.path.join(os.getcwd(), op + '.png'), dpi=200, bbox_inches='tight')
