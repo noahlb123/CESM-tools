@@ -178,9 +178,9 @@ elif mode == 'r': #ratios plotted on robinson globe
     fig.subplots_adjust(hspace=0.4)
     title_key_map = {
         'Hoesly': 'Anthropogenic\n($Anth_{1980}/Anth_{1850}$)',
-        'Marle': 'Biomass Burning\n($Bio_{1980}/Bio_{1850}$)',
-        'Hoesly+MarlePI': 'Anthropogenic+$Biomass Burning_{PI}$\n($Anth_{1980}+Bio_{1850}/Anth_{1850}+Bio_{1850}$)',
-        'Hoesly+Marle': 'Anthropogenic+$Biomass Burning_{PD/PI}$\n($Anth_{1980}+Bio_{1980}/Anth_{1850}+Bio_{1850}$)'
+        'Marle': 'Biomass Burning\n($BB_{1980}/BB_{1850}$)',
+        'Hoesly+MarlePI': 'Anthropogenic+$Biomass Burning_{PI}$\n($Anth_{1980}+BB_{1850}/Anth_{1850}+BB_{1850}$)',
+        'Hoesly+Marle': 'Anthropogenic+$Biomass Burning_{PD/PI}$\n($Anth_{1980}+BB_{1980}/Anth_{1850}+BB_{1850}$)'
         }
     #color
     cmap = colormaps['BrBG_r']
