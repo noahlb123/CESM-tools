@@ -102,7 +102,7 @@ if step == '2' or step == 'a': #plot
     title_map = {'loadbc': 'BC in\nair column',
                  'mmrbc': 'BC in\nsurface air',
                  'sootsn': 'BC in\nsnow',
-                 'wet-dry': 'BC deposiiton\nto snow'}
+                 'wet-dry': 'BC deposition\nto snow'}
 
     for op in ['D', 'X']:
         fig, ax = plt.subplots(len(columns), len(index), subplot_kw={'projection': cartopy.crs.Robinson()})
