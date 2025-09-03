@@ -98,6 +98,11 @@ if step == '2' or step == 'a': #plot
         max = np.nanmax(np.ma.masked_invalid(m))
         #return (m - min) / (max - min)
         return m / min
+    
+    title_map = {'loadbc': 'BC in air column',
+                 'mmrbc': 'BC in surface air',
+                 'sootsn': 'BC in snow',
+                 'wet-dry': 'BC deposiiton to snow'}
 
     for op in ['D', 'X']:
         fig, ax = plt.subplots(len(columns), len(index), subplot_kw={'projection': cartopy.crs.Robinson()})
@@ -110,7 +115,7 @@ if step == '2' or step == 'a': #plot
 
                 #title
                 if numo_i == 0:
-                    ax[numo_i, deno_i].set_title(deno, size=12)
+                    ax[numo_i, deno_i].set_title(title_map[deno], size=12)
                 if deno_i == 0:
                     ax[numo_i, deno_i].text(-0.2, 0.5, numo, size=12, verticalalignment='center', rotation=90, transform=ax[numo_i, deno_i].transAxes)
                 

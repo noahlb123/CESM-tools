@@ -447,9 +447,13 @@ elif (inp == 'big-table'): #make table comparing individual models
             is_red = red_mask[row_i][col_i]
             if type(val) == float and (val >= 1.65 or val <= 0.2) and not is_red:
                 table[row_i + 1, col_i].get_text().set_color('white')
-    df = df[df['Index'] < 0]
-    df.reindex(sorted(df.columns), axis=1).to_csv('data/big-table-within.csv')
     plt.savefig('figures/ice-cores/test-big-table-cmip-models.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
+    print('n>9= ', (df > 9).sum())
+    plt.close()
+    plt.hist(np.vectorize(lambda a : round(a, 3))(df.drop(['n near ice core'], axis=0).drop(['Index', 'Ice Core', 'CMIP6', 'CESM2', 'LENS'], axis=1).to_numpy()).flatten())
+    plt.title('LENS run ratio hist')
+    plt.show()
+    df.reindex(sorted(df.columns), axis=1).to_csv('data/big-table-within.csv')
 elif (inp == 'p'): #Plotly
     fig = px.scatter_geo(final_pd, lat='lat', lon='lon', hover_name='ratio', title='PD/PI Ratios')
     fig.show()
@@ -543,8 +547,8 @@ elif (inp == 'c'): #Cartopy
         ax.axis('off')
 
         #patches
-        '''for patch in patches.values():
-            ax.add_patch(Rectangle(xy=[patch[0], patch[1]], width=patch[2], height=patch[3], facecolor=patch[4] + '50', edgecolor=patch[4],transform=cartopy.crs.PlateCarree()))'''
+        for patch in patches.values():
+            ax.add_patch(Rectangle(xy=[patch[0], patch[1]], width=patch[2], height=patch[3], facecolor=patch[4] + '50', edgecolor=patch[4],transform=cartopy.crs.PlateCarree()))
 
         plt.savefig('figures/ice-cores/testmap-' + projection + '.png', bbox_inches='tight', pad_inches=0.0)
         #plt.show()
@@ -904,6 +908,11 @@ elif (inp == 'l'):
             ca = c + '90'
             offset = (width) * multiplier
             for i in range(len(data[model])):
+                print(model, bar_labels[i], ':')
+                print('mean:', round(np.mean(data[model][i]), 2))
+                print('median:', round(np.median(data[model][i]), 2))
+                print('min:', round(np.min(data[model][i]), 2))
+                print('max:', round(np.max(data[model][i]), 2))
                 pos = x[i] + offset
                 if len(data[model][i]) != 2:
                     bplot = ax.boxplot(data[model][i], widths=width, positions=[pos], patch_artist=True, boxprops=dict(facecolor=ca, color=c, linewidth=0), capprops=dict(color=c), medianprops=dict(color='black', linewidth=0), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False, showcaps=False, showmeans=False, showbox=True)
