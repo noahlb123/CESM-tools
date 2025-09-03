@@ -171,7 +171,8 @@ elif mode == 'r': #ratios plotted on robinson globe
     #setup
     col_n, row_n = (2, 2) if not simple else (2, 1)
     fig, axes = plt.subplots(row_n, col_n, dpi=400, subplot_kw={'projection': cartopy.crs.Robinson(central_longitude=0)})
-    plt.tight_layout(h_pad=8)
+    plt.tight_layout()#(h_pad=8)
+    plt.subplots_adjust(wspace=0, hspace=0)
     i_d_map = np.array([['Hoesly', 'Hoesly+MarlePI'], ['Marle', 'Hoesly+Marle']]) if not simple else ['Hoesly', 'Marle']
     plt.rcParams.update({'mathtext.default': 'regular'})
     plt.rc('font', size=12)
