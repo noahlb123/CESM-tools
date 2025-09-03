@@ -117,7 +117,7 @@ if step == '2' or step == 'a': #plot
                 if numo_i == 0:
                     ax[numo_i, deno_i].set_title(title_map[deno], size=10)
                 if deno_i == 0:
-                    ax[numo_i, deno_i].text(-0.2, 0.5, title_map[numo], size=10, verticalalignment='center', rotation=90, transform=ax[numo_i, deno_i].transAxes)
+                    ax[numo_i, deno_i].text(-0.2, 0.5, title_map[numo], size=10, horizontalalignment='center', rotation=90, transform=ax[numo_i, deno_i].transAxes)
                 
                 #setup cartopy
                 ax[numo_i, deno_i].add_feature(cartopy.feature.COASTLINE, edgecolor='black', linewidth=0.5)
