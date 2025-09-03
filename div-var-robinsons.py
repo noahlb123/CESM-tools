@@ -99,10 +99,10 @@ if step == '2' or step == 'a': #plot
         #return (m - min) / (max - min)
         return m / min
     
-    title_map = {'loadbc': 'BC in air column',
-                 'mmrbc': 'BC in surface air',
-                 'sootsn': 'BC in snow',
-                 'wet-dry': 'BC deposiiton to snow'}
+    title_map = {'loadbc': 'BC in\nair column',
+                 'mmrbc': 'BC in\nsurface air',
+                 'sootsn': 'BC in\nsnow',
+                 'wet-dry': 'BC deposiiton\nto snow'}
 
     for op in ['D', 'X']:
         fig, ax = plt.subplots(len(columns), len(index), subplot_kw={'projection': cartopy.crs.Robinson()})
