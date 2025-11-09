@@ -184,6 +184,7 @@ elif mode == 'r': #ratios plotted on robinson globe
         'Hoesly+Marle': 'Anthropogenic+$Biomass Burning_{PD/PI}$\n($Anth_{1980}+BB_{1980}/Anth_{1850}+BB_{1850}$)'
         }
     subplot_labels = {0: {0: 'A', 1: 'B'}, 1: {0: 'C', 1: 'D'}}
+    left_right = {0: 'left', 1:'right'}
     #color
     cmap = colormaps['BrBG_r']
     cmaplist = [cmap(i) for i in range(cmap.N)]
@@ -207,7 +208,8 @@ elif mode == 'r': #ratios plotted on robinson globe
             #ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey')
             ax.pcolormesh(lon, lat, arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
             bbox = ax.get_tightbbox(fig.canvas.get_renderer())
-            fig.text(bbox.x0, bbox.y1, subplot_labels[row_i][col_i], fontsize=12, fontweight="bold", va="top", ha="left", transform=None)
+            print(bbox.y1, bbox.y0)
+            fig.text(bbox.x0, bbox.y1, subplot_labels[row_i][col_i], fontsize=12, fontweight="bold", va="bottom", ha="left", transform=None)
 
     #conversion check
     box = anthro_boxes['USA'][0]
