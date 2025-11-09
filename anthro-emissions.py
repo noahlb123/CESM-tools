@@ -209,7 +209,7 @@ elif mode == 'r': #ratios plotted on robinson globe
             ax.pcolormesh(lon, lat, arr, cmap=cmap, norm=c_norm, transform=cartopy.crs.PlateCarree())
             bbox = ax.get_tightbbox(fig.canvas.get_renderer())
             print(bbox.y1, bbox.y0)
-            fig.text(bbox.x0, bbox.y1, subplot_labels[row_i][col_i], fontsize=12, fontweight="bold", va="bottom", ha="left", transform=None)
+            fig.text(bbox.x0, bbox.y0, subplot_labels[row_i][col_i], fontsize=12, fontweight="bold", va="bottom", ha="left", transform=None)
 
     #conversion check
     box = anthro_boxes['USA'][0]
