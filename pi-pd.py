@@ -411,7 +411,7 @@ elif (inp == 'big-table'): #make table comparing individual models
             within_cesm.at[c_name] = -1
             within_ice.at[c_name] = -1
         else:
-            within_cesm.at[c_name] = (np.abs(column - df['CESM2']) < 0.25).sum()
+            #within_cesm.at[c_name] = (np.abs(column - df['CESM2']) < 0.25).sum()
             within_ice.at[c_name] = (np.abs(column - df['Ice Core']) < 0.25).sum()
     df.loc['n near ice core'] = within_ice
     #setup color scale
@@ -450,9 +450,9 @@ elif (inp == 'big-table'): #make table comparing individual models
     plt.savefig('figures/ice-cores/test-big-table-cmip-models.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
     print('n>9= ', (df > 9).sum())
     plt.close()
-    plt.hist(np.vectorize(lambda a : round(a, 3))(df.drop(['n near ice core'], axis=0).drop(['Index', 'Ice Core', 'CMIP6', 'CESM2', 'LENS'], axis=1).to_numpy()).flatten())
+    '''plt.hist(np.vectorize(lambda a : round(a, 3))(df.drop(['n near ice core'], axis=0).drop(['Index', 'Ice Core', 'CMIP6', 'CESM2', 'LENS'], axis=1).to_numpy()).flatten())
     plt.title('LENS run ratio hist')
-    plt.show()
+    plt.show()'''
     df.reindex(sorted(df.columns), axis=1).to_csv('data/big-table-within.csv')
 elif (inp == 'p'): #Plotly
     fig = px.scatter_geo(final_pd, lat='lat', lon='lon', hover_name='ratio', title='PD/PI Ratios')
@@ -473,6 +473,11 @@ elif (inp == 'c'): #Cartopy
             'projection': cartopy.crs.NearsidePerspective(central_longitude=0, central_latitude=-90),
             'extent': (180, -180, -65, -65),
             'crs': cartopy.crs.PlateCarree()
+            },
+        'robinson': {
+            'projection': cartopy.crs.Robinson(),
+            'extent': (180, -180, -65, -65),
+            'crs': cartopy.crs.PlateCarree()
             }
         }
     #for globe
@@ -486,7 +491,8 @@ elif (inp == 'c'): #Cartopy
         dpi = 300
         #figsize=(740/dpi, 740/dpi)
         fig, ax = plt.subplots(dpi=dpi, subplot_kw={'projection': params['projection']})
-        ax.set_extent(params['extent'], crs=params['crs'])
+        if projection != 'robinson':
+            ax.set_extent(params['extent'], crs=params['crs'])
         ax.add_feature(cartopy.feature.COASTLINE, edgecolor='grey', linewidth=0.5)
 
         #elevation
@@ -517,7 +523,10 @@ elif (inp == 'c'): #Cartopy
             obj = main_dict[key]
             [lat, lon] = [obj['lat'], obj['lon']]
             scale = 0.7468 if projection == 'rotated-pole' else 1
-            color = cmap(c_norm(obj['ratio']))
+            if projection == 'robinson':
+                color = 'black'
+            else:
+                color = cmap(c_norm(obj['ratio']))
             stroke_color = "black" if color == (0.32941176470588235, 0.18823529411764706, 0.0196078431372549, 1.0) else "black"
             modification = ""
             if key == 'sigl-2018-1.csv':
@@ -538,17 +547,18 @@ elif (inp == 'c'): #Cartopy
         if not projection in ('antartica', 'north-pole'):
             pass
             #rcParams.update({'font.size': 10})
-            plt.colorbar(mappable=sm, label="1980/1850 Ice Core BC Concentration", orientation="horizontal", ax=ax)
+            #plt.colorbar(mappable=sm, label="1980/1850 Ice Core BC Concentration", orientation="horizontal", ax=ax)
             #rcParams.update({'font.size': 7})
-            #plt.colorbar(mappable=mesh.colorbar, label="Elevation (m)", orientation="vertical")
+            plt.colorbar(mappable=mesh.colorbar, label="Elevation (m)", orientation="vertical" if projection != 'robinson' else 'horizontal')
         
         #remove border from plot
-        ax.patch.set_visible(False)
-        ax.axis('off')
+        if projection != 'robinson':
+            ax.patch.set_visible(False)
+            ax.axis('off')
 
         #patches
-        for patch in patches.values():
-            ax.add_patch(Rectangle(xy=[patch[0], patch[1]], width=patch[2], height=patch[3], facecolor=patch[4] + '50', edgecolor=patch[4],transform=cartopy.crs.PlateCarree()))
+        #for patch in patches.values():
+        #    ax.add_patch(Rectangle(xy=[patch[0], patch[1]], width=patch[2], height=patch[3], facecolor=patch[4] + '50', edgecolor=patch[4],transform=cartopy.crs.PlateCarree()))
 
         plt.savefig('figures/ice-cores/testmap-' + projection + '.png', bbox_inches='tight', pad_inches=0.0)
         #plt.show()
@@ -907,12 +917,25 @@ elif (inp == 'l'):
             c = model_colors[model]
             ca = c + '90'
             offset = (width) * multiplier
+            #code just to print stats
+            breakdown_data = {
+                'N Pole': pd.concat([data[model][i] for i in (0, 1, 2)]),
+                'S Pole': data[model][3],
+                'Poles': pd.concat([data[model][i] for i in (0, 1, 2, 3)]),
+                'Alpine': pd.concat([data[model][i] for i in (4, 5, 6, 7, 8)]),
+                'World': pd.concat([data[model][i] for i in range(len(data[model]))])
+            }
+            print('mean, median, min, max')
+            def summary_stats(data):
+                return [round(i, 2) for i in [np.mean(data), np.median(data), np.min(data), np.max(data)]]
+            for breakdown_model in breakdown_data.keys():
+                print(model, breakdown_model, summary_stats(breakdown_data[breakdown_model]))
             for i in range(len(data[model])):
-                print(model, bar_labels[i], ':')
+                '''print(model, bar_labels[i], len(data[model][i]), ':')
                 print('mean:', round(np.mean(data[model][i]), 2))
                 print('median:', round(np.median(data[model][i]), 2))
                 print('min:', round(np.min(data[model][i]), 2))
-                print('max:', round(np.max(data[model][i]), 2))
+                print('max:', round(np.max(data[model][i]), 2))'''
                 pos = x[i] + offset
                 if len(data[model][i]) != 2:
                     bplot = ax.boxplot(data[model][i], widths=width, positions=[pos], patch_artist=True, boxprops=dict(facecolor=ca, color=c, linewidth=0), capprops=dict(color=c), medianprops=dict(color='black', linewidth=0), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c), showfliers=False, showcaps=False, showmeans=False, showbox=True)
@@ -928,7 +951,7 @@ elif (inp == 'l'):
             for i in range(len(data[model])):
                 if len(data[model][i]) > 1:
                     plt.scatter(len(data[model][i]) * [x[i] + offset], data[model][i], c=c, s=8)
-                x_color = signifigance[model + "-" + str(i)]
+                x_color = signifigance[model + "-" + str(i)] if i == len(data[model]) - 1 else '#000000'
                 plt.scatter(x[i] + offset, np.mean(data[model][i]), c=x_color, s=30, marker='x', zorder=4.1)
             multiplier += 1
         #bars = ax.bar(x + width * 1.5, np.max(box_heights) + 0.1, bar_width, color=bar_colors, zorder=0)
@@ -1028,7 +1051,7 @@ elif (inp == 'l'):
             for i in range(len(data[model])):
                 for_json[model].append(np.median(data[model][i]))
                 plt.scatter(len(data[model][i]) * [x[i] + offset - width / 2], data[model][i], c=c, s=8)
-                x_color = signifigance[model + "-" + str(i)]
+                x_color = 'black' #signifigance[model + "-" + str(i)]
                 plt.scatter(x[i] + offset - width / 2, np.mean(data[model][i]), c=x_color, s=30, marker='x', zorder=2.5)
             #bplot = ax.boxplot(data[model], widths=width, positions=x+offset, patch_artist=True, boxprops=dict(facecolor=c, color=c), capprops=dict(color=c), medianprops=dict(color='black'), flierprops=dict(color=c, markerfacecolor=c, markeredgecolor=c, marker= '.'), whiskerprops=dict(color=c))
             box_heights += [item.get_ydata()[1] for item in bplot['whiskers']]
@@ -1047,7 +1070,9 @@ elif (inp == 'l'):
                     'loadbc': 'BC in air column',
                     'CESM': 'BC deposition to snow',
                     'CESM-SOOTSN': 'BC in snow',
-                    'mmrbc': 'BC in surface air'}
+                    'mmrbc': 'BC in surface air',
+                    'LENS': 'LENS',
+                    'CMIP6': 'CMIP6'}
         for label in sub.keys():
             if '+' not in label:
                 legend_handels.append(Patch(label=leg_dict[label]))
