@@ -453,6 +453,32 @@ elif (inp == 'big-table'): #make table comparing individual models
     '''plt.hist(np.vectorize(lambda a : round(a, 3))(df.drop(['n near ice core'], axis=0).drop(['Index', 'Ice Core', 'CMIP6', 'CESM2', 'LENS'], axis=1).to_numpy()).flatten())
     plt.title('LENS run ratio hist')
     plt.show()'''
+    #make ken's figure (plot of big table data)
+    fig, ax = plt.subplots(layout='constrained')
+    df = df.set_index('Index')
+    df.drop(df.tail(1).index,inplace=True)
+    #plt.violinplot(df.columns.drop(['Ice Core', 'CMIP6', 'CESM2', 'LENS']), df.drop(['Ice Core', 'CMIP6', 'CESM2', 'LENS'], axis=1))
+    voilin_i = 1
+    for column in df.columns.drop(['Ice Core', 'CMIP6', 'CESM2', 'LENS']):
+        vp = plt.violinplot(df[column].to_list(), positions=[voilin_i])
+        vp['bodies'][0].set_facecolor(model_colors['LENS'])
+        vp['bodies'][0].set_edgecolor(model_colors['LENS'])
+        voilin_i += 1
+    plt.xticks(ticks=[i for i in range(1, 19)])
+    plt.show()
+    exit()
+    #for index, row in df.iterrows():
+        #plt.scatter(df.columns.drop(['Ice Core', 'CMIP6', 'CESM2', 'LENS']), row.drop(['Ice Core', 'CMIP6', 'CESM2', 'LENS']) / row['Ice Core'], color=model_colors['LENS'] + '50', zorder=9000)
+    #plt.scatter(df.index, df['Ice Core'], color=model_colors['Ice Core'])
+    plt.hlines(1, 0, 17, color='black')
+    ax.add_patch(Rectangle(xy=[0, 0.75], width=17, height=0.5, facecolor='#00000080'))
+    plt.xlabel('LENS Run Number')
+    #plt.xticks([1] + [5 * i for i in range(1, 8)])
+    plt.ylabel('LENS Ratio / Ice Core Ratio')
+    ax.set_yscale('log')
+    #ax.set_yticks([0.3, 0.5, 1, 2, 4])
+    ax.get_yaxis().set_major_formatter(ScalarFormatter())
+    plt.savefig('figures/ice-cores/test-ken-fig.png', bbox_inches='tight', pad_inches=0.0, dpi=300)
     df.reindex(sorted(df.columns), axis=1).to_csv('data/big-table-within.csv')
 elif (inp == 'p'): #Plotly
     fig = px.scatter_geo(final_pd, lat='lat', lon='lon', hover_name='ratio', title='PD/PI Ratios')
@@ -928,8 +954,8 @@ elif (inp == 'l'):
             print('mean, median, min, max')
             def summary_stats(data):
                 return [round(i, 2) for i in [np.mean(data), np.median(data), np.min(data), np.max(data)]]
-            for breakdown_model in breakdown_data.keys():
-                print(model, breakdown_model, summary_stats(breakdown_data[breakdown_model]))
+            for brd_region in breakdown_data.keys():
+                print(model, brd_region, summary_stats(breakdown_data[brd_region]))
             for i in range(len(data[model])):
                 '''print(model, bar_labels[i], len(data[model][i]), ':')
                 print('mean:', round(np.mean(data[model][i]), 2))
